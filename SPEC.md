@@ -653,6 +653,74 @@ bulk_invites
 
 ---
 
+## Non-Functional Requirements
+
+### Performance
+- **Core Web Vitals**: LCP < 2.5s, FID < 100ms, CLS < 0.1
+- **Bundle size**: Target < 200KB initial JavaScript bundle
+- **API response**: Server Actions < 500ms p95
+
+### Accessibility
+- **WCAG 2.1 AA** compliance
+- Keyboard-navigable for all core flows
+- Screen reader compatible
+
+### SEO
+- Meta tags (`title`, `description`, `og:*`) on all public pages
+- `robots.txt` and `sitemap.xml` for public pages
+- Auth pages excluded from indexing (`noindex`)
+
+### i18n Readiness
+- English only for Phase 1
+- Extract user-facing strings to constants (cheap now, expensive to retrofit later)
+
+---
+
+## Feature Dependency Graph
+
+```mermaid
+graph TD
+    F1[F1: Project Scaffolding] --> F2[F2: Auth]
+    F2 --> F3[F3: Verification]
+    F2 --> F4[F4: Profile - Basic]
+    F4 --> F5[F5: Career History]
+    F4 --> F6[F6: Education History]
+    F4 --> F7[F7: Location]
+    F4 --> F8[F8: Availability Tags]
+    F4 --> F9[F9: Visibility Controls]
+    F4 --> F10[F10: Industry Taxonomy]
+    F10 --> F11[F11: Directory Search]
+    F11 --> F12[F12: Pagination]
+    F4 --> F13[F13: Recommendations]
+    F5 --> F13
+    F7 --> F13
+    F10 --> F13
+    F2 --> F14[F14: Onboarding Quiz]
+    F4 --> F15[F15: Same-Year Classmates]
+    F4 --> F16[F16: Popular Profiles]
+    F3 --> F17[F17: Connections]
+    F17 --> F18[F18: Messaging]
+    F18 --> F19[F19: Message Rate Limiting]
+    F18 --> F20[F20: Message Reporting]
+    F17 --> F21[F21: In-App Notifications]
+    F18 --> F22[F22: Email Notifications]
+    F3 --> F23[F23: Groups]
+    F3 --> F24[F24: Admin - Verification Queue]
+    F3 --> F25[F25: Admin - User Management]
+    F24 --> F26[F26: Admin - Analytics]
+    F10 --> F27[F27: Admin - Taxonomy Mgmt]
+    F2 --> F28[F28: Admin - Bulk Invite]
+    F21 --> F29[F29: Admin - Announcements]
+    F20 --> F30[F30: Moderator - Report Queue]
+    F25 --> F31[F31: Moderator - User Actions]
+    F4 --> F32[F32: Account Delete + Export]
+    F4 --> F33[F33: Profile Staleness Prompts]
+    F4 --> F34[F34: Responsive Design]
+    F1 --> F35[F35: Deployment]
+```
+
+---
+
 ## Future Scaling Path
 
 These features are designed into the architecture but not built in Phase 1:

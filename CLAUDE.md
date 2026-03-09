@@ -21,6 +21,28 @@ Alumni network platform. Single-school deployment.
 - Co-locate related files: page + components + actions in the same route folder.
 - **Brownfield-first**: Always read existing types, schemas, and components before suggesting new ones. Match existing patterns and conventions in the codebase.
 
+### Error Handling
+- Server Actions return a discriminated union: `ActionResult<T> = { success: true; data: T } | { success: false; error: string; fieldErrors?: Record<string, string[]> }`.
+- Use **Zod** for all input validation (already a dependency of shadcn/ui).
+- Wrap Supabase calls in try/catch. Log the raw error server-side, return a sanitized user-friendly message to the client.
+- `error.tsx` is the last resort for unhandled errors, not the primary error communication channel. Use `ActionResult` for expected errors.
+
+### State Management
+- **Server state** (default): Data fetched in Server Components. This is the primary data source.
+- **URL state** (`nuqs`): Search filters, pagination, sort order — anything that should be bookmarkable or shareable.
+- **Client state** (React Context): Auth session, theme, WebSocket connection status.
+- **No global state library** (no Redux, Zustand). If you think you need one, you're over-fetching on the client.
+
+### Caching
+- Default `dynamic = 'force-dynamic'` for authenticated pages (RLS needs per-user auth context).
+- Use `unstable_cache` for shared, non-user-specific data (taxonomy lists, announcements).
+- Never cache messaging or notification data.
+
+### Logging
+- Structured format: `console.error('[ServerAction:actionName]', { userId, error: err.message })`.
+- Never log sensitive data (passwords, tokens, full user objects).
+- Phase 2: Sentry for error tracking when app has real users.
+
 ### Next.js Conventions
 - App Router only. No Pages Router.
 - Route groups for layout organization: `(auth)`, `(main)`, `(admin)`.
@@ -41,6 +63,13 @@ Alumni network platform. Single-school deployment.
 - Toast notifications for user actions (success/error).
 - Dark mode support via Tailwind `dark:` prefix.
 
+### Accessibility
+- Target **WCAG 2.1 AA** compliance.
+- Use semantic HTML elements (`<nav>`, `<main>`, `<article>`, `<aside>`, `<section>`).
+- All form inputs must have associated `<label>` elements.
+- Don't remove shadcn/ui's built-in `aria-*` attributes when customizing components.
+- Ensure sufficient color contrast ratios (4.5:1 for normal text, 3:1 for large text).
+
 ### Database
 - All tables must have `id` (uuid), `created_at`, and `updated_at` columns.
 - Use `uuid_generate_v4()` for primary keys.
@@ -57,8 +86,21 @@ Alumni network platform. Single-school deployment.
 - Commit messages: `feat:`, `fix:`, `refactor:`, `chore:`, `docs:` prefixes.
 - One feature per commit when possible.
 - Don't commit `.env` files or secrets.
+- **Push after success**: After every successful implementation + build + tests (L5.5), commit and push to `origin/main`.
+- Do not include `Co-Authored-By` lines in commit messages.
+
+### Documentation
+- All documentation lives in `docs/` directory.
+- **Architecture Decision Records (ADRs)**: Create an ADR in `docs/adrs/` for every significant design choice (new table, auth flow change, third-party integration, architectural pattern). Use the template in `docs/adrs/000-template.md`.
+- **Feature Implementation Notes**: After each successful feature implementation, write a note in `docs/features/` using the template in `docs/features/000-template.md`. Include architecture overview, data flow, component relationships, and diagrams.
+- **Diagrams**: Use Mermaid syntax (renders natively on GitHub). Include diagrams for: data flow, component trees, state machines, sequence diagrams for multi-step processes, and ER diagrams for schema changes.
+- **Keep docs current**: When modifying an existing feature, update its implementation notes. Stale docs are worse than no docs.
+- **Naming**: ADRs use sequential numbering (`001-auth-strategy.md`). Feature notes use the feature name (`auth-registration.md`).
 
 ### Testing
+- **Vitest** for unit + integration tests (native ESM/TS support, faster than Jest).
+- **Playwright** for E2E tests.
+- Test DB: `supabase db reset` between test runs for a clean state.
 - Test critical paths: auth flow, verification, connections, messaging.
 - Use Supabase local dev (`supabase start`) for development and testing.
 - **TDD for bug fixes**: every bug fix must start with a failing test that reproduces the issue.
@@ -102,6 +144,14 @@ Every feature or significant change follows this layered process. Do NOT skip la
 - Write unit + integration tests for the new code.
 - Follow the Testing section standards (tiers, naming, coverage).
 
+### L7: Documentation
+- **Mandatory** after successful L5.5/L6.
+- Write or update feature implementation notes in `docs/features/`.
+- Create an ADR in `docs/adrs/` if the feature involved a significant design decision.
+- Include Mermaid diagrams for: data flow, component hierarchy, sequence diagrams (for multi-step flows), and ER diagrams (for schema changes).
+- Update any existing docs affected by the change.
+- **Checkpoint**: "Docs written? Diagrams accurate?"
+
 ## Approval Gates
 
 - **Never write code without design approval.** Complete L1-L4 and get explicit confirmation before implementing.
@@ -140,9 +190,15 @@ For feature work, structure responses using this format:
 ## VERIFICATION (L5.5-L6)
 [Build result, test results]
 → CHECKPOINT: "Build clean? Tests pass?"
+
+## DOCUMENTATION (L7)
+[Implementation notes, ADRs, diagrams]
+→ CHECKPOINT: "Docs written? Diagrams accurate?"
 ```
 
-For small changes (typos, config tweaks, single-line fixes), layers can be condensed but approval is still required.
+**Fast Track**: Typo fixes, comment updates, dependency bumps, config value changes, `.gitignore` entries, README text edits. Process: L5 (implement) + L5.5 (verify build) only. No L1–L4 checkpoints required. No L7 docs unless behavior changes.
+
+For other small changes (single-line fixes, minor refactors), layers can be condensed but approval is still required.
 
 ### Node.js Compatibility
 - Node v25: `npx next build` may fail. Use `node node_modules/next/dist/bin/next build` instead.
