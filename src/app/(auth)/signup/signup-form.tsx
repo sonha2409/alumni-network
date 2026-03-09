@@ -20,8 +20,8 @@ export function SignupForm() {
 
   useEffect(() => {
     if (state?.success) {
-      toast.success("Account created! Redirecting…");
-      router.push("/dashboard");
+      toast.success("Account created! Let's set up your profile.");
+      router.push("/onboarding");
     }
   }, [state, router]);
 

@@ -46,6 +46,8 @@ export default async function proxy(request: NextRequest) {
     pathname.startsWith("/signup") ||
     pathname.startsWith("/forgot-password");
   const isPublicRoute = pathname === "/" || isAuthRoute;
+  const isOnboarding = pathname.startsWith("/onboarding");
+  const isAuthCallback = pathname.startsWith("/auth/callback");
 
   // Redirect unauthenticated users away from protected routes
   if (!user && !isPublicRoute) {
@@ -59,6 +61,21 @@ export default async function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
+  }
+
+  // Redirect authenticated users without a profile to onboarding
+  // Skip this check for onboarding page itself, auth callback, and public routes
+  if (user && !isOnboarding && !isAuthCallback && !isPublicRoute) {
+    const { count } = await supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id);
+
+    if (count === 0) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/onboarding";
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

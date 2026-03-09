@@ -35,3 +35,36 @@ export interface Specialization {
 export interface IndustryWithSpecializations extends Industry {
   specializations: Specialization[];
 }
+
+// =============================================================================
+// Profile Types
+// =============================================================================
+
+export interface Profile {
+  id: string;
+  user_id: string;
+  full_name: string;
+  photo_url: string | null;
+  bio: string | null;
+  graduation_year: number;
+  primary_industry_id: string;
+  primary_specialization_id: string | null;
+  secondary_industry_id: string | null;
+  secondary_specialization_id: string | null;
+  country: string | null;
+  state_province: string | null;
+  city: string | null;
+  profile_completeness: number;
+  last_active_at: string;
+  last_profile_update_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Profile joined with industry/specialization names for display. */
+export interface ProfileWithIndustry extends Profile {
+  primary_industry: Industry;
+  primary_specialization: Specialization | null;
+  secondary_industry: Industry | null;
+  secondary_specialization: Specialization | null;
+}
