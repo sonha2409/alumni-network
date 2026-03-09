@@ -94,7 +94,8 @@ Alumni network platform. Single-school deployment.
 - Commit messages: `feat:`, `fix:`, `refactor:`, `chore:`, `docs:` prefixes.
 - One feature per commit when possible.
 - Don't commit `.env` files or secrets.
-- **Push after success**: After every successful implementation + build + tests (L5.5), commit and push to `origin/main`.
+- **Manual testing before push**: After a successful build (L5.5), provide instructions for how to manually/visually test the feature in the browser. Wait for the user to confirm testing is complete before committing and pushing.
+- **Push after success**: After manual testing confirmation + build + tests (L5.5), commit and push to `origin/main`.
 - Do not include `Co-Authored-By` lines in commit messages.
 
 ### Documentation

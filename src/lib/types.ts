@@ -61,6 +61,32 @@ export interface Profile {
   updated_at: string;
 }
 
+// =============================================================================
+// Verification Types
+// =============================================================================
+
+export interface VerificationRequest {
+  id: string;
+  user_id: string;
+  graduation_year: number;
+  student_id: string | null;
+  degree_program: string;
+  supporting_info: string | null;
+  status: "pending" | "approved" | "rejected";
+  reviewed_by: string | null;
+  review_message: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Verification request joined with user profile data for admin queue display. */
+export interface VerificationRequestWithUser extends VerificationRequest {
+  user_full_name: string;
+  user_email: string;
+  user_photo_url: string | null;
+}
+
 /** Profile joined with industry/specialization names for display. */
 export interface ProfileWithIndustry extends Profile {
   primary_industry: Industry;

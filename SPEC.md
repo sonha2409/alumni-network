@@ -25,7 +25,8 @@
 |---|---------|--------|-------|
 | 1 | Project scaffolding (Next.js + Supabase + shadcn/ui) | `DONE` | 2026-03-08 |
 | 2 | Auth: signup, login, logout | `DONE` | 2026-03-08. Supabase Auth + public.users table + proxy + forgot password |
-| 3 | Alumni verification workflow | `TODO` | Admin approval queue |
+| 3 | Alumni verification workflow | `DONE` | 2026-03-09. Verification request form + admin queue with sheet detail panel + approve/reject/bulk approve + status banner. |
+| 3a | Verification: document upload (transcripts, diploma) | `TODO` | Allow users to attach proof files when submitting verification requests |
 | 4 | Profile: create & edit (progressive) | `DONE` | 2026-03-09. Profiles table + RLS + avatars bucket + onboarding flow + edit page + completeness tracking. |
 | 5 | Profile: career history (LinkedIn-style) | `TODO` | Multiple positions, timeline |
 | 6 | Profile: education history | `TODO` | Multiple entries |
