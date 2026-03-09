@@ -24,7 +24,7 @@
 
 | # | Feature | Status | Notes |
 |---|---------|--------|-------|
-| 1 | Project scaffolding (Next.js + Supabase + shadcn/ui) | `TODO` | |
+| 1 | Project scaffolding (Next.js + Supabase + shadcn/ui) | `DONE` | 2026-03-08 |
 | 2 | Auth: signup, login, logout | `TODO` | Supabase Auth |
 | 3 | Alumni verification workflow | `TODO` | Admin approval queue |
 | 4 | Profile: create & edit (progressive) | `TODO` | Name, grad year, photo |
