@@ -8,13 +8,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { createProfile } from "./actions";
 import type { ActionResult, IndustryWithSpecializations } from "@/lib/types";
 
@@ -30,7 +23,6 @@ export function OnboardingForm({ industries }: OnboardingFormProps) {
   >(createProfile, null);
 
   const [selectedIndustryId, setSelectedIndustryId] = useState("");
-  const [selectedSpecializationId, setSelectedSpecializationId] = useState("");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,11 +44,6 @@ export function OnboardingForm({ industries }: OnboardingFormProps) {
     }
     const url = URL.createObjectURL(file);
     setPhotoPreview(url);
-  }
-
-  function handleIndustryChange(value: string | null) {
-    setSelectedIndustryId(value ?? "");
-    setSelectedSpecializationId("");
   }
 
   return (
@@ -122,27 +109,27 @@ export function OnboardingForm({ industries }: OnboardingFormProps) {
       {/* Primary Industry */}
       <div className="flex flex-col gap-2">
         <Label htmlFor="primary_industry_id">Career field *</Label>
-        <input
-          type="hidden"
+        <select
+          id="primary_industry_id"
           name="primary_industry_id"
           value={selectedIndustryId}
-        />
-        <Select
-          value={selectedIndustryId}
-          onValueChange={handleIndustryChange}
+          onChange={(e) => setSelectedIndustryId(e.target.value)}
           required
+          aria-invalid={
+            state?.success === false &&
+            state.fieldErrors?.primary_industry_id
+              ? true
+              : undefined
+          }
+          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <SelectTrigger id="primary_industry_id" aria-label="Career field">
-            <SelectValue placeholder="Select your career field" />
-          </SelectTrigger>
-          <SelectContent>
-            {industries.map((industry) => (
-              <SelectItem key={industry.id} value={industry.id}>
-                {industry.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <option value="">Select your career field</option>
+          {industries.map((industry) => (
+            <option key={industry.id} value={industry.id}>
+              {industry.name}
+            </option>
+          ))}
+        </select>
         {state?.success === false &&
           state.fieldErrors?.primary_industry_id && (
             <p className="text-sm text-destructive">
@@ -157,29 +144,20 @@ export function OnboardingForm({ industries }: OnboardingFormProps) {
           <Label htmlFor="primary_specialization_id">
             Specialization (optional)
           </Label>
-          <input
-            type="hidden"
+          <select
+            id="primary_specialization_id"
             name="primary_specialization_id"
-            value={selectedSpecializationId}
-          />
-          <Select
-            value={selectedSpecializationId}
-            onValueChange={(v) => setSelectedSpecializationId(v ?? "")}
+            defaultValue=""
+            key={selectedIndustryId}
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <SelectTrigger
-              id="primary_specialization_id"
-              aria-label="Specialization"
-            >
-              <SelectValue placeholder="Select a specialization" />
-            </SelectTrigger>
-            <SelectContent>
-              {specializations.map((spec) => (
-                <SelectItem key={spec.id} value={spec.id}>
-                  {spec.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <option value="">Select a specialization</option>
+            {specializations.map((spec) => (
+              <option key={spec.id} value={spec.id}>
+                {spec.name}
+              </option>
+            ))}
+          </select>
           {state?.success === false &&
             state.fieldErrors?.primary_specialization_id && (
               <p className="text-sm text-destructive">

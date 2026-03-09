@@ -8,13 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { updateProfile } from "./actions";
@@ -29,7 +22,8 @@ interface ProfileEditFormProps {
   industries: IndustryWithSpecializations[];
 }
 
-const NONE_VALUE = "__none__";
+const selectClass =
+  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
 
 export function ProfileEditForm({
   profile,
@@ -75,25 +69,6 @@ export function ProfileEditForm({
     const file = e.target.files?.[0];
     if (!file) return;
     setPhotoPreview(URL.createObjectURL(file));
-  }
-
-  function handlePrimaryIndustryChange(value: string | null) {
-    setPrimaryIndustryId(value ?? "");
-    setPrimarySpecId("");
-  }
-
-  function handleSecondaryIndustryChange(value: string | null) {
-    const resolved = !value || value === NONE_VALUE ? "" : value;
-    setSecondaryIndustryId(resolved);
-    setSecondarySpecId("");
-  }
-
-  function handleSecondarySpecChange(value: string | null) {
-    setSecondarySpecId(!value || value === NONE_VALUE ? "" : value);
-  }
-
-  function handlePrimarySpecChange(value: string | null) {
-    setPrimarySpecId(!value || value === NONE_VALUE ? "" : value);
   }
 
   function fieldError(field: string): string | undefined {
@@ -226,30 +201,25 @@ export function ProfileEditForm({
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="primary_industry_id">Primary career field *</Label>
-          <input
-            type="hidden"
+          <select
+            id="primary_industry_id"
             name="primary_industry_id"
             value={primaryIndustryId}
-          />
-          <Select
-            value={primaryIndustryId}
-            onValueChange={handlePrimaryIndustryChange}
+            onChange={(e) => {
+              setPrimaryIndustryId(e.target.value);
+              setPrimarySpecId("");
+            }}
             required
+            aria-invalid={fieldError("primary_industry_id") ? true : undefined}
+            className={selectClass}
           >
-            <SelectTrigger
-              id="primary_industry_id"
-              aria-label="Primary career field"
-            >
-              <SelectValue placeholder="Select your career field" />
-            </SelectTrigger>
-            <SelectContent>
-              {industries.map((industry) => (
-                <SelectItem key={industry.id} value={industry.id}>
-                  {industry.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <option value="">Select your career field</option>
+            {industries.map((industry) => (
+              <option key={industry.id} value={industry.id}>
+                {industry.name}
+              </option>
+            ))}
+          </select>
           {fieldError("primary_industry_id") && (
             <p className="text-sm text-destructive">
               {fieldError("primary_industry_id")}
@@ -262,30 +232,20 @@ export function ProfileEditForm({
             <Label htmlFor="primary_specialization_id">
               Primary specialization
             </Label>
-            <input
-              type="hidden"
+            <select
+              id="primary_specialization_id"
               name="primary_specialization_id"
               value={primarySpecId}
-            />
-            <Select
-              value={primarySpecId || NONE_VALUE}
-              onValueChange={handlePrimarySpecChange}
+              onChange={(e) => setPrimarySpecId(e.target.value)}
+              className={selectClass}
             >
-              <SelectTrigger
-                id="primary_specialization_id"
-                aria-label="Primary specialization"
-              >
-                <SelectValue placeholder="Select a specialization" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NONE_VALUE}>None</SelectItem>
-                {primarySpecs.map((spec) => (
-                  <SelectItem key={spec.id} value={spec.id}>
-                    {spec.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <option value="">None</option>
+              {primarySpecs.map((spec) => (
+                <option key={spec.id} value={spec.id}>
+                  {spec.name}
+                </option>
+              ))}
+            </select>
             {fieldError("primary_specialization_id") && (
               <p className="text-sm text-destructive">
                 {fieldError("primary_specialization_id")}
@@ -298,30 +258,23 @@ export function ProfileEditForm({
           <Label htmlFor="secondary_industry_id">
             Secondary career field (optional)
           </Label>
-          <input
-            type="hidden"
+          <select
+            id="secondary_industry_id"
             name="secondary_industry_id"
             value={secondaryIndustryId}
-          />
-          <Select
-            value={secondaryIndustryId || NONE_VALUE}
-            onValueChange={handleSecondaryIndustryChange}
+            onChange={(e) => {
+              setSecondaryIndustryId(e.target.value);
+              setSecondarySpecId("");
+            }}
+            className={selectClass}
           >
-            <SelectTrigger
-              id="secondary_industry_id"
-              aria-label="Secondary career field"
-            >
-              <SelectValue placeholder="None" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NONE_VALUE}>None</SelectItem>
-              {industries.map((industry) => (
-                <SelectItem key={industry.id} value={industry.id}>
-                  {industry.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <option value="">None</option>
+            {industries.map((industry) => (
+              <option key={industry.id} value={industry.id}>
+                {industry.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {secondaryIndustryId && secondarySpecs.length > 0 && (
@@ -329,30 +282,20 @@ export function ProfileEditForm({
             <Label htmlFor="secondary_specialization_id">
               Secondary specialization
             </Label>
-            <input
-              type="hidden"
+            <select
+              id="secondary_specialization_id"
               name="secondary_specialization_id"
               value={secondarySpecId}
-            />
-            <Select
-              value={secondarySpecId || NONE_VALUE}
-              onValueChange={handleSecondarySpecChange}
+              onChange={(e) => setSecondarySpecId(e.target.value)}
+              className={selectClass}
             >
-              <SelectTrigger
-                id="secondary_specialization_id"
-                aria-label="Secondary specialization"
-              >
-                <SelectValue placeholder="None" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NONE_VALUE}>None</SelectItem>
-                {secondarySpecs.map((spec) => (
-                  <SelectItem key={spec.id} value={spec.id}>
-                    {spec.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <option value="">None</option>
+              {secondarySpecs.map((spec) => (
+                <option key={spec.id} value={spec.id}>
+                  {spec.name}
+                </option>
+              ))}
+            </select>
           </div>
         )}
       </section>
