@@ -94,3 +94,68 @@ export interface ProfileWithIndustry extends Profile {
   secondary_industry: Industry | null;
   secondary_specialization: Specialization | null;
 }
+
+// =============================================================================
+// Career Entry Types
+// =============================================================================
+
+export interface CareerEntry {
+  id: string;
+  profile_id: string;
+  job_title: string;
+  company: string;
+  industry_id: string | null;
+  specialization_id: string | null;
+  start_date: string;
+  end_date: string | null;
+  description: string | null;
+  is_current: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Career entry joined with industry/specialization names for display. */
+export interface CareerEntryWithIndustry extends CareerEntry {
+  industry: Industry | null;
+  specialization: Specialization | null;
+}
+
+// =============================================================================
+// Education Entry Types
+// =============================================================================
+
+export interface EducationEntry {
+  id: string;
+  profile_id: string;
+  institution: string;
+  degree: string | null;
+  field_of_study: string | null;
+  start_year: number | null;
+  end_year: number | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// =============================================================================
+// Availability Tag Types
+// =============================================================================
+
+export interface AvailabilityTagType {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  is_archived: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserAvailabilityTag {
+  id: string;
+  profile_id: string;
+  tag_type_id: string;
+  created_at: string;
+}

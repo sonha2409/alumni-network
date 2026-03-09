@@ -78,7 +78,7 @@ export function ProfileEditForm({
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form action={formAction} className="flex flex-col gap-6" key={profile.updated_at}>
       {state?.success === false && !state.fieldErrors && (
         <div
           role="alert"

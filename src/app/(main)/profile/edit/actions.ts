@@ -1,9 +1,10 @@
 "use server";
 
 import { z } from "zod/v4";
+import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
-import { calculateProfileCompleteness } from "@/lib/profile-completeness";
+import { recalculateProfileCompleteness } from "@/lib/profile-completeness-updater";
 import type { ActionResult } from "@/lib/types";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -202,22 +203,7 @@ export async function updateProfile(
     city: parsed.data.city ?? null,
     photo_url: photoUrl,
     last_profile_update_at: new Date().toISOString(),
-    profile_completeness: calculateProfileCompleteness({
-      full_name: parsed.data.full_name,
-      graduation_year: parsed.data.graduation_year,
-      primary_industry_id: parsed.data.primary_industry_id,
-      primary_specialization_id:
-        parsed.data.primary_specialization_id ?? null,
-      photo_url: photoUrl,
-      bio: parsed.data.bio ?? null,
-      country: parsed.data.country ?? null,
-      state_province: parsed.data.state_province ?? null,
-      city: parsed.data.city ?? null,
-      secondary_industry_id:
-        parsed.data.secondary_industry_id ?? null,
-      secondary_specialization_id:
-        parsed.data.secondary_specialization_id ?? null,
-    }),
+    // profile_completeness is recalculated below after we check related entries
   };
 
   try {
@@ -236,6 +222,10 @@ export async function updateProfile(
         error: "Something went wrong. Please try again.",
       };
     }
+
+    await recalculateProfileCompleteness(existingProfile.id);
+    revalidatePath("/profile/edit");
+    revalidatePath(`/profile/${existingProfile.id}`);
 
     return { success: true, data: undefined };
   } catch (err) {

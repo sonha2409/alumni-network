@@ -14,18 +14,24 @@ export function calculateProfileCompleteness(fields: {
   city: string | null;
   secondary_industry_id: string | null;
   secondary_specialization_id: string | null;
+  has_career_entries?: boolean;
+  has_education_entries?: boolean;
+  has_availability_tags?: boolean;
 }): number {
   let score = 0;
 
-  if (fields.full_name) score += 15;
-  if (fields.graduation_year) score += 15;
-  if (fields.primary_industry_id) score += 15;
-  if (fields.photo_url) score += 15;
-  if (fields.bio) score += 10;
-  if (fields.primary_specialization_id) score += 10;
-  if (fields.country || fields.state_province || fields.city) score += 10;
-  if (fields.secondary_industry_id) score += 5;
-  if (fields.secondary_specialization_id) score += 5;
+  if (fields.full_name) score += 12;
+  if (fields.graduation_year) score += 12;
+  if (fields.primary_industry_id) score += 12;
+  if (fields.photo_url) score += 12;
+  if (fields.bio) score += 8;
+  if (fields.primary_specialization_id) score += 8;
+  if (fields.country || fields.state_province || fields.city) score += 8;
+  if (fields.secondary_industry_id) score += 4;
+  if (fields.secondary_specialization_id) score += 4;
+  if (fields.has_career_entries) score += 10;
+  if (fields.has_education_entries) score += 6;
+  if (fields.has_availability_tags) score += 4;
 
   return score;
 }

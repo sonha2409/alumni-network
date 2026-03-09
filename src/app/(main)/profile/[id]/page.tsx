@@ -9,9 +9,11 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/server";
 import { getProfileWithIndustry } from "@/lib/queries/profiles";
+import { getCareerEntriesWithIndustry } from "@/lib/queries/career-entries";
+import { getEducationEntriesByProfileId } from "@/lib/queries/education-entries";
+import { getAvailabilityTagsByProfileId } from "@/lib/queries/availability-tags";
 
 interface ProfilePageProps {
   params: Promise<{ id: string }>;
@@ -47,6 +49,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   }
 
   const isOwnProfile = user?.id === profile.user_id;
+
+  const [careerEntries, educationEntries, availabilityTags] = await Promise.all([
+    getCareerEntriesWithIndustry(id),
+    getEducationEntriesByProfileId(id),
+    getAvailabilityTagsByProfileId(id),
+  ]);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -111,6 +119,28 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </section>
           )}
 
+          {/* Availability Tags */}
+          {availabilityTags.length > 0 && (
+            <>
+              <Separator />
+              <section>
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  Available for
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {availabilityTags.map((tag) => (
+                    <span
+                      key={tag.id}
+                      className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+                    >
+                      {tag.name}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            </>
+          )}
+
           {/* Secondary Industry */}
           {profile.secondary_industry && (
             <>
@@ -128,27 +158,108 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </>
           )}
 
-          {/* Placeholder sections for future features */}
+          {/* Career History */}
           <Separator />
           <section>
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Career history
             </h2>
-            <p className="text-sm text-muted-foreground">
-              No career entries yet.
-              {isOwnProfile && " This section will be available soon."}
-            </p>
+            {careerEntries.length > 0 ? (
+              <div className="flex flex-col gap-4">
+                {careerEntries.map((entry) => (
+                  <div key={entry.id} className="relative pl-4 border-l-2 border-muted">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-sm">{entry.job_title}</p>
+                      {entry.is_current && (
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{entry.company}</p>
+                    {entry.industry && (
+                      <p className="text-xs text-muted-foreground">
+                        {entry.industry.name}
+                        {entry.specialization && ` · ${entry.specialization.name}`}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(entry.start_date).toLocaleDateString("en-US", {
+                        month: "short",
+                        year: "numeric",
+                      })}
+                      {" — "}
+                      {entry.is_current || !entry.end_date
+                        ? "Present"
+                        : new Date(entry.end_date).toLocaleDateString("en-US", {
+                            month: "short",
+                            year: "numeric",
+                          })}
+                    </p>
+                    {entry.description && (
+                      <p className="mt-1 text-sm">{entry.description}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No career entries yet.
+                {isOwnProfile && (
+                  <>
+                    {" "}
+                    <Link href="/profile/edit" className="text-primary underline">
+                      Add your work experience
+                    </Link>
+                  </>
+                )}
+              </p>
+            )}
           </section>
 
+          {/* Education */}
           <Separator />
           <section>
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Education
             </h2>
-            <p className="text-sm text-muted-foreground">
-              No education entries yet.
-              {isOwnProfile && " This section will be available soon."}
-            </p>
+            {educationEntries.length > 0 ? (
+              <div className="flex flex-col gap-3">
+                {educationEntries.map((entry) => (
+                  <div key={entry.id}>
+                    <p className="text-sm font-medium">{entry.institution}</p>
+                    {(entry.degree || entry.field_of_study) && (
+                      <p className="text-sm text-muted-foreground">
+                        {[entry.degree, entry.field_of_study]
+                          .filter(Boolean)
+                          .join(" in ")}
+                      </p>
+                    )}
+                    {(entry.start_year || entry.end_year) && (
+                      <p className="text-xs text-muted-foreground">
+                        {entry.start_year && entry.end_year
+                          ? `${entry.start_year} — ${entry.end_year}`
+                          : entry.start_year
+                            ? `${entry.start_year} — Present`
+                            : `${entry.end_year}`}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No education entries yet.
+                {isOwnProfile && (
+                  <>
+                    {" "}
+                    <Link href="/profile/edit" className="text-primary underline">
+                      Add your education
+                    </Link>
+                  </>
+                )}
+              </p>
+            )}
           </section>
         </CardContent>
       </Card>

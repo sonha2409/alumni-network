@@ -7,6 +7,9 @@ Alumni network platform. Single-school deployment.
 - **Plan**: See `PLAN.md` for implementation strategy and build order.
 - **Stack**: Next.js (App Router) + Supabase + shadcn/ui + Tailwind CSS + TypeScript
 
+## User Interaction
+- **Challenge unreliable or non-best-practice commands**: If the user gives instructions, commands, or approaches that are unreliable, error-prone, or not industry best practice, **warn them and explain the concern before proceeding**. Suggest the recommended alternative. Only proceed with the original approach if the user explicitly confirms after being informed.
+
 ## Ground Rules
 
 ### Before Every Session

@@ -28,10 +28,10 @@
 | 3 | Alumni verification workflow | `DONE` | 2026-03-09. Verification request form + admin queue with sheet detail panel + approve/reject/bulk approve + status banner. |
 | 3a | Verification: document upload (transcripts, diploma) | `TODO` | Allow users to attach proof files when submitting verification requests |
 | 4 | Profile: create & edit (progressive) | `DONE` | 2026-03-09. Profiles table + RLS + avatars bucket + onboarding flow + edit page + completeness tracking. |
-| 5 | Profile: career history (LinkedIn-style) | `TODO` | Multiple positions, timeline |
-| 6 | Profile: education history | `TODO` | Multiple entries |
-| 7 | Profile: location (region/country/state/city) | `TODO` | Hierarchical selection |
-| 8 | Profile: availability tags | `TODO` | Open to mentoring, hiring, etc. |
+| 5 | Profile: career history (LinkedIn-style) | `DONE` | 2026-03-09. career_entries table + RLS + CRUD actions + inline add/edit/delete forms + timeline display on profile view. |
+| 6 | Profile: education history | `DONE` | 2026-03-09. education_entries table + RLS + CRUD actions + inline add/edit/delete forms + display on profile view. |
+| 7 | Profile: location (region/country/state/city) | `DONE` | 2026-03-09. Free-text inputs (country/state/city) already functional. Hierarchical dropdown upgrade deferred to Phase 2. |
+| 8 | Profile: availability tags | `DONE` | 2026-03-09. availability_tag_types + user_availability_tags junction table + RLS + checkbox UI + badge display on profile view. |
 | 9 | Profile: visibility controls | `TODO` | Connected-only details first |
 | 10 | Industry taxonomy (two-level) | `DONE` | 2026-03-09. Schema + RLS + seed (20 industries, 132 specializations) + query helpers. No UI yet. |
 | 11 | Alumni directory: search + filters | `TODO` | Server-side Supabase queries |
@@ -100,29 +100,30 @@ profiles
 ├── created_at
 └── updated_at
 
-career_history
+career_entries
 ├── id (uuid, PK)
-├── profile_id (FK → profiles)
-├── job_title
-├── company
+├── profile_id (FK → profiles, ON DELETE CASCADE)
+├── job_title (text, NOT NULL)
+├── company (text, NOT NULL)
 ├── industry_id (FK → industries, nullable)
 ├── specialization_id (FK → specializations, nullable)
-├── start_date (date)
+├── start_date (date, NOT NULL)
 ├── end_date (date, nullable — null = current)
-├── is_current (boolean)
-├── description (text, nullable)
-├── sort_order (integer)
+├── description (text, nullable, max 500)
+├── is_current (boolean, default false)
+├── sort_order (integer, default 0)
 ├── created_at
 └── updated_at
 
-education_history
+education_entries
 ├── id (uuid, PK)
-├── profile_id (FK → profiles)
-├── institution
-├── degree
-├── field_of_study
-├── start_year (integer)
+├── profile_id (FK → profiles, ON DELETE CASCADE)
+├── institution (text, NOT NULL)
+├── degree (text, nullable)
+├── field_of_study (text, nullable)
+├── start_year (integer, nullable)
 ├── end_year (integer, nullable)
+├── sort_order (integer, default 0)
 ├── created_at
 └── updated_at
 
@@ -145,12 +146,22 @@ specializations
 ├── created_at
 └── updated_at
 
-availability_tags
+availability_tag_types
 ├── id (uuid, PK)
-├── profile_id (FK → profiles)
-├── tag (enum: mentoring, coffee_chat, hiring, looking_for_work, collaboration, not_available)
+├── name (text, NOT NULL, UNIQUE)
+├── slug (text, NOT NULL, UNIQUE)
+├── description (text, nullable)
+├── is_archived (boolean, default false)
+├── sort_order (integer, default 0)
 ├── created_at
 └── updated_at
+
+user_availability_tags
+├── id (uuid, PK)
+├── profile_id (FK → profiles, ON DELETE CASCADE)
+├── tag_type_id (FK → availability_tag_types, ON DELETE CASCADE)
+├── created_at
+└── UNIQUE(profile_id, tag_type_id)
 ```
 
 ### Connection & Messaging Tables
