@@ -65,9 +65,14 @@ export function VerificationForm({ defaultGraduationYear }: VerificationFormProp
               required
               min={1950}
               max={2100}
+              aria-describedby={
+                state && !state.success && state.fieldErrors?.graduation_year
+                  ? "graduation_year-error"
+                  : undefined
+              }
             />
             {state && !state.success && state.fieldErrors?.graduation_year && (
-              <p className="text-sm text-destructive">
+              <p id="graduation_year-error" className="text-sm text-destructive">
                 {state.fieldErrors.graduation_year[0]}
               </p>
             )}
@@ -81,9 +86,14 @@ export function VerificationForm({ defaultGraduationYear }: VerificationFormProp
               placeholder="e.g., Bachelor of Science in Computer Science"
               required
               maxLength={200}
+              aria-describedby={
+                state && !state.success && state.fieldErrors?.degree_program
+                  ? "degree_program-error"
+                  : undefined
+              }
             />
             {state && !state.success && state.fieldErrors?.degree_program && (
-              <p className="text-sm text-destructive">
+              <p id="degree_program-error" className="text-sm text-destructive">
                 {state.fieldErrors.degree_program[0]}
               </p>
             )}
@@ -96,9 +106,14 @@ export function VerificationForm({ defaultGraduationYear }: VerificationFormProp
               name="student_id"
               placeholder="Your student ID number"
               maxLength={50}
+              aria-describedby={
+                state && !state.success && state.fieldErrors?.student_id
+                  ? "student_id-error"
+                  : undefined
+              }
             />
             {state && !state.success && state.fieldErrors?.student_id && (
-              <p className="text-sm text-destructive">
+              <p id="student_id-error" className="text-sm text-destructive">
                 {state.fieldErrors.student_id[0]}
               </p>
             )}
@@ -114,9 +129,14 @@ export function VerificationForm({ defaultGraduationYear }: VerificationFormProp
               placeholder="Any additional details that can help verify your alumni status (e.g., clubs, activities, faculty you worked with)"
               maxLength={1000}
               rows={4}
+              aria-describedby={
+                state && !state.success && state.fieldErrors?.supporting_info
+                  ? "supporting_info-error"
+                  : undefined
+              }
             />
             {state && !state.success && state.fieldErrors?.supporting_info && (
-              <p className="text-sm text-destructive">
+              <p id="supporting_info-error" className="text-sm text-destructive">
                 {state.fieldErrors.supporting_info[0]}
               </p>
             )}

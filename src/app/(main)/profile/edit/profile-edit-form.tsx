@@ -126,7 +126,7 @@ export function ProfileEditForm({
           </div>
         </div>
         {fieldError("photo") && (
-          <p className="text-sm text-destructive">{fieldError("photo")}</p>
+          <p id="photo-error" className="text-sm text-destructive">{fieldError("photo")}</p>
         )}
       </div>
 
@@ -147,9 +147,10 @@ export function ProfileEditForm({
             minLength={2}
             maxLength={100}
             aria-invalid={fieldError("full_name") ? true : undefined}
+            aria-describedby={fieldError("full_name") ? "full_name-error" : undefined}
           />
           {fieldError("full_name") && (
-            <p className="text-sm text-destructive">
+            <p id="full_name-error" className="text-sm text-destructive">
               {fieldError("full_name")}
             </p>
           )}
@@ -166,9 +167,10 @@ export function ProfileEditForm({
             max={2100}
             required
             aria-invalid={fieldError("graduation_year") ? true : undefined}
+            aria-describedby={fieldError("graduation_year") ? "graduation_year-error" : undefined}
           />
           {fieldError("graduation_year") && (
-            <p className="text-sm text-destructive">
+            <p id="graduation_year-error" className="text-sm text-destructive">
               {fieldError("graduation_year")}
             </p>
           )}
@@ -185,7 +187,7 @@ export function ProfileEditForm({
             rows={4}
           />
           {fieldError("bio") && (
-            <p className="text-sm text-destructive">{fieldError("bio")}</p>
+            <p id="bio-error" className="text-sm text-destructive">{fieldError("bio")}</p>
           )}
         </div>
       </section>
@@ -208,6 +210,7 @@ export function ProfileEditForm({
             }}
             required
             aria-invalid={fieldError("primary_industry_id") ? true : undefined}
+            aria-describedby={fieldError("primary_industry_id") ? "primary_industry_id-error" : undefined}
             className={selectClass}
           >
             <option value="">Select your career field</option>
@@ -218,7 +221,7 @@ export function ProfileEditForm({
             ))}
           </select>
           {fieldError("primary_industry_id") && (
-            <p className="text-sm text-destructive">
+            <p id="primary_industry_id-error" className="text-sm text-destructive">
               {fieldError("primary_industry_id")}
             </p>
           )}

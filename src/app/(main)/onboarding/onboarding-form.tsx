@@ -73,9 +73,14 @@ export function OnboardingForm({ industries }: OnboardingFormProps) {
               ? true
               : undefined
           }
+          aria-describedby={
+            state?.success === false && state.fieldErrors?.full_name
+              ? "full_name-error"
+              : undefined
+          }
         />
         {state?.success === false && state.fieldErrors?.full_name && (
-          <p className="text-sm text-destructive">
+          <p id="full_name-error" className="text-sm text-destructive">
             {state.fieldErrors.full_name[0]}
           </p>
         )}
@@ -97,9 +102,14 @@ export function OnboardingForm({ industries }: OnboardingFormProps) {
               ? true
               : undefined
           }
+          aria-describedby={
+            state?.success === false && state.fieldErrors?.graduation_year
+              ? "graduation_year-error"
+              : undefined
+          }
         />
         {state?.success === false && state.fieldErrors?.graduation_year && (
-          <p className="text-sm text-destructive">
+          <p id="graduation_year-error" className="text-sm text-destructive">
             {state.fieldErrors.graduation_year[0]}
           </p>
         )}
@@ -120,6 +130,12 @@ export function OnboardingForm({ industries }: OnboardingFormProps) {
               ? true
               : undefined
           }
+          aria-describedby={
+            state?.success === false &&
+            state.fieldErrors?.primary_industry_id
+              ? "primary_industry_id-error"
+              : undefined
+          }
           className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
         >
           <option value="">Select your career field</option>
@@ -131,7 +147,7 @@ export function OnboardingForm({ industries }: OnboardingFormProps) {
         </select>
         {state?.success === false &&
           state.fieldErrors?.primary_industry_id && (
-            <p className="text-sm text-destructive">
+            <p id="primary_industry_id-error" className="text-sm text-destructive">
               {state.fieldErrors.primary_industry_id[0]}
             </p>
           )}
@@ -191,7 +207,7 @@ export function OnboardingForm({ industries }: OnboardingFormProps) {
           JPEG, PNG, or WebP. Max 5 MB.
         </p>
         {state?.success === false && state.fieldErrors?.photo && (
-          <p className="text-sm text-destructive">
+          <p id="photo-error" className="text-sm text-destructive">
             {state.fieldErrors.photo[0]}
           </p>
         )}

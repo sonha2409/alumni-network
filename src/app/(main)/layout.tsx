@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 
+import { MainNavbar } from "@/components/navbar/main-navbar";
 import { VerificationBanner } from "./verification-banner";
 
 export default function MainLayout({
@@ -9,7 +10,9 @@ export default function MainLayout({
 }) {
   return (
     <div className="min-h-screen">
-      {/* Navbar will be added later */}
+      <Suspense>
+        <MainNavbar />
+      </Suspense>
       <Suspense>
         <VerificationBanner />
       </Suspense>

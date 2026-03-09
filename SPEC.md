@@ -58,6 +58,8 @@
 | 32 | Account: soft delete + data export | `TODO` | 30-day grace → hard delete |
 | 33 | Profile staleness: periodic update prompts | `TODO` | Email/in-app nudge |
 | 34 | Responsive design (mobile-first) | `TODO` | All pages |
+| 34a | Navigation: main navbar + admin navbar | `DONE` | 2026-03-09. Separate navbars for main app and admin. Mobile hamburger menu. User dropdown with profile/logout. |
+| 34b | Accessibility: aria-describedby + banner roles | `DONE` | 2026-03-09. All form error messages linked via aria-describedby. Verification banners have role="status"/"alert". |
 | 35 | Deployment: Vercel + Supabase | `TODO` | Free tier initial |
 
 ---

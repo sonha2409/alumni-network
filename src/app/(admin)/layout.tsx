@@ -1,3 +1,5 @@
+import { AdminNavbar } from "@/components/navbar/admin-navbar";
+
 export default function AdminLayout({
   children,
 }: {
@@ -5,7 +7,7 @@ export default function AdminLayout({
 }) {
   return (
     <div className="min-h-screen">
-      {/* Admin sidebar/nav will be added in Feature #24 */}
+      <AdminNavbar />
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {children}
       </main>

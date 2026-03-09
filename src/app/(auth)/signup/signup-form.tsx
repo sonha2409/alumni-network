@@ -50,9 +50,14 @@ export function SignupForm() {
               ? true
               : undefined
           }
+          aria-describedby={
+            state?.success === false && state.fieldErrors?.email
+              ? "email-error"
+              : undefined
+          }
         />
         {state?.success === false && state.fieldErrors?.email && (
-          <p className="text-sm text-destructive">
+          <p id="email-error" className="text-sm text-destructive">
             {state.fieldErrors.email[0]}
           </p>
         )}
@@ -73,9 +78,14 @@ export function SignupForm() {
               ? true
               : undefined
           }
+          aria-describedby={
+            state?.success === false && state.fieldErrors?.password
+              ? "password-error"
+              : undefined
+          }
         />
         {state?.success === false && state.fieldErrors?.password && (
-          <p className="text-sm text-destructive">
+          <p id="password-error" className="text-sm text-destructive">
             {state.fieldErrors.password[0]}
           </p>
         )}
@@ -96,9 +106,14 @@ export function SignupForm() {
               ? true
               : undefined
           }
+          aria-describedby={
+            state?.success === false && state.fieldErrors?.confirmPassword
+              ? "confirmPassword-error"
+              : undefined
+          }
         />
         {state?.success === false && state.fieldErrors?.confirmPassword && (
-          <p className="text-sm text-destructive">
+          <p id="confirmPassword-error" className="text-sm text-destructive">
             {state.fieldErrors.confirmPassword[0]}
           </p>
         )}
