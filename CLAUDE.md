@@ -3,12 +3,13 @@
 ## Project Overview
 Alumni network platform. Single-school deployment.
 - **Spec**: See `SPEC.md` for full product specification and feature log.
+- **Plan**: See `PLAN.md` for implementation strategy and build order.
 - **Stack**: Next.js (App Router) + Supabase + shadcn/ui + Tailwind CSS + TypeScript
 
 ## Ground Rules
 
 ### Before Every Session
-1. Read `SPEC.md` — check the **Feature Log** table to know what's done and what's next.
+1. Read `SPEC.md` — check the **Feature Log** table to know what's done and what's next. Read `PLAN.md` for implementation order and strategy.
 2. After completing a feature, update the Feature Log status from `TODO` to `DONE` with the date.
 3. If a feature is partially complete, mark it `IN PROGRESS` with notes.
 
@@ -52,8 +53,12 @@ Alumni network platform. Single-school deployment.
 ### Supabase Conventions
 - Always use Row-Level Security (RLS). Never disable RLS on any table.
 - Write RLS policies that enforce role-based access (unverified vs verified vs moderator vs admin).
-- Use Supabase migrations for all schema changes (`supabase/migrations/`).
+- Use Supabase migrations for all schema changes (`supabase/migrations/`). Naming: `NNNNN_description.sql` (sequential).
 - Never hardcode Supabase keys — use environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`).
+- **Auth architecture**: Supabase manages `auth.users` (email, password, JWT). `public.users` is a companion table with app fields (`role`, `verification_status`). A trigger auto-creates the `public.users` row on signup. All tables that reference "users" should FK to `public.users(id)`.
+- **`updated_at` pattern**: Every table with `updated_at` must have the `handle_updated_at()` trigger. The function is defined once in the first migration; subsequent migrations only create the trigger on the new table.
+- **Auth callback**: `/auth/callback` route handler exchanges Supabase email codes for sessions. All Supabase email flows (password reset, email verify) redirect through this route.
+- **Proxy (middleware)**: Next.js 16 uses `src/proxy.ts` (not `middleware.ts`). Export a default function named `proxy`. The proxy refreshes the Supabase session on every request and handles auth redirects.
 
 ### UI/UX
 - Mobile-first responsive design. Test at 375px, 768px, 1024px, 1280px.

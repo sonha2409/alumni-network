@@ -6,25 +6,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { SignupForm } from "./signup-form";
+import { ForgotPasswordForm } from "./forgot-password-form";
 
 export const metadata: Metadata = {
-  title: "Sign Up — AlumNet",
-  description: "Create your AlumNet alumni network account.",
+  title: "Reset Password — AlumNet",
+  description: "Reset your AlumNet account password.",
   robots: { index: false },
 };
 
-export default function SignupPage() {
+export default function ForgotPasswordPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Create an account</CardTitle>
+        <CardTitle className="text-2xl">Reset password</CardTitle>
         <CardDescription>
-          Join your alumni network. Enter your details below.
+          Enter your email and we&apos;ll send you a reset link.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <SignupForm />
+        <ForgotPasswordForm />
       </CardContent>
     </Card>
   );
