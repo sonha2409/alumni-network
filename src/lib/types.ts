@@ -198,6 +198,52 @@ export interface UserAvailabilityTag {
 }
 
 // =============================================================================
+// Connection Types
+// =============================================================================
+
+export type ConnectionStatus = "pending" | "accepted" | "rejected";
+
+export interface Connection {
+  id: string;
+  requester_id: string;
+  receiver_id: string;
+  status: ConnectionStatus;
+  message: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Connection joined with the other person's profile data for display. */
+export interface ConnectionWithProfile extends Connection {
+  profile: DirectoryProfile;
+}
+
+export interface Block {
+  id: string;
+  blocker_id: string;
+  blocked_id: string;
+  created_at: string;
+}
+
+/**
+ * Relationship status between the current user and another user.
+ * Used to determine which UI actions to show.
+ */
+export type RelationshipStatus =
+  | "none"
+  | "pending_sent"
+  | "pending_received"
+  | "connected"
+  | "blocked_by_me"
+  | "blocked_by_them";
+
+export interface RelationshipInfo {
+  status: RelationshipStatus;
+  connectionId: string | null;
+  blockId: string | null;
+}
+
+// =============================================================================
 // Directory Types
 // =============================================================================
 

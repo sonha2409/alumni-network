@@ -14,6 +14,8 @@ import { getProfileWithIndustry } from "@/lib/queries/profiles";
 import { getCareerEntriesWithIndustry } from "@/lib/queries/career-entries";
 import { getEducationEntriesByProfileId } from "@/lib/queries/education-entries";
 import { getAvailabilityTagsByProfileId } from "@/lib/queries/availability-tags";
+import { getRelationshipInfo } from "@/lib/queries/connections";
+import { ConnectionActions } from "./connection-actions";
 
 interface ProfilePageProps {
   params: Promise<{ id: string }>;
@@ -49,6 +51,19 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   }
 
   const isOwnProfile = user?.id === profile.user_id;
+
+  // Fetch relationship info + verification status for non-own profiles
+  let relationship = null;
+  let isVerified = false;
+  if (user && !isOwnProfile) {
+    const { data: currentUser } = await supabase
+      .from("users")
+      .select("verification_status")
+      .eq("id", user.id)
+      .single();
+    isVerified = currentUser?.verification_status === "verified";
+    relationship = await getRelationshipInfo(user.id, profile.user_id);
+  }
 
   const [careerEntries, educationEntries, availabilityTags] = await Promise.all([
     getCareerEntriesWithIndustry(id),
@@ -98,13 +113,19 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               )}
             </div>
 
-            {isOwnProfile && (
+            {isOwnProfile ? (
               <Link href="/profile/edit">
                 <Button variant="outline" size="sm">
                   Edit profile
                 </Button>
               </Link>
-            )}
+            ) : relationship ? (
+              <ConnectionActions
+                targetUserId={profile.user_id}
+                relationship={relationship}
+                isVerified={isVerified}
+              />
+            ) : null}
           </div>
         </CardHeader>
 

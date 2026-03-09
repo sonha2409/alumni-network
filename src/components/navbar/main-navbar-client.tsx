@@ -21,6 +21,7 @@ interface MainNavbarClientProps {
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/directory", label: "Directory" },
+  { href: "/connections", label: "Connections" },
   { href: "/verification", label: "Verification" },
 ];
 
@@ -77,9 +78,15 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="relative rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               {link.label}
+              {link.href === "/connections" &&
+                user.pendingConnectionCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white animate-in zoom-in-50 duration-300">
+                    {user.pendingConnectionCount}
+                  </span>
+                )}
             </Link>
           ))}
           {isAdmin && (
@@ -188,10 +195,16 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
               <Link
                 key={link.href}
                 href={link.href}
-                className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {link.label}
+                {link.href === "/connections" &&
+                  user.pendingConnectionCount > 0 && (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white">
+                      {user.pendingConnectionCount}
+                    </span>
+                  )}
               </Link>
             ))}
             <Link

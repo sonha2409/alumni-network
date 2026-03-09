@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { searchDirectory } from "@/lib/queries/directory";
 import { getIndustriesWithSpecializations } from "@/lib/queries/taxonomy";
 import { getAvailabilityTagTypes } from "@/lib/queries/availability-tags";
+import { getConnectionStatusMap } from "@/lib/queries/connections";
 import type { DirectoryFilters } from "@/lib/types";
 import { DirectoryFiltersBar } from "./directory-filters";
 import { DirectoryGrid } from "./directory-grid";
@@ -82,6 +83,15 @@ export default async function DirectoryPage({
     getAvailabilityTagTypes(),
   ]);
 
+  // Fetch connection statuses for the profiles in the results
+  const otherUserIds = result.profiles
+    .map((p) => p.user_id)
+    .filter((id) => id !== user.id);
+  const connectionStatusMap = await getConnectionStatusMap(user.id, otherUserIds);
+  // Convert Map to a plain object for serialization to client component
+  const connectionStatuses: Record<string, "connected" | "pending_sent" | "pending_received"> =
+    Object.fromEntries(connectionStatusMap);
+
   const hasActiveFilters = !!(
     filters.query ||
     filters.industryId ||
@@ -133,7 +143,7 @@ export default async function DirectoryPage({
       {/* Results grid or empty state */}
       {result.profiles.length > 0 ? (
         <>
-          <DirectoryGrid profiles={result.profiles} />
+          <DirectoryGrid profiles={result.profiles} connectionStatuses={connectionStatuses} />
           {result.totalPages > 1 && (
             <DirectoryPagination
               currentPage={result.page}

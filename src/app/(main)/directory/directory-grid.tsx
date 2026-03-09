@@ -3,25 +3,44 @@ import {
   BriefcaseIcon,
   MapPinIcon,
   GraduationCapIcon,
+  UserCheck,
+  Clock,
 } from "lucide-react";
 
 import type { DirectoryProfile } from "@/lib/types";
 
 interface DirectoryGridProps {
   profiles: DirectoryProfile[];
+  connectionStatuses?: Record<
+    string,
+    "connected" | "pending_sent" | "pending_received"
+  >;
 }
 
-export function DirectoryGrid({ profiles }: DirectoryGridProps) {
+export function DirectoryGrid({
+  profiles,
+  connectionStatuses,
+}: DirectoryGridProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {profiles.map((profile) => (
-        <ProfileCard key={profile.id} profile={profile} />
+        <ProfileCard
+          key={profile.id}
+          profile={profile}
+          connectionStatus={connectionStatuses?.[profile.user_id]}
+        />
       ))}
     </div>
   );
 }
 
-function ProfileCard({ profile }: { profile: DirectoryProfile }) {
+function ProfileCard({
+  profile,
+  connectionStatus,
+}: {
+  profile: DirectoryProfile;
+  connectionStatus?: "connected" | "pending_sent" | "pending_received";
+}) {
   const location = [profile.city, profile.state_province, profile.country]
     .filter(Boolean)
     .join(", ");
@@ -41,17 +60,42 @@ function ProfileCard({ profile }: { profile: DirectoryProfile }) {
       {/* Top section: avatar + name */}
       <div className="flex items-start gap-3.5">
         {/* Avatar */}
-        {profile.photo_url ? (
-          <img
-            src={profile.photo_url}
-            alt=""
-            className="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-border"
-          />
-        ) : (
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-muted-foreground ring-1 ring-border">
-            {initials}
-          </div>
-        )}
+        <div className="relative shrink-0">
+          {profile.photo_url ? (
+            <img
+              src={profile.photo_url}
+              alt=""
+              className="h-12 w-12 rounded-full object-cover ring-1 ring-border"
+            />
+          ) : (
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-sm font-semibold text-muted-foreground ring-1 ring-border">
+              {initials}
+            </div>
+          )}
+          {/* Connection status dot */}
+          {connectionStatus && (
+            <span
+              className={`absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full ring-2 ring-card ${
+                connectionStatus === "connected"
+                  ? "bg-emerald-500"
+                  : "bg-amber-500"
+              }`}
+              title={
+                connectionStatus === "connected"
+                  ? "Connected"
+                  : connectionStatus === "pending_sent"
+                    ? "Request sent"
+                    : "Wants to connect"
+              }
+            >
+              {connectionStatus === "connected" ? (
+                <UserCheck className="h-2.5 w-2.5 text-white" />
+              ) : (
+                <Clock className="h-2.5 w-2.5 text-white" />
+              )}
+            </span>
+          )}
+        </div>
 
         {/* Name + class */}
         <div className="min-w-0 flex-1">

@@ -42,7 +42,7 @@
 | 14  | Cold-start: onboarding quiz                          | `TODO` | 3-4 questions post-signup                                                                                                       |
 | 15  | Cold-start: same-year classmates                     | `TODO` | Default fallback                                                                                                                |
 | 16  | Cold-start: popular/active profiles                  | `TODO` | Most-viewed, most-connected                                                                                                     |
-| 17  | Connection system: send/accept/reject requests       | `TODO` |                                                                                                                                 |
+| 17  | Connection system: send/accept/reject requests       | `DONE` | 2026-03-09. connections + blocks tables, RLS, 6 server actions, connections page with tabs, profile action buttons, directory status dots, navbar badge. |
 | 18  | Real-time messaging (WebSocket)                      | `TODO` | Supabase Realtime                                                                                                               |
 | 19  | Message rate limiting                                | `TODO` | Daily caps for new users                                                                                                        |
 | 20  | Message reporting                                    | `TODO` | Flag to moderator queue                                                                                                         |
