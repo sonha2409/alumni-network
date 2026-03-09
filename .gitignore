@@ -1,6 +1,9 @@
 # Claude Code
 .claude/
 
+# Planning docs (local only)
+PLAN.md
+
 # Dependencies
 node_modules/
 .pnp
