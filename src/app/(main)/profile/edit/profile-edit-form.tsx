@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect, useState, useRef } from "react";
-import Image from "next/image";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -105,11 +104,9 @@ export function ProfileEditForm({
         <Label htmlFor="photo">Profile photo</Label>
         <div className="flex items-center gap-4">
           {photoPreview && (
-            <Image
+            <img
               src={photoPreview}
               alt="Profile photo"
-              width={80}
-              height={80}
               className="h-20 w-20 rounded-full object-cover"
             />
           )}

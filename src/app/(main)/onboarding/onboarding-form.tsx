@@ -2,7 +2,6 @@
 
 import { useActionState, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -172,11 +171,9 @@ export function OnboardingForm({ industries }: OnboardingFormProps) {
         <Label htmlFor="photo">Profile photo (optional)</Label>
         <div className="flex items-center gap-4">
           {photoPreview && (
-            <Image
+            <img
               src={photoPreview}
               alt="Photo preview"
-              width={64}
-              height={64}
               className="h-16 w-16 rounded-full object-cover"
             />
           )}

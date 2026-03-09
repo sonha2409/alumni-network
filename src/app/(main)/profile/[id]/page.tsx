@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 
 import {
   Card,
@@ -56,11 +55,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           <div className="flex items-start gap-4">
             {/* Avatar */}
             {profile.photo_url ? (
-              <Image
+              <img
                 src={profile.photo_url}
                 alt={profile.full_name}
-                width={96}
-                height={96}
                 className="h-24 w-24 rounded-full object-cover"
               />
             ) : (
