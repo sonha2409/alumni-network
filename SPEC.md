@@ -21,46 +21,52 @@
 
 > **This section tracks implementation progress.** Update status after each feature is completed. Each session should check this section first to know where we left off.
 
-| # | Feature | Status | Notes |
-|---|---------|--------|-------|
-| 1 | Project scaffolding (Next.js + Supabase + shadcn/ui) | `DONE` | 2026-03-08 |
-| 2 | Auth: signup, login, logout | `DONE` | 2026-03-08. Supabase Auth + public.users table + proxy + forgot password |
-| 3 | Alumni verification workflow | `DONE` | 2026-03-09. Verification request form + admin queue with sheet detail panel + approve/reject/bulk approve + status banner. |
-| 3a | Verification: document upload (transcripts, diploma) | `TODO` | Allow users to attach proof files when submitting verification requests |
-| 4 | Profile: create & edit (progressive) | `DONE` | 2026-03-09. Profiles table + RLS + avatars bucket + onboarding flow + edit page + completeness tracking. |
-| 5 | Profile: career history (LinkedIn-style) | `DONE` | 2026-03-09. career_entries table + RLS + CRUD actions + inline add/edit/delete forms + timeline display on profile view. |
-| 6 | Profile: education history | `DONE` | 2026-03-09. education_entries table + RLS + CRUD actions + inline add/edit/delete forms + display on profile view. |
-| 7 | Profile: location (region/country/state/city) | `DONE` | 2026-03-09. Free-text inputs (country/state/city) already functional. Hierarchical dropdown upgrade deferred to Phase 2. |
-| 8 | Profile: availability tags | `DONE` | 2026-03-09. availability_tag_types + user_availability_tags junction table + RLS + checkbox UI + badge display on profile view. |
-| 9 | Profile: visibility controls | `TODO` | Connected-only details first |
-| 10 | Industry taxonomy (two-level) | `DONE` | 2026-03-09. Schema + RLS + seed (20 industries, 132 specializations) + query helpers. No UI yet. |
-| 11 | Alumni directory: search + filters | `TODO` | Server-side Supabase queries |
-| 12 | Alumni directory: pagination | `TODO` | Cursor-based |
-| 13 | Recommendation engine (rule-based scoring) | `TODO` | Same field, location, year weights |
-| 14 | Cold-start: onboarding quiz | `TODO` | 3-4 questions post-signup |
-| 15 | Cold-start: same-year classmates | `TODO` | Default fallback |
-| 16 | Cold-start: popular/active profiles | `TODO` | Most-viewed, most-connected |
-| 17 | Connection system: send/accept/reject requests | `TODO` | |
-| 18 | Real-time messaging (WebSocket) | `TODO` | Supabase Realtime |
-| 19 | Message rate limiting | `TODO` | Daily caps for new users |
-| 20 | Message reporting | `TODO` | Flag to moderator queue |
-| 21 | Notifications: in-app | `TODO` | Bell icon, unread count |
-| 22 | Notifications: email | `TODO` | Connection requests, new messages |
-| 23 | Groups: basic (admin-created) | `TODO` | By year, field, location |
-| 24 | Admin dashboard: verification queue | `TODO` | Approve/reject signups |
-| 25 | Admin dashboard: user management | `TODO` | Ban, suspend, view profiles |
-| 26 | Admin dashboard: analytics | `TODO` | Signups, active users, connections |
-| 27 | Admin dashboard: taxonomy management | `TODO` | Add/edit industries & specializations |
-| 28 | Admin dashboard: bulk invite | `TODO` | CSV upload of alumni emails |
-| 29 | Admin dashboard: announcements | `TODO` | Platform-wide notices |
-| 30 | Moderator role: report queue | `TODO` | Review flagged messages |
-| 31 | Moderator role: limited user actions | `TODO` | Warn, mute (no ban/delete) |
-| 32 | Account: soft delete + data export | `TODO` | 30-day grace → hard delete |
-| 33 | Profile staleness: periodic update prompts | `TODO` | Email/in-app nudge |
-| 34 | Responsive design (mobile-first) | `TODO` | All pages |
-| 34a | Navigation: main navbar + admin navbar | `DONE` | 2026-03-09. Separate navbars for main app and admin. Mobile hamburger menu. User dropdown with profile/logout. |
-| 34b | Accessibility: aria-describedby + banner roles | `DONE` | 2026-03-09. All form error messages linked via aria-describedby. Verification banners have role="status"/"alert". |
-| 35 | Deployment: Vercel + Supabase | `TODO` | Free tier initial |
+
+| #   | Feature                                              | Status | Notes                                                                                                                           |
+| --- | ---------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Project scaffolding (Next.js + Supabase + shadcn/ui) | `DONE` | 2026-03-08                                                                                                                      |
+| 2   | Auth: signup, login, logout                          | `DONE` | 2026-03-08. Supabase Auth + public.users table + proxy + forgot password                                                        |
+| 3   | Alumni verification workflow                         | `DONE` | 2026-03-09. Verification request form + admin queue with sheet detail panel + approve/reject/bulk approve + status banner.      |
+| 3a  | Verification: document upload (transcripts, diploma) | `TODO` | Allow users to attach proof files when submitting verification requests                                                         |
+| 3b  | Schools table + school-aware validation              | `DONE` | 2026-03-09. `schools` table with PTNK seed, `school_id` FK on profiles/verification_requests, dynamic graduation year validation (1999–current+3), renamed `degree_program` → `specialization_name`. |
+| 4   | Profile: create & edit (progressive)                 | `DONE` | 2026-03-09. Profiles table + RLS + avatars bucket + onboarding flow + edit page + completeness tracking.                        |
+| 5   | Profile: career history (LinkedIn-style)             | `DONE` | 2026-03-09. career_entries table + RLS + CRUD actions + inline add/edit/delete forms + timeline display on profile view.        |
+| 6   | Profile: education history                           | `DONE` | 2026-03-09. education_entries table + RLS + CRUD actions + inline add/edit/delete forms + display on profile view.              |
+| 7   | Profile: location (region/country/state/city)        | `DONE` | 2026-03-09. Free-text inputs (country/state/city) already functional. Hierarchical dropdown upgrade deferred to Phase 2.        |
+| 8   | Profile: availability tags                           | `DONE` | 2026-03-09. availability_tag_types + user_availability_tags junction table + RLS + checkbox UI + badge display on profile view. |
+| 9   | Profile: visibility controls                         | `TODO` | Connected-only details first                                                                                                    |
+| 10  | Industry taxonomy (two-level)                        | `DONE` | 2026-03-09. Schema + RLS + seed (20 industries, 132 specializations) + query helpers. No UI yet.                                |
+| 11  | Alumni directory: search + filters                   | `TODO` | Server-side Supabase queries                                                                                                    |
+| 12  | Alumni directory: pagination                         | `TODO` | Cursor-based                                                                                                                    |
+| 13  | Recommendation engine (rule-based scoring)           | `TODO` | Same field, location, year weights                                                                                              |
+| 14  | Cold-start: onboarding quiz                          | `TODO` | 3-4 questions post-signup                                                                                                       |
+| 15  | Cold-start: same-year classmates                     | `TODO` | Default fallback                                                                                                                |
+| 16  | Cold-start: popular/active profiles                  | `TODO` | Most-viewed, most-connected                                                                                                     |
+| 17  | Connection system: send/accept/reject requests       | `TODO` |                                                                                                                                 |
+| 18  | Real-time messaging (WebSocket)                      | `TODO` | Supabase Realtime                                                                                                               |
+| 19  | Message rate limiting                                | `TODO` | Daily caps for new users                                                                                                        |
+| 20  | Message reporting                                    | `TODO` | Flag to moderator queue                                                                                                         |
+| 21  | Notifications: in-app                                | `TODO` | Bell icon, unread count                                                                                                         |
+| 22  | Notifications: email                                 | `TODO` | Connection requests, new messages                                                                                               |
+| 23  | Groups: basic (admin-created)                        | `TODO` | By year, field, location                                                                                                        |
+| 24  | Admin dashboard: verification queue                  | `TODO` | Approve/reject signups                                                                                                          |
+| 25  | Admin dashboard: user management                     | `TODO` | Ban, suspend, view profiles                                                                                                     |
+| 26  | Admin dashboard: analytics                           | `TODO` | Signups, active users, connections                                                                                              |
+| 27  | Admin dashboard: taxonomy management                 | `TODO` | Add/edit industries & specializations                                                                                           |
+| 28  | Admin dashboard: bulk invite                         | `TODO` | CSV upload of alumni emails                                                                                                     |
+| 29  | Admin dashboard: announcements                       | `TODO` | Platform-wide notices                                                                                                           |
+| 30  | Moderator role: report queue                         | `TODO` | Review flagged messages                                                                                                         |
+| 31  | Moderator role: limited user actions                 | `TODO` | Warn, mute (no ban/delete)                                                                                                      |
+| 32  | Account: soft delete + data export                   | `TODO` | 30-day grace → hard delete                                                                                                      |
+| 33  | Profile staleness: periodic update prompts           | `TODO` | Email/in-app nudge                                                                                                              |
+| 34  | Responsive design (mobile-first)                     | `TODO` | All pages                                                                                                                       |
+| 34a | Navigation: main navbar + admin navbar               | `DONE` | 2026-03-09. Separate navbars for main app and admin. Mobile hamburger menu. User dropdown with profile/logout.                  |
+| 34b | Accessibility: aria-describedby + banner roles       | `DONE` | 2026-03-09. All form error messages linked via aria-describedby. Verification banners have role="status"/"alert".               |
+| 35  | Deployment: Vercel + Supabase                        | `TODO` | Free tier initial                                                                                                               |
+| 36  | i18n: user-selectable display language               | `TODO` | Phase 2. Vietnamese/English toggle. Labels currently English with Vietnamese in parentheses for school-specific terms.           |
+| 37  | Multi-school support                                 | `TODO` | Phase 4. School-scoped RLS, school-scoped routing (`/schools/:slug/...`), school admin roles, `school_id` on `users`.           |
+| 38  | Admin: school management UI                          | `TODO` | Phase 4. CRUD for schools table. Currently seed-only.                                                                           |
+
 
 ---
 
@@ -318,6 +324,7 @@ bulk_invites
 ```
 
 ### Database Indexes (Key)
+
 - `profiles(graduation_year)` — year-based filtering
 - `profiles(primary_industry_id, primary_specialization_id)` — field filtering
 - `profiles(country, state_province, city)` — location filtering
@@ -332,6 +339,7 @@ bulk_invites
 ## Technical Architecture
 
 ### Stack
+
 - **Frontend**: Next.js (App Router) + TypeScript
 - **UI**: shadcn/ui + Tailwind CSS
 - **Backend**: Supabase (Postgres + Auth + Realtime + Storage + Edge Functions)
@@ -342,20 +350,18 @@ bulk_invites
 ### Key Architecture Decisions
 
 1. **Server Components by default**: fetch data on the server, minimize client-side JS. Use client components only for interactivity (messaging, real-time, forms).
-
 2. **Supabase Row-Level Security (RLS)**: enforce access control at the database level. Unverified users physically cannot query restricted columns.
-
 3. **Real-time messaging via Supabase Realtime**: subscribe to the `messages` table filtered by `conversation_id`. No custom WebSocket server needed.
-
 4. **Edge Functions for background jobs**: recommendation scoring, email sending, data export generation. Triggered by database webhooks or cron.
-
 5. **Image storage**: profile photos stored in Supabase Storage with public URLs. Resized on upload via Edge Function.
 
 ### API Design
+
 - **No separate API layer**: use Next.js Server Actions for mutations, Server Components for reads, and Supabase client for real-time subscriptions.
 - **Supabase client**: use `@supabase/ssr` for server-side auth, `@supabase/supabase-js` for client-side real-time.
 
 ### Security
+
 - RLS policies on every table
 - Input sanitization on all user-generated content
 - Rate limiting via Supabase Edge Functions or middleware
@@ -407,3 +413,6 @@ graph TD
     F4 --> F34[F34: Responsive Design]
     F1 --> F35[F35: Deployment]
 ```
+
+
+
