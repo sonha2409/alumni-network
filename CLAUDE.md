@@ -2,16 +2,19 @@
 
 ## Project Overview
 Alumni network platform. Single-school deployment.
-- **Spec**: See `SPEC.md` for full product specification and feature log.
+- **Spec**: See `SPEC.md` for status tracking (Feature Log), data model (schema), technical architecture, and dependency graph.
+- **Features**: See `FEATURES.md` for detailed functional requirements (F1–F13), user roles, UI/UX guidelines, and future scaling path.
 - **Plan**: See `PLAN.md` for implementation strategy and build order.
 - **Stack**: Next.js (App Router) + Supabase + shadcn/ui + Tailwind CSS + TypeScript
 
 ## Ground Rules
 
 ### Before Every Session
-1. Read `SPEC.md` — check the **Feature Log** table to know what's done and what's next. Read `PLAN.md` for implementation order and strategy.
-2. After completing a feature, update the Feature Log status from `TODO` to `DONE` with the date.
-3. If a feature is partially complete, mark it `IN PROGRESS` with notes.
+1. Read `SPEC.md` — check the **Feature Log** table to know what's done and what's next.
+2. Read `FEATURES.md` — review the detailed requirements for the next `TODO` item (specific logic, edge cases, acceptance criteria).
+3. Read `PLAN.md` for implementation order and strategy.
+4. After completing a feature, update the Feature Log in `SPEC.md` from `TODO` to `DONE` with the date.
+5. If a feature is partially complete, mark it `IN PROGRESS` with notes.
 
 ### Code Style
 - TypeScript strict mode. No `any` types unless absolutely unavoidable (and add a `// TODO: type this` comment).
@@ -95,7 +98,10 @@ Alumni network platform. Single-school deployment.
 - Do not include `Co-Authored-By` lines in commit messages.
 
 ### Documentation
-- All documentation lives in `docs/` directory.
+- **Three core files**: `SPEC.md` (status/schema/architecture), `FEATURES.md` (detailed requirements), `PLAN.md` (build strategy).
+- **During L1–L4 design phases**: Reference `FEATURES.md` for the detailed requirements, edge cases, and acceptance criteria of the feature being designed.
+- **After L5.5 success**: Update the Feature Log in `SPEC.md` — mark the feature `DONE` with the date.
+- **Implementation docs** live in `docs/` directory.
 - **Architecture Decision Records (ADRs)**: Create an ADR in `docs/adrs/` for every significant design choice (new table, auth flow change, third-party integration, architectural pattern). Use the template in `docs/adrs/000-template.md`.
 - **Feature Implementation Notes**: After each successful feature implementation, write a note in `docs/features/` using the template in `docs/features/000-template.md`. Include architecture overview, data flow, component relationships, and diagrams.
 - **Diagrams**: Use Mermaid syntax (renders natively on GitHub). Include diagrams for: data flow, component trees, state machines, sequence diagrams for multi-step processes, and ER diagrams for schema changes.
