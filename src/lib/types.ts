@@ -37,6 +37,30 @@ export interface IndustryWithSpecializations extends Industry {
 }
 
 // =============================================================================
+// School Types
+// =============================================================================
+
+export interface School {
+  id: string;
+  name: string;
+  name_en: string | null;
+  abbreviation: string | null;
+  slug: string;
+  school_type: "high_school" | "university" | "college";
+  program_duration_years: number;
+  founded_year: number;
+  first_graduating_year: number;
+  country: string | null;
+  state_province: string | null;
+  city: string | null;
+  website_url: string | null;
+  logo_url: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// =============================================================================
 // Profile Types
 // =============================================================================
 
@@ -51,6 +75,7 @@ export interface Profile {
   primary_specialization_id: string | null;
   secondary_industry_id: string | null;
   secondary_specialization_id: string | null;
+  school_id: string;
   country: string | null;
   state_province: string | null;
   city: string | null;
@@ -70,7 +95,8 @@ export interface VerificationRequest {
   user_id: string;
   graduation_year: number;
   student_id: string | null;
-  degree_program: string;
+  specialization_name: string;
+  school_id: string;
   supporting_info: string | null;
   status: "pending" | "approved" | "rejected";
   reviewed_by: string | null;

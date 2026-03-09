@@ -14,9 +14,12 @@ import type { ActionResult } from "@/lib/types";
 
 interface VerificationFormProps {
   defaultGraduationYear: number;
+  minGraduationYear: number;
+  maxGraduationYear: number;
+  schoolType: "high_school" | "university" | "college";
 }
 
-export function VerificationForm({ defaultGraduationYear }: VerificationFormProps) {
+export function VerificationForm({ defaultGraduationYear, minGraduationYear, maxGraduationYear, schoolType }: VerificationFormProps) {
   const [state, formAction, isPending] = useActionState<ActionResult | null, FormData>(
     submitVerificationRequest,
     null
@@ -63,8 +66,8 @@ export function VerificationForm({ defaultGraduationYear }: VerificationFormProp
               type="number"
               defaultValue={defaultGraduationYear}
               required
-              min={1950}
-              max={2100}
+              min={minGraduationYear}
+              max={maxGraduationYear}
               aria-describedby={
                 state && !state.success && state.fieldErrors?.graduation_year
                   ? "graduation_year-error"
@@ -79,22 +82,28 @@ export function VerificationForm({ defaultGraduationYear }: VerificationFormProp
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="degree_program">Degree Program *</Label>
+            <Label htmlFor="specialization_name">
+              {schoolType === "high_school" ? "Specialization (Chuyên ngành) *" : "Degree Program *"}
+            </Label>
             <Input
-              id="degree_program"
-              name="degree_program"
-              placeholder="e.g., Bachelor of Science in Computer Science"
+              id="specialization_name"
+              name="specialization_name"
+              placeholder={
+                schoolType === "high_school"
+                  ? "e.g., Chuyên Toán, Chuyên Lý, Chuyên Tin"
+                  : "e.g., Bachelor of Science in Computer Science"
+              }
               required
               maxLength={200}
               aria-describedby={
-                state && !state.success && state.fieldErrors?.degree_program
-                  ? "degree_program-error"
+                state && !state.success && state.fieldErrors?.specialization_name
+                  ? "specialization_name-error"
                   : undefined
               }
             />
-            {state && !state.success && state.fieldErrors?.degree_program && (
-              <p id="degree_program-error" className="text-sm text-destructive">
-                {state.fieldErrors.degree_program[0]}
+            {state && !state.success && state.fieldErrors?.specialization_name && (
+              <p id="specialization_name-error" className="text-sm text-destructive">
+                {state.fieldErrors.specialization_name[0]}
               </p>
             )}
           </div>

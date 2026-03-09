@@ -5,35 +5,39 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { recalculateProfileCompleteness } from "@/lib/profile-completeness-updater";
+import { getSchool } from "@/lib/school";
 import type { ActionResult } from "@/lib/types";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-const updateProfileSchema = z.object({
-  full_name: z
-    .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(100, "Name must be under 100 characters"),
-  graduation_year: z.coerce
-    .number()
-    .int("Graduation year must be a whole number")
-    .min(1950, "Graduation year must be 1950 or later")
-    .max(2100, "Graduation year must be 2100 or earlier"),
-  primary_industry_id: z.uuid("Please select an industry"),
-  primary_specialization_id: z.uuid("Invalid specialization").optional(),
-  secondary_industry_id: z.uuid("Invalid industry").optional(),
-  secondary_specialization_id: z.uuid("Invalid specialization").optional(),
-  bio: z.string().max(1000, "Bio must be under 1000 characters").optional(),
-  country: z.string().max(100).optional(),
-  state_province: z.string().max(100).optional(),
-  city: z.string().max(100).optional(),
-});
-
 export async function updateProfile(
   _prevState: ActionResult | null,
   formData: FormData
 ): Promise<ActionResult> {
+  const school = await getSchool();
+  const currentYear = new Date().getFullYear();
+
+  const updateProfileSchema = z.object({
+    full_name: z
+      .string()
+      .min(2, "Name must be at least 2 characters")
+      .max(100, "Name must be under 100 characters"),
+    graduation_year: z.coerce
+      .number()
+      .int("Graduation year must be a whole number")
+      .min(school.first_graduating_year, `Graduation year must be ${school.first_graduating_year} or later`)
+      .max(currentYear + 3, `Graduation year must be ${currentYear + 3} or earlier`),
+    primary_industry_id: z.uuid("Please select an industry"),
+    primary_specialization_id: z.uuid("Invalid specialization").optional(),
+    secondary_industry_id: z.uuid("Invalid industry").optional(),
+    secondary_specialization_id: z.uuid("Invalid specialization").optional(),
+    bio: z.string().max(1000, "Bio must be under 1000 characters").optional(),
+    country: z.string().max(100).optional(),
+    state_province: z.string().max(100).optional(),
+    city: z.string().max(100).optional(),
+  });
+
   const raw = {
     full_name: formData.get("full_name"),
     graduation_year: formData.get("graduation_year"),

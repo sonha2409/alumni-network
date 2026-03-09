@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,12 @@ export function EducationEntryForm({ entry, onClose }: EducationEntryFormProps) 
     ActionResult<{ id: string }> | ActionResult | null,
     FormData
   >(action as (state: ActionResult<{ id: string }> | ActionResult | null, formData: FormData) => Promise<ActionResult<{ id: string }> | ActionResult>, null);
+
+  const [institution, setInstitution] = useState(entry?.institution ?? "");
+  const [degree, setDegree] = useState(entry?.degree ?? "");
+  const [fieldOfStudy, setFieldOfStudy] = useState(entry?.field_of_study ?? "");
+  const [startYear, setStartYear] = useState(entry?.start_year?.toString() ?? "");
+  const [endYear, setEndYear] = useState(entry?.end_year?.toString() ?? "");
 
   useEffect(() => {
     if (state?.success) {
@@ -58,7 +64,8 @@ export function EducationEntryForm({ entry, onClose }: EducationEntryFormProps) 
           id="edu_institution"
           name="institution"
           type="text"
-          defaultValue={entry?.institution ?? ""}
+          value={institution}
+          onChange={(e) => setInstitution(e.target.value)}
           required
           maxLength={200}
           placeholder="e.g. Stanford University"
@@ -81,7 +88,8 @@ export function EducationEntryForm({ entry, onClose }: EducationEntryFormProps) 
             id="edu_degree"
             name="degree"
             type="text"
-            defaultValue={entry?.degree ?? ""}
+            value={degree}
+            onChange={(e) => setDegree(e.target.value)}
             maxLength={100}
             placeholder="e.g. B.S., M.A., Ph.D."
           />
@@ -93,7 +101,8 @@ export function EducationEntryForm({ entry, onClose }: EducationEntryFormProps) 
             id="edu_field_of_study"
             name="field_of_study"
             type="text"
-            defaultValue={entry?.field_of_study ?? ""}
+            value={fieldOfStudy}
+            onChange={(e) => setFieldOfStudy(e.target.value)}
             maxLength={200}
             placeholder="e.g. Computer Science"
           />
@@ -107,7 +116,8 @@ export function EducationEntryForm({ entry, onClose }: EducationEntryFormProps) 
             id="edu_start_year"
             name="start_year"
             type="number"
-            defaultValue={entry?.start_year ?? ""}
+            value={startYear}
+            onChange={(e) => setStartYear(e.target.value)}
             min={1950}
             max={2100}
             aria-invalid={fieldError("start_year") ? true : undefined}
@@ -128,7 +138,8 @@ export function EducationEntryForm({ entry, onClose }: EducationEntryFormProps) 
             id="edu_end_year"
             name="end_year"
             type="number"
-            defaultValue={entry?.end_year ?? ""}
+            value={endYear}
+            onChange={(e) => setEndYear(e.target.value)}
             min={1950}
             max={2100}
             aria-invalid={fieldError("end_year") ? true : undefined}

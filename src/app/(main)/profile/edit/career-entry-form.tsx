@@ -36,6 +36,12 @@ export function CareerEntryForm({
     FormData
   >(action as (state: ActionResult<{ id: string }> | ActionResult | null, formData: FormData) => Promise<ActionResult<{ id: string }> | ActionResult>, null);
 
+  const [jobTitle, setJobTitle] = useState(entry?.job_title ?? "");
+  const [company, setCompany] = useState(entry?.company ?? "");
+  const [startDate, setStartDate] = useState(entry?.start_date ?? "");
+  const [endDate, setEndDate] = useState(entry?.end_date ?? "");
+  const [description, setDescription] = useState(entry?.description ?? "");
+  const [isCurrent, setIsCurrent] = useState(entry?.is_current ?? false);
   const [industryId, setIndustryId] = useState(entry?.industry_id ?? "");
   const [specId, setSpecId] = useState(entry?.specialization_id ?? "");
 
@@ -76,7 +82,8 @@ export function CareerEntryForm({
             id="career_job_title"
             name="job_title"
             type="text"
-            defaultValue={entry?.job_title ?? ""}
+            value={jobTitle}
+            onChange={(e) => setJobTitle(e.target.value)}
             required
             maxLength={200}
             placeholder="e.g. Software Engineer"
@@ -96,7 +103,8 @@ export function CareerEntryForm({
             id="career_company"
             name="company"
             type="text"
-            defaultValue={entry?.company ?? ""}
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
             required
             maxLength={200}
             placeholder="e.g. Google"
@@ -161,7 +169,8 @@ export function CareerEntryForm({
             id="career_start_date"
             name="start_date"
             type="date"
-            defaultValue={entry?.start_date ?? ""}
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
             required
             aria-invalid={fieldError("start_date") ? true : undefined}
             aria-describedby={fieldError("start_date") ? "career_start_date-error" : undefined}
@@ -179,7 +188,8 @@ export function CareerEntryForm({
             id="career_end_date"
             name="end_date"
             type="date"
-            defaultValue={entry?.end_date ?? ""}
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
             aria-invalid={fieldError("end_date") ? true : undefined}
             aria-describedby={fieldError("end_date") ? "career_end_date-error" : undefined}
           />
@@ -197,7 +207,8 @@ export function CareerEntryForm({
         <Textarea
           id="career_description"
           name="description"
-          defaultValue={entry?.description ?? ""}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           placeholder="Brief description of your role…"
           maxLength={500}
           rows={3}
@@ -212,7 +223,8 @@ export function CareerEntryForm({
           id="career_is_current"
           name="is_current"
           type="checkbox"
-          defaultChecked={entry?.is_current ?? false}
+          checked={isCurrent}
+          onChange={(e) => setIsCurrent(e.target.checked)}
           className="h-4 w-4 rounded border-input"
         />
         <Label htmlFor="career_is_current" className="font-normal">

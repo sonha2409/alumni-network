@@ -3,33 +3,37 @@
 import { z } from "zod/v4";
 
 import { createClient } from "@/lib/supabase/server";
+import { getSchool } from "@/lib/school";
 import type { ActionResult } from "@/lib/types";
-
-const verificationSchema = z.object({
-  graduation_year: z.coerce
-    .number()
-    .int("Graduation year must be a whole number")
-    .min(1950, "Graduation year must be 1950 or later")
-    .max(2100, "Graduation year must be 2100 or earlier"),
-  student_id: z.string().max(50, "Student ID must be under 50 characters").optional(),
-  degree_program: z
-    .string()
-    .min(2, "Degree program must be at least 2 characters")
-    .max(200, "Degree program must be under 200 characters"),
-  supporting_info: z
-    .string()
-    .max(1000, "Supporting info must be under 1000 characters")
-    .optional(),
-});
 
 export async function submitVerificationRequest(
   _prevState: ActionResult | null,
   formData: FormData
 ): Promise<ActionResult> {
+  const school = await getSchool();
+  const currentYear = new Date().getFullYear();
+
+  const verificationSchema = z.object({
+    graduation_year: z.coerce
+      .number()
+      .int("Graduation year must be a whole number")
+      .min(school.first_graduating_year, `Graduation year must be ${school.first_graduating_year} or later`)
+      .max(currentYear + 3, `Graduation year must be ${currentYear + 3} or earlier`),
+    student_id: z.string().max(50, "Student ID must be under 50 characters").optional(),
+    specialization_name: z
+      .string()
+      .min(2, "Specialization must be at least 2 characters")
+      .max(200, "Specialization must be under 200 characters"),
+    supporting_info: z
+      .string()
+      .max(1000, "Supporting info must be under 1000 characters")
+      .optional(),
+  });
+
   const raw = {
     graduation_year: formData.get("graduation_year"),
     student_id: formData.get("student_id") || undefined,
-    degree_program: formData.get("degree_program"),
+    specialization_name: formData.get("specialization_name"),
     supporting_info: formData.get("supporting_info") || undefined,
   };
 
@@ -84,7 +88,8 @@ export async function submitVerificationRequest(
         user_id: user.id,
         graduation_year: parsed.data.graduation_year,
         student_id: parsed.data.student_id ?? null,
-        degree_program: parsed.data.degree_program,
+        specialization_name: parsed.data.specialization_name,
+        school_id: school.id,
         supporting_info: parsed.data.supporting_info ?? null,
       });
 

@@ -12,9 +12,11 @@ import type { ActionResult, IndustryWithSpecializations } from "@/lib/types";
 
 interface OnboardingFormProps {
   industries: IndustryWithSpecializations[];
+  minGraduationYear: number;
+  maxGraduationYear: number;
 }
 
-export function OnboardingForm({ industries }: OnboardingFormProps) {
+export function OnboardingForm({ industries, minGraduationYear, maxGraduationYear }: OnboardingFormProps) {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState<
     ActionResult<{ profileId: string }> | null,
@@ -94,8 +96,8 @@ export function OnboardingForm({ industries }: OnboardingFormProps) {
           name="graduation_year"
           type="number"
           placeholder="e.g. 2020"
-          min={1950}
-          max={2100}
+          min={minGraduationYear}
+          max={maxGraduationYear}
           required
           aria-invalid={
             state?.success === false && state.fieldErrors?.graduation_year

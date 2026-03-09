@@ -106,8 +106,8 @@ export function RequestDetailSheet({
               <p>{request.graduation_year}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Degree Program</p>
-              <p>{request.degree_program}</p>
+              <p className="text-sm font-medium text-muted-foreground">Program/Class</p>
+              <p>{request.specialization_name}</p>
             </div>
             {request.student_id && (
               <div>

@@ -5,29 +5,33 @@ import { z } from "zod/v4";
 
 import { createClient } from "@/lib/supabase/server";
 import { calculateProfileCompleteness } from "@/lib/profile-completeness";
+import { getSchool } from "@/lib/school";
 import type { ActionResult } from "@/lib/types";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-const createProfileSchema = z.object({
-  full_name: z
-    .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(100, "Name must be under 100 characters"),
-  graduation_year: z.coerce
-    .number()
-    .int("Graduation year must be a whole number")
-    .min(1950, "Graduation year must be 1950 or later")
-    .max(2100, "Graduation year must be 2100 or earlier"),
-  primary_industry_id: z.uuid("Please select an industry"),
-  primary_specialization_id: z.uuid("Invalid specialization").optional(),
-});
-
 export async function createProfile(
   _prevState: ActionResult<{ profileId: string }> | null,
   formData: FormData
 ): Promise<ActionResult<{ profileId: string }>> {
+  const school = await getSchool();
+  const currentYear = new Date().getFullYear();
+
+  const createProfileSchema = z.object({
+    full_name: z
+      .string()
+      .min(2, "Name must be at least 2 characters")
+      .max(100, "Name must be under 100 characters"),
+    graduation_year: z.coerce
+      .number()
+      .int("Graduation year must be a whole number")
+      .min(school.first_graduating_year, `Graduation year must be ${school.first_graduating_year} or later`)
+      .max(currentYear + 3, `Graduation year must be ${currentYear + 3} or earlier`),
+    primary_industry_id: z.uuid("Please select an industry"),
+    primary_specialization_id: z.uuid("Invalid specialization").optional(),
+  });
+
   const raw = {
     full_name: formData.get("full_name"),
     graduation_year: formData.get("graduation_year"),
@@ -143,6 +147,7 @@ export async function createProfile(
     primary_industry_id: parsed.data.primary_industry_id,
     primary_specialization_id:
       parsed.data.primary_specialization_id ?? null,
+    school_id: school.id,
     photo_url: photoUrl,
     profile_completeness: calculateProfileCompleteness({
       full_name: parsed.data.full_name,

@@ -19,6 +19,8 @@ import type {
 interface ProfileEditFormProps {
   profile: Profile;
   industries: IndustryWithSpecializations[];
+  minGraduationYear: number;
+  maxGraduationYear: number;
 }
 
 const selectClass =
@@ -27,6 +29,8 @@ const selectClass =
 export function ProfileEditForm({
   profile,
   industries,
+  minGraduationYear,
+  maxGraduationYear,
 }: ProfileEditFormProps) {
   const [state, formAction, isPending] = useActionState<
     ActionResult | null,
@@ -163,8 +167,8 @@ export function ProfileEditForm({
             name="graduation_year"
             type="number"
             defaultValue={profile.graduation_year}
-            min={1950}
-            max={2100}
+            min={minGraduationYear}
+            max={maxGraduationYear}
             required
             aria-invalid={fieldError("graduation_year") ? true : undefined}
             aria-describedby={fieldError("graduation_year") ? "graduation_year-error" : undefined}

@@ -11,6 +11,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getProfileByUserId } from "@/lib/queries/profiles";
 import { getIndustriesWithSpecializations } from "@/lib/queries/taxonomy";
+import { getSchool } from "@/lib/school";
 import { OnboardingForm } from "./onboarding-form";
 
 export const metadata: Metadata = {
@@ -35,7 +36,12 @@ export default async function OnboardingPage() {
     redirect("/dashboard");
   }
 
-  const industries = await getIndustriesWithSpecializations();
+  const [industries, school] = await Promise.all([
+    getIndustriesWithSpecializations(),
+    getSchool(),
+  ]);
+
+  const currentYear = new Date().getFullYear();
 
   return (
     <div className="mx-auto max-w-lg">
@@ -48,7 +54,11 @@ export default async function OnboardingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <OnboardingForm industries={industries} />
+          <OnboardingForm
+            industries={industries}
+            minGraduationYear={school.first_graduating_year}
+            maxGraduationYear={currentYear + 3}
+          />
         </CardContent>
       </Card>
     </div>

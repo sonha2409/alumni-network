@@ -80,6 +80,22 @@ users
 ├── created_at
 └── updated_at
 
+schools
+├── id (uuid, PK)
+├── name (text)
+├── name_en (text, nullable)
+├── abbreviation (text, nullable)
+├── slug (text, UNIQUE)
+├── school_type (text: high_school, university, college)
+├── program_duration_years (integer)
+├── founded_year (integer)
+├── first_graduating_year (integer)
+├── country, state_province, city (text, nullable)
+├── website_url, logo_url (text, nullable)
+├── is_active (boolean)
+├── created_at
+└── updated_at
+
 profiles
 ├── id (uuid, PK)
 ├── user_id (FK → users)
@@ -87,6 +103,7 @@ profiles
 ├── photo_url
 ├── bio
 ├── graduation_year (integer)
+├── school_id (FK → schools)
 ├── primary_industry_id (FK → industries)
 ├── primary_specialization_id (FK → specializations, nullable)
 ├── secondary_industry_id (FK → industries, nullable)
@@ -213,7 +230,8 @@ verification_requests
 ├── user_id (FK → users)
 ├── graduation_year (integer)
 ├── student_id (text, nullable)
-├── degree_program (text)
+├── specialization_name (text)
+├── school_id (FK → schools)
 ├── supporting_info (text, nullable)
 ├── status (enum: pending, approved, rejected)
 ├── reviewed_by (FK → users, nullable)

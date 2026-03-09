@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getLatestVerificationRequest, getUserVerificationStatus } from "@/lib/queries/verification";
 import { getProfileByUserId } from "@/lib/queries/profiles";
+import { getSchool } from "@/lib/school";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { VerificationForm } from "./verification-form";
 
@@ -14,11 +15,14 @@ export default async function VerificationPage() {
 
   if (!user) redirect("/login");
 
-  const [status, latestRequest, profile] = await Promise.all([
+  const [status, latestRequest, profile, school] = await Promise.all([
     getUserVerificationStatus(user.id),
     getLatestVerificationRequest(user.id),
     getProfileByUserId(user.id),
+    getSchool(),
   ]);
+
+  const currentYear = new Date().getFullYear();
 
   // Already verified
   if (status === "verified") {
@@ -73,7 +77,12 @@ export default async function VerificationPage() {
           </CardHeader>
         </Card>
       )}
-      <VerificationForm defaultGraduationYear={profile?.graduation_year ?? new Date().getFullYear()} />
+      <VerificationForm
+        defaultGraduationYear={profile?.graduation_year ?? currentYear}
+        minGraduationYear={school.first_graduating_year}
+        maxGraduationYear={currentYear + 3}
+        schoolType={school.school_type}
+      />
     </div>
   );
 }

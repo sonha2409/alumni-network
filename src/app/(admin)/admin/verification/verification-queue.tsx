@@ -108,7 +108,7 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
               />
             </div>
             <div>Name</div>
-            <div>Degree Program</div>
+            <div>Program/Class</div>
             <div>Grad Year</div>
             <div>Submitted</div>
             <div>Action</div>
@@ -150,8 +150,8 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
                 </div>
 
                 <div className="text-sm">
-                  <span className="sm:hidden text-muted-foreground">Degree: </span>
-                  {request.degree_program}
+                  <span className="sm:hidden text-muted-foreground">Program: </span>
+                  {request.specialization_name}
                 </div>
 
                 <div className="text-sm">

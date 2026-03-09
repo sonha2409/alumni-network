@@ -11,6 +11,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getProfileByUserId } from "@/lib/queries/profiles";
 import { getIndustriesWithSpecializations } from "@/lib/queries/taxonomy";
+import { getSchool } from "@/lib/school";
 import { getCareerEntriesByProfileId } from "@/lib/queries/career-entries";
 import { getEducationEntriesByProfileId } from "@/lib/queries/education-entries";
 import {
@@ -43,14 +44,17 @@ export default async function ProfileEditPage() {
     redirect("/onboarding");
   }
 
-  const [industries, careerEntries, educationEntries, tagTypes, selectedTagIds] =
+  const [industries, careerEntries, educationEntries, tagTypes, selectedTagIds, school] =
     await Promise.all([
       getIndustriesWithSpecializations(),
       getCareerEntriesByProfileId(profile.id),
       getEducationEntriesByProfileId(profile.id),
       getAvailabilityTagTypes(),
       getAvailabilityTagIdsByProfileId(profile.id),
+      getSchool(),
     ]);
+
+  const currentYear = new Date().getFullYear();
 
   return (
     <div className="mx-auto max-w-2xl flex flex-col gap-6">
@@ -62,7 +66,12 @@ export default async function ProfileEditPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ProfileEditForm profile={profile} industries={industries} />
+          <ProfileEditForm
+            profile={profile}
+            industries={industries}
+            minGraduationYear={school.first_graduating_year}
+            maxGraduationYear={currentYear + 3}
+          />
         </CardContent>
       </Card>
 
