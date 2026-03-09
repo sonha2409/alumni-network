@@ -6,6 +6,15 @@ import { createClient } from "@/lib/supabase/server";
 import { getSchool } from "@/lib/school";
 import type { ActionResult } from "@/lib/types";
 
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB per file
+const MAX_FILES = 4;
+const ACCEPTED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "application/pdf",
+];
+
 export async function submitVerificationRequest(
   _prevState: ActionResult | null,
   formData: FormData
@@ -48,6 +57,39 @@ export async function submitVerificationRequest(
     return { success: false, error: "Please fix the errors below.", fieldErrors };
   }
 
+  // Validate uploaded files
+  const files = formData.getAll("documents") as File[];
+  const validFiles = files.filter((f) => f.size > 0);
+
+  if (validFiles.length > MAX_FILES) {
+    return {
+      success: false,
+      error: "Please fix the errors below.",
+      fieldErrors: { documents: [`You can upload up to ${MAX_FILES} files.`] },
+    };
+  }
+
+  for (const file of validFiles) {
+    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: {
+          documents: [`"${file.name}" is not a supported file type. Use PDF, JPEG, PNG, or WebP.`],
+        },
+      };
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: {
+          documents: [`"${file.name}" is too large. Maximum file size is 2 MB.`],
+        },
+      };
+    }
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -82,7 +124,7 @@ export async function submitVerificationRequest(
 
   try {
     // Insert verification request
-    const { error: insertError } = await supabase
+    const { data: insertedRequest, error: insertError } = await supabase
       .from("verification_requests")
       .insert({
         user_id: user.id,
@@ -91,14 +133,66 @@ export async function submitVerificationRequest(
         specialization_name: parsed.data.specialization_name,
         school_id: school.id,
         supporting_info: parsed.data.supporting_info ?? null,
-      });
+      })
+      .select("id")
+      .single();
 
-    if (insertError) {
+    if (insertError || !insertedRequest) {
       console.error("[ServerAction:submitVerificationRequest]", {
         userId: user.id,
-        error: insertError.message,
+        error: insertError?.message ?? "Insert returned no data",
       });
       return { success: false, error: "Something went wrong. Please try again." };
+    }
+
+    // Upload documents to storage and insert metadata rows
+    const uploadedPaths: string[] = [];
+
+    for (const file of validFiles) {
+      const ext = file.name.split(".").pop() ?? "bin";
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const filePath = `${user.id}/${insertedRequest.id}/${Date.now()}_${sanitizedName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("verification-documents")
+        .upload(filePath, file, { contentType: file.type });
+
+      if (uploadError) {
+        console.error("[ServerAction:submitVerificationRequest]", {
+          userId: user.id,
+          fileName: file.name,
+          error: uploadError.message,
+        });
+        // Clean up already-uploaded files on failure
+        if (uploadedPaths.length > 0) {
+          await supabase.storage
+            .from("verification-documents")
+            .remove(uploadedPaths);
+        }
+        return { success: false, error: `Failed to upload "${file.name}". Please try again.` };
+      }
+
+      uploadedPaths.push(filePath);
+
+      const { error: docInsertError } = await supabase
+        .from("verification_documents")
+        .insert({
+          request_id: insertedRequest.id,
+          file_name: file.name,
+          file_path: filePath,
+          file_size: file.size,
+          content_type: file.type,
+        });
+
+      if (docInsertError) {
+        console.error("[ServerAction:submitVerificationRequest]", {
+          userId: user.id,
+          fileName: file.name,
+          error: docInsertError.message,
+        });
+        // Non-fatal: file is in storage but metadata row failed.
+        // Admin can still see the file via storage, and the request itself is valid.
+      }
     }
 
     // Update user verification_status to pending
@@ -112,7 +206,6 @@ export async function submitVerificationRequest(
         userId: user.id,
         error: updateError.message,
       });
-      // Request was inserted but status didn't update — not ideal but not fatal
     }
 
     return { success: true, data: undefined };

@@ -27,7 +27,7 @@
 | 1   | Project scaffolding (Next.js + Supabase + shadcn/ui) | `DONE` | 2026-03-08                                                                                                                      |
 | 2   | Auth: signup, login, logout                          | `DONE` | 2026-03-08. Supabase Auth + public.users table + proxy + forgot password                                                        |
 | 3   | Alumni verification workflow                         | `DONE` | 2026-03-09. Verification request form + admin queue with sheet detail panel + approve/reject/bulk approve + status banner.      |
-| 3a  | Verification: document upload (transcripts, diploma) | `TODO` | Allow users to attach proof files when submitting verification requests                                                         |
+| 3a  | Verification: document upload (transcripts, diploma) | `DONE` | 2026-03-09. Private storage bucket + verification_documents table. Up to 4 files (2MB each, PDF/JPEG/PNG/WebP). Admin sees docs with signed URLs in review sheet. |
 | 3b  | Schools table + school-aware validation              | `DONE` | 2026-03-09. `schools` table with PTNK seed, `school_id` FK on profiles/verification_requests, dynamic graduation year validation (1999–current+3), renamed `degree_program` → `specialization_name`. |
 | 4   | Profile: create & edit (progressive)                 | `DONE` | 2026-03-09. Profiles table + RLS + avatars bucket + onboarding flow + edit page + completeness tracking.                        |
 | 5   | Profile: career history (LinkedIn-style)             | `DONE` | 2026-03-09. career_entries table + RLS + CRUD actions + inline add/edit/delete forms + timeline display on profile view.        |

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 import {
@@ -14,14 +14,20 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import type { VerificationRequestWithUser } from "@/lib/types";
-import { approveRequest, rejectRequest } from "./actions";
+import type { VerificationRequestWithUser, VerificationDocument } from "@/lib/types";
+import { approveRequest, rejectRequest, getRequestDocuments } from "./actions";
 
 interface RequestDetailSheetProps {
   request: VerificationRequestWithUser | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onActionComplete: () => void;
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export function RequestDetailSheet({
@@ -34,6 +40,29 @@ export function RequestDetailSheet({
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [showRejectForm, setShowRejectForm] = useState(false);
+  const [documents, setDocuments] = useState<(VerificationDocument & { signed_url: string })[]>([]);
+  const [isLoadingDocs, setIsLoadingDocs] = useState(false);
+
+  // Fetch documents when the sheet opens with a request
+  useEffect(() => {
+    if (!open || !request) {
+      setDocuments([]);
+      return;
+    }
+
+    if (request.document_count === 0) {
+      setDocuments([]);
+      return;
+    }
+
+    setIsLoadingDocs(true);
+    getRequestDocuments(request.id).then((result) => {
+      setIsLoadingDocs(false);
+      if (result.success) {
+        setDocuments(result.data);
+      }
+    });
+  }, [open, request]);
 
   if (!request) return null;
 
@@ -126,6 +155,50 @@ export function RequestDetailSheet({
               <p>{new Date(request.created_at).toISOString().slice(0, 10)}</p>
             </div>
           </div>
+
+          {/* Documents section */}
+          {(request.document_count > 0 || isLoadingDocs) && (
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Supporting Documents ({request.document_count})
+                </p>
+                {isLoadingDocs ? (
+                  <p className="text-sm text-muted-foreground">Loading documents...</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {documents.map((doc) => (
+                      <li
+                        key={doc.id}
+                        className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-muted-foreground font-medium">
+                            {doc.content_type === "application/pdf" ? "PDF" : "IMG"}
+                          </span>
+                          <span className="truncate">{doc.file_name}</span>
+                          <span className="text-muted-foreground whitespace-nowrap">
+                            ({formatFileSize(doc.file_size)})
+                          </span>
+                        </div>
+                        {doc.signed_url && (
+                          <a
+                            href={doc.signed_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-2 whitespace-nowrap text-sm font-medium text-primary hover:underline"
+                          >
+                            View
+                          </a>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </>
+          )}
 
           <Separator />
 

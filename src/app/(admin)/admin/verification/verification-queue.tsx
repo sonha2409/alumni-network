@@ -97,7 +97,7 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
         </CardHeader>
         <CardContent>
           {/* Table header */}
-          <div className="hidden sm:grid sm:grid-cols-[auto_1fr_1fr_1fr_1fr_auto] sm:gap-4 sm:border-b sm:pb-3 sm:text-sm sm:font-medium sm:text-muted-foreground">
+          <div className="hidden sm:grid sm:grid-cols-[auto_1fr_1fr_1fr_auto_1fr_auto] sm:gap-4 sm:border-b sm:pb-3 sm:text-sm sm:font-medium sm:text-muted-foreground">
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -110,6 +110,7 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
             <div>Name</div>
             <div>Program/Class</div>
             <div>Grad Year</div>
+            <div>Docs</div>
             <div>Submitted</div>
             <div>Action</div>
           </div>
@@ -119,7 +120,7 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
             {requests.map((request) => (
               <div
                 key={request.id}
-                className="grid grid-cols-1 gap-2 py-3 sm:grid-cols-[auto_1fr_1fr_1fr_1fr_auto] sm:items-center sm:gap-4"
+                className="grid grid-cols-1 gap-2 py-3 sm:grid-cols-[auto_1fr_1fr_1fr_auto_1fr_auto] sm:items-center sm:gap-4"
               >
                 <div className="flex items-center">
                   <input
@@ -157,6 +158,11 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
                 <div className="text-sm">
                   <span className="sm:hidden text-muted-foreground">Grad Year: </span>
                   {request.graduation_year}
+                </div>
+
+                <div className="text-sm text-muted-foreground">
+                  <span className="sm:hidden">Docs: </span>
+                  {request.document_count > 0 ? `${request.document_count} file${request.document_count !== 1 ? "s" : ""}` : "—"}
                 </div>
 
                 <div className="text-sm text-muted-foreground">

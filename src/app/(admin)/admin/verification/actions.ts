@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
-import type { ActionResult } from "@/lib/types";
+import type { ActionResult, VerificationDocument } from "@/lib/types";
 
 async function assertAdmin() {
   const supabase = await createClient();
@@ -195,4 +195,57 @@ export async function bulkApproveRequests(
 
   revalidatePath("/admin/verification");
   return { success: true, data: { approved, failed } };
+}
+
+/**
+ * Fetch documents for a verification request and generate signed URLs for admin viewing.
+ */
+export async function getRequestDocuments(
+  requestId: string
+): Promise<ActionResult<(VerificationDocument & { signed_url: string })[]>> {
+  const { supabase, error: authError } = await assertAdmin();
+  if (authError || !supabase) {
+    return { success: false, error: authError ?? "Unauthorized" };
+  }
+
+  const { data: docs, error } = await supabase
+    .from("verification_documents")
+    .select("*")
+    .eq("request_id", requestId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("[ServerAction:getRequestDocuments]", {
+      requestId,
+      error: error.message,
+    });
+    return { success: false, error: "Failed to fetch documents." };
+  }
+
+  if (!docs || docs.length === 0) {
+    return { success: true, data: [] };
+  }
+
+  // Generate signed URLs (valid for 1 hour)
+  const docsWithUrls = await Promise.all(
+    docs.map(async (doc) => {
+      const { data: signedData, error: signError } = await supabase.storage
+        .from("verification-documents")
+        .createSignedUrl(doc.file_path, 3600);
+
+      if (signError) {
+        console.error("[ServerAction:getRequestDocuments]", {
+          filePath: doc.file_path,
+          error: signError.message,
+        });
+      }
+
+      return {
+        ...(doc as VerificationDocument),
+        signed_url: signedData?.signedUrl ?? "",
+      };
+    })
+  );
+
+  return { success: true, data: docsWithUrls };
 }

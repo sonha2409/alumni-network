@@ -106,11 +106,22 @@ export interface VerificationRequest {
   updated_at: string;
 }
 
+export interface VerificationDocument {
+  id: string;
+  request_id: string;
+  file_name: string;
+  file_path: string;
+  file_size: number;
+  content_type: string;
+  created_at: string;
+}
+
 /** Verification request joined with user profile data for admin queue display. */
 export interface VerificationRequestWithUser extends VerificationRequest {
   user_full_name: string;
   user_email: string;
   user_photo_url: string | null;
+  document_count: number;
 }
 
 /** Profile joined with industry/specialization names for display. */

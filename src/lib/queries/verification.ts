@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { VerificationRequest, VerificationRequestWithUser } from "@/lib/types";
+import type { VerificationRequest, VerificationRequestWithUser, VerificationDocument } from "@/lib/types";
 
 /**
  * Fetch the latest verification request for a user.
@@ -52,12 +52,14 @@ export async function getPendingVerificationRequests(): Promise<
 
   if (!requests || requests.length === 0) return [];
 
-  // Fetch user emails and profile data for all request user_ids
+  // Fetch user emails, profile data, and document counts for all requests
   const userIds = requests.map((r) => r.user_id);
+  const requestIds = requests.map((r) => r.id);
 
-  const [usersResult, profilesResult] = await Promise.all([
+  const [usersResult, profilesResult, docsResult] = await Promise.all([
     supabase.from("users").select("id, email").in("id", userIds),
     supabase.from("profiles").select("user_id, full_name, photo_url").in("user_id", userIds),
+    supabase.from("verification_documents").select("request_id").in("request_id", requestIds),
   ]);
 
   const usersMap = new Map(
@@ -67,6 +69,12 @@ export async function getPendingVerificationRequests(): Promise<
     (profilesResult.data ?? []).map((p) => [p.user_id, p])
   );
 
+  // Count documents per request
+  const docCountMap = new Map<string, number>();
+  for (const doc of docsResult.data ?? []) {
+    docCountMap.set(doc.request_id, (docCountMap.get(doc.request_id) ?? 0) + 1);
+  }
+
   return requests.map((request) => {
     const user = usersMap.get(request.user_id);
     const profile = profilesMap.get(request.user_id);
@@ -75,6 +83,7 @@ export async function getPendingVerificationRequests(): Promise<
       user_full_name: profile?.full_name ?? "Unknown",
       user_photo_url: profile?.photo_url ?? null,
       user_email: user?.email ?? "Unknown",
+      document_count: docCountMap.get(request.id) ?? 0,
     } as VerificationRequestWithUser;
   });
 }
@@ -102,9 +111,10 @@ export async function getVerificationRequestById(
     return null;
   }
 
-  const [userResult, profileResult] = await Promise.all([
+  const [userResult, profileResult, docsResult] = await Promise.all([
     supabase.from("users").select("email").eq("id", request.user_id).single(),
     supabase.from("profiles").select("full_name, photo_url").eq("user_id", request.user_id).single(),
+    supabase.from("verification_documents").select("id").eq("request_id", requestId),
   ]);
 
   return {
@@ -112,7 +122,33 @@ export async function getVerificationRequestById(
     user_full_name: profileResult.data?.full_name ?? "Unknown",
     user_photo_url: profileResult.data?.photo_url ?? null,
     user_email: userResult.data?.email ?? "Unknown",
+    document_count: docsResult.data?.length ?? 0,
   } as VerificationRequestWithUser;
+}
+
+/**
+ * Fetch all documents for a verification request.
+ */
+export async function getDocumentsForRequest(
+  requestId: string
+): Promise<VerificationDocument[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("verification_documents")
+    .select("*")
+    .eq("request_id", requestId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("[Query:getDocumentsForRequest]", {
+      requestId,
+      error: error.message,
+    });
+    return [];
+  }
+
+  return (data ?? []) as VerificationDocument[];
 }
 
 /**
