@@ -36,8 +36,8 @@
 | 8   | Profile: availability tags                           | `DONE` | 2026-03-09. availability_tag_types + user_availability_tags junction table + RLS + checkbox UI + badge display on profile view. |
 | 9   | Profile: visibility controls                         | `TODO` | Connected-only details first                                                                                                    |
 | 10  | Industry taxonomy (two-level)                        | `DONE` | 2026-03-09. Schema + RLS + seed (20 industries, 132 specializations) + query helpers. No UI yet.                                |
-| 11  | Alumni directory: search + filters                   | `TODO` | Server-side Supabase queries                                                                                                    |
-| 12  | Alumni directory: pagination                         | `TODO` | Cursor-based                                                                                                                    |
+| 11  | Alumni directory: search + filters                   | `DONE` | 2026-03-09. Full-text search (tsvector), combinable filters (industry, specialization, grad year range, country, city), sort (name, grad year, recently active), nuqs URL state. |
+| 12  | Alumni directory: pagination                         | `DONE` | 2026-03-09. Offset-based pagination (20/page), smart page number display with ellipsis. Cursor-based deferred to Phase 3 (100k+ scale). |
 | 13  | Recommendation engine (rule-based scoring)           | `TODO` | Same field, location, year weights                                                                                              |
 | 14  | Cold-start: onboarding quiz                          | `TODO` | 3-4 questions post-signup                                                                                                       |
 | 15  | Cold-start: same-year classmates                     | `TODO` | Default fallback                                                                                                                |

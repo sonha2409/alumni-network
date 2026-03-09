@@ -79,7 +79,7 @@ export function RequestDetailSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 space-y-4 px-4">
           <div className="flex items-center gap-3">
             {request.user_photo_url ? (
               <img

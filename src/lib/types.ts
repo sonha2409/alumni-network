@@ -185,3 +185,52 @@ export interface UserAvailabilityTag {
   tag_type_id: string;
   created_at: string;
 }
+
+// =============================================================================
+// Directory Types
+// =============================================================================
+
+/** Filters for the alumni directory search. */
+export interface DirectoryFilters {
+  query?: string;
+  industryId?: string;
+  specializationId?: string;
+  graduationYearMin?: number;
+  graduationYearMax?: number;
+  country?: string;
+  stateProvince?: string;
+  city?: string;
+  availabilityTagIds?: string[];
+  sortBy?: "relevance" | "graduation_year" | "name" | "recently_active";
+  sortOrder?: "asc" | "desc";
+  page?: number;
+  pageSize?: number;
+}
+
+/** A single profile card in directory results. */
+export interface DirectoryProfile {
+  id: string;
+  user_id: string;
+  full_name: string;
+  photo_url: string | null;
+  graduation_year: number;
+  country: string | null;
+  state_province: string | null;
+  city: string | null;
+  bio: string | null;
+  last_active_at: string;
+  primary_industry: { id: string; name: string } | null;
+  primary_specialization: { id: string; name: string } | null;
+  current_job_title: string | null;
+  current_company: string | null;
+  availability_tags: { id: string; name: string; slug: string }[];
+}
+
+/** Paginated directory search result. */
+export interface DirectoryResult {
+  profiles: DirectoryProfile[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}

@@ -20,6 +20,7 @@ interface MainNavbarClientProps {
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/directory", label: "Directory" },
   { href: "/verification", label: "Verification" },
 ];
 
