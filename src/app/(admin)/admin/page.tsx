@@ -79,6 +79,17 @@ export default async function AdminDashboardPage() {
             </CardHeader>
           </Card>
         </Link>
+
+        <Link href="/admin/analytics">
+          <Card className="transition-colors hover:border-primary/50">
+            <CardHeader>
+              <CardTitle>Analytics</CardTitle>
+              <CardDescription>
+                Platform usage statistics, trends, and demographics.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
       </div>
     </div>
   );
