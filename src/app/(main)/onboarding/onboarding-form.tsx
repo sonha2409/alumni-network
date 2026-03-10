@@ -32,8 +32,8 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
 
   useEffect(() => {
     if (state?.success) {
-      toast.success("Profile created! Welcome to AlumNet.");
-      router.push("/dashboard");
+      toast.success("Profile created! Let's set up a few more things.");
+      router.push("/onboarding/quiz");
     }
   }, [state, router]);
 

@@ -308,6 +308,13 @@ export interface RecommendedProfile extends DirectoryProfile {
   score: number;
 }
 
+/** A popular/trending alumni profile. */
+export interface PopularProfile extends DirectoryProfile {
+  popularity_score: number;
+  view_count: number;
+  connection_count: number;
+}
+
 /** Paginated directory search result. */
 export interface DirectoryResult {
   profiles: DirectoryProfile[];

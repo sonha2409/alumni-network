@@ -21,6 +21,7 @@ import type { ProfileVisibilityTier } from "@/lib/types";
 import { ConnectionActions } from "./connection-actions";
 import { RestrictedSection } from "./restricted-section";
 import { ContactDetailsDisplay } from "./contact-details-display";
+import { ViewTracker } from "./view-tracker";
 
 interface ProfilePageProps {
   params: Promise<{ id: string }>;
@@ -87,6 +88,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   return (
     <div className="mx-auto max-w-2xl">
+      {/* Track profile view (fire-and-forget, not for own profile) */}
+      {!isOwnProfile && user && <ViewTracker profileId={profile.id} />}
       <Card>
         <CardHeader>
           <div className="flex items-start gap-4">

@@ -1,22 +1,33 @@
 import { createClient } from "@/lib/supabase/server";
-import type { RecommendedProfile } from "@/lib/types";
+import type { RecommendedProfile, PopularProfile } from "@/lib/types";
+
+const COLD_START_THRESHOLD = 40;
 
 /**
  * Get recommended alumni for a user using rule-based scoring.
  * Calls the Postgres function `get_recommended_alumni` which scores by
  * specialization, industry, location, grad year, company, availability, and mutual connections.
  *
+ * Automatically detects cold-start users (profile_completeness < 40) and
+ * boosts same-year classmates in scoring.
+ *
  * Falls back to recently active verified alumni if no scored results.
  */
 export async function getRecommendedAlumni(
   userId: string,
-  limit: number = 20
+  limit: number = 20,
+  profileCompleteness?: number
 ): Promise<RecommendedProfile[]> {
   const supabase = await createClient();
+
+  const isColdStart = profileCompleteness !== undefined
+    ? profileCompleteness < COLD_START_THRESHOLD
+    : false;
 
   const { data, error } = await supabase.rpc("get_recommended_alumni", {
     p_user_id: userId,
     p_limit: limit,
+    p_is_cold_start: isColdStart,
   });
 
   if (error) {
@@ -72,6 +83,79 @@ export async function getRecommendedAlumni(
       current_company: career?.company ?? null,
       availability_tags: tagsMap[id] ?? [],
       score: r.score as number,
+    };
+  });
+}
+
+/**
+ * Get popular alumni ranked by composite score:
+ * views (30 days) + connections * 3 + recency bonus.
+ */
+export async function getPopularAlumni(
+  userId: string,
+  limit: number = 10
+): Promise<PopularProfile[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.rpc("get_popular_alumni", {
+    p_user_id: userId,
+    p_limit: limit,
+  });
+
+  if (error) {
+    console.error("[Query:getPopularAlumni]", {
+      userId,
+      error: error.message,
+    });
+    return [];
+  }
+
+  if (!data || data.length === 0) {
+    return [];
+  }
+
+  const profileIds = data.map(
+    (r: Record<string, unknown>) => r.profile_id as string
+  );
+
+  const [careerMap, tagsMap] = await Promise.all([
+    fetchCurrentCareers(profileIds),
+    fetchAvailabilityTags(profileIds),
+  ]);
+
+  return data.map((r: Record<string, unknown>) => {
+    const id = r.profile_id as string;
+    const career = careerMap[id];
+    return {
+      id,
+      user_id: r.user_id as string,
+      full_name: r.full_name as string,
+      photo_url: r.photo_url as string | null,
+      graduation_year: r.graduation_year as number,
+      country: r.country as string | null,
+      state_province: r.state_province as string | null,
+      city: r.city as string | null,
+      bio: r.bio as string | null,
+      has_contact_details: (r.has_contact_details as boolean) ?? false,
+      last_active_at: r.last_active_at as string,
+      primary_industry: r.primary_industry_name
+        ? {
+            id: r.primary_industry_id as string,
+            name: r.primary_industry_name as string,
+          }
+        : null,
+      primary_specialization: r.primary_specialization_name
+        ? {
+            id: r.primary_specialization_id as string,
+            name: r.primary_specialization_name as string,
+          }
+        : null,
+      current_job_title: career?.job_title ?? null,
+      current_company: career?.company ?? null,
+      availability_tags: tagsMap[id] ?? [],
+      popularity_score: Number(r.popularity_score) || 0,
+      view_count: Number(r.view_count) || 0,
+      connection_count: Number(r.connection_count) || 0,
     };
   });
 }

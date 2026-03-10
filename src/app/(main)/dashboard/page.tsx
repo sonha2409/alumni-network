@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getProfileByUserId } from "@/lib/queries/profiles";
-import { getRecommendedAlumni } from "@/lib/queries/recommendations";
+import { getRecommendedAlumni, getPopularAlumni } from "@/lib/queries/recommendations";
 import { getConnectionStatusMap } from "@/lib/queries/connections";
 import { DashboardClient } from "./dashboard-client";
 
@@ -22,16 +22,26 @@ export default async function DashboardPage() {
         userName={user.email?.split("@")[0] ?? "there"}
         hasProfile={false}
         recommendations={[]}
+        popularAlumni={[]}
         connectionStatuses={{}}
         profileCompleteness={0}
       />
     );
   }
 
-  // Fetch recommendations and connection statuses in parallel
-  const recommendations = await getRecommendedAlumni(user.id, 20);
-  const userIds = recommendations.map((r) => r.user_id);
-  const statusMap = await getConnectionStatusMap(user.id, userIds);
+  // Fetch recommendations and popular alumni in parallel
+  const [recommendations, popularAlumni] = await Promise.all([
+    getRecommendedAlumni(user.id, 20, profile.profile_completeness),
+    getPopularAlumni(user.id, 10),
+  ]);
+
+  // Collect all user IDs to fetch connection statuses
+  const allUserIds = [
+    ...recommendations.map((r) => r.user_id),
+    ...popularAlumni.map((p) => p.user_id),
+  ];
+  const uniqueUserIds = [...new Set(allUserIds)];
+  const statusMap = await getConnectionStatusMap(user.id, uniqueUserIds);
 
   // Convert Map to plain object for client component serialization
   const connectionStatuses: Record<
@@ -47,6 +57,7 @@ export default async function DashboardPage() {
       userName={profile.full_name.split(" ")[0]}
       hasProfile={true}
       recommendations={recommendations}
+      popularAlumni={popularAlumni}
       connectionStatuses={connectionStatuses}
       profileCompleteness={profile.profile_completeness}
     />

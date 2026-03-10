@@ -10,16 +10,19 @@ import {
   Search,
   UserPlus,
   TrendingUp,
+  Flame,
 } from "lucide-react";
 
-import type { RecommendedProfile } from "@/lib/types";
+import type { RecommendedProfile, PopularProfile } from "@/lib/types";
 import { RecommendationCard } from "./recommendation-card";
 import { RecommendationListItem } from "./recommendation-list-item";
+import { PopularCard } from "./popular-card";
 
 interface DashboardClientProps {
   userName: string;
   hasProfile: boolean;
   recommendations: RecommendedProfile[];
+  popularAlumni: PopularProfile[];
   connectionStatuses: Record<
     string,
     "connected" | "pending_sent" | "pending_received"
@@ -31,10 +34,15 @@ export function DashboardClient({
   userName,
   hasProfile,
   recommendations,
+  popularAlumni,
   connectionStatuses,
   profileCompleteness,
 }: DashboardClientProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  // Filter popular alumni that aren't already in recommendations
+  const recommendedIds = new Set(recommendations.map((r) => r.id));
+  const filteredPopular = popularAlumni.filter((p) => !recommendedIds.has(p.id));
 
   return (
     <div className="flex flex-col gap-8">
@@ -219,6 +227,36 @@ export function DashboardClient({
               </Link>
             </div>
           )}
+        </section>
+      )}
+
+      {/* Popular Alumni section */}
+      {hasProfile && filteredPopular.length > 0 && (
+        <section>
+          <div className="flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 dark:bg-orange-500/15">
+              <Flame className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold leading-tight">
+                Trending Alumni
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Most active and well-connected members
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredPopular.slice(0, 8).map((profile, index) => (
+              <PopularCard
+                key={profile.id}
+                profile={profile}
+                connectionStatus={connectionStatuses[profile.user_id]}
+                index={index}
+              />
+            ))}
+          </div>
         </section>
       )}
     </div>
