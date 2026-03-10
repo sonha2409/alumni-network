@@ -311,3 +311,87 @@ export interface DirectoryResult {
   pageSize: number;
   totalPages: number;
 }
+
+// =============================================================================
+// Messaging Types
+// =============================================================================
+
+export interface Conversation {
+  id: string;
+  last_message_at: string | null;
+  last_message_preview: string | null;
+  is_active: boolean;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConversationParticipant {
+  id: string;
+  conversation_id: string;
+  user_id: string;
+  last_read_at: string;
+  is_muted: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Message {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  content: string;
+  is_edited: boolean;
+  edited_at: string | null;
+  is_deleted: boolean;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Conversation list item with other participant's profile and unread count. */
+export interface ConversationWithDetails {
+  id: string;
+  last_message_at: string | null;
+  last_message_preview: string | null;
+  is_active: boolean;
+  created_at: string;
+  other_participant: {
+    user_id: string;
+    full_name: string;
+    photo_url: string | null;
+    profile_id: string;
+  };
+  unread_count: number;
+  is_muted: boolean;
+}
+
+/** Message with sender profile info for chat display. */
+export interface MessageWithSender extends Message {
+  sender: {
+    user_id: string;
+    full_name: string;
+    photo_url: string | null;
+  };
+}
+
+export interface MessageReport {
+  id: string;
+  message_id: string;
+  reporter_id: string;
+  reason: string;
+  status: "pending" | "reviewed" | "action_taken" | "dismissed";
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  reviewer_notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Rate limit info returned with messaging actions. */
+export interface RateLimitInfo {
+  allowed: boolean;
+  remaining: number;
+  limit: number;
+  resetsAt: string;
+}

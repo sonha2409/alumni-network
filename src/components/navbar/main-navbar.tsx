@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getProfileByUserId } from "@/lib/queries/profiles";
 import { getPendingReceivedCount } from "@/lib/queries/connections";
+import { getTotalUnreadCount } from "@/lib/queries/messages";
 import { MainNavbarClient } from "./main-navbar-client";
 
 export interface NavbarUserData {
@@ -10,6 +11,8 @@ export interface NavbarUserData {
   photoUrl: string | null;
   profileId: string | null;
   pendingConnectionCount: number;
+  unreadMessageCount: number;
+  userId: string;
 }
 
 export async function MainNavbar() {
@@ -27,11 +30,13 @@ export async function MainNavbar() {
     .eq("id", user.id)
     .single();
 
-  // Fetch profile for avatar and name + pending connection count
-  const [profile, pendingConnectionCount] = await Promise.all([
-    getProfileByUserId(user.id),
-    getPendingReceivedCount(user.id),
-  ]);
+  // Fetch profile for avatar and name + pending connection count + unread messages
+  const [profile, pendingConnectionCount, unreadMessageCount] =
+    await Promise.all([
+      getProfileByUserId(user.id),
+      getPendingReceivedCount(user.id),
+      getTotalUnreadCount(user.id),
+    ]);
 
   const userData: NavbarUserData = {
     email: user.email ?? "",
@@ -40,6 +45,8 @@ export async function MainNavbar() {
     photoUrl: profile?.photo_url ?? null,
     profileId: profile?.id ?? null,
     pendingConnectionCount,
+    unreadMessageCount,
+    userId: user.id,
   };
 
   return <MainNavbarClient user={userData} />;

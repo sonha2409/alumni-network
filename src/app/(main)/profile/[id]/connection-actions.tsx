@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   UserPlus,
   Clock,
@@ -32,6 +33,7 @@ import {
   blockUser,
   unblockUser,
 } from "@/app/(main)/connections/actions";
+import { getOrCreateConversation } from "@/app/(main)/messages/actions";
 
 interface ConnectionActionsProps {
   targetUserId: string;
@@ -44,6 +46,7 @@ export function ConnectionActions({
   relationship,
   isVerified,
 }: ConnectionActionsProps) {
+  const router = useRouter();
   const [status, setStatus] = useState(relationship.status);
   const [connId, setConnId] = useState(relationship.connectionId);
   const [blkId, setBlkId] = useState(relationship.blockId);
@@ -283,10 +286,35 @@ export function ConnectionActions({
         )}
 
         {status === "connected" && (
-          <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-600 transition-all duration-300 dark:text-emerald-400">
-            <UserCheck className="h-4 w-4" />
-            Connected
-          </div>
+          <>
+            <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-600 transition-all duration-300 dark:text-emerald-400">
+              <UserCheck className="h-4 w-4" />
+              Connected
+            </div>
+            <Button
+              onClick={() => {
+                startTransition(async () => {
+                  const result = await getOrCreateConversation(targetUserId);
+                  if (result.success) {
+                    router.push(`/messages/${result.data.conversationId}`);
+                  } else {
+                    toast.error(result.error);
+                  }
+                });
+              }}
+              disabled={isPending}
+              variant="outline"
+              size="sm"
+              className="transition-colors duration-200"
+            >
+              {isPending ? (
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              ) : (
+                <MessageSquare className="mr-1.5 h-4 w-4" />
+              )}
+              Message
+            </Button>
+          </>
         )}
 
         {status === "blocked_by_me" && (

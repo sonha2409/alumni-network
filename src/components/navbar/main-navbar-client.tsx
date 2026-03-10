@@ -22,6 +22,7 @@ const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/directory", label: "Directory" },
   { href: "/connections", label: "Connections" },
+  { href: "/messages", label: "Messages" },
   { href: "/verification", label: "Verification" },
 ];
 
@@ -85,6 +86,14 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
                 user.pendingConnectionCount > 0 && (
                   <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white animate-in zoom-in-50 duration-300">
                     {user.pendingConnectionCount}
+                  </span>
+                )}
+              {link.href === "/messages" &&
+                user.unreadMessageCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-bold text-white animate-in zoom-in-50 duration-300">
+                    {user.unreadMessageCount > 99
+                      ? "99+"
+                      : user.unreadMessageCount}
                   </span>
                 )}
             </Link>
@@ -203,6 +212,14 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
                   user.pendingConnectionCount > 0 && (
                     <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white">
                       {user.pendingConnectionCount}
+                    </span>
+                  )}
+                {link.href === "/messages" &&
+                  user.unreadMessageCount > 0 && (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-500 px-1 text-[11px] font-bold text-white">
+                      {user.unreadMessageCount > 99
+                        ? "99+"
+                        : user.unreadMessageCount}
                     </span>
                   )}
               </Link>

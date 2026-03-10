@@ -43,9 +43,9 @@
 | 15  | Cold-start: same-year classmates                     | `TODO` | Default fallback                                                                                                                |
 | 16  | Cold-start: popular/active profiles                  | `TODO` | Most-viewed, most-connected                                                                                                     |
 | 17  | Connection system: send/accept/reject requests       | `DONE` | 2026-03-09. connections + blocks tables, RLS, 6 server actions, connections page with tabs, profile action buttons, directory status dots, navbar badge. |
-| 18  | Real-time messaging (WebSocket)                      | `TODO` | Supabase Realtime                                                                                                               |
-| 19  | Message rate limiting                                | `TODO` | Daily caps for new users                                                                                                        |
-| 20  | Message reporting                                    | `TODO` | Flag to moderator queue                                                                                                         |
+| 18  | Real-time messaging (WebSocket)                      | `DONE` | 2026-03-10. Supabase Realtime. conversations + messages tables, optimistic UI, 5-min timestamp grouping, tap-to-toggle timestamps. |
+| 19  | Message rate limiting                                | `DONE` | 2026-03-10. Tier-based: 20/day (new), 500/day (established), unlimited (admin). 5 new convos/day (new), 20/day (established).   |
+| 20  | Message reporting                                    | `DONE` | 2026-03-10. Anonymous reports to moderator queue. UNIQUE(message_id, reporter_id). Status workflow: pending → reviewed → action_taken/dismissed. |
 | 21  | Notifications: in-app                                | `TODO` | Bell icon, unread count                                                                                                         |
 | 22  | Notifications: email                                 | `TODO` | Connection requests, new messages                                                                                               |
 | 23  | Groups: basic (admin-created)                        | `TODO` | By year, field, location                                                                                                        |
