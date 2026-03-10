@@ -312,7 +312,8 @@ export async function sendMessage(
         "new_message",
         `New message from ${senderName}`,
         preview,
-        `/messages?conversation=${conversationId}`
+        `/messages?conversation=${conversationId}`,
+        { actorName: senderName }
       );
     }
 

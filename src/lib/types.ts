@@ -430,3 +430,12 @@ export interface Notification {
   created_at: string;
   updated_at: string;
 }
+
+export interface NotificationPreference {
+  id: string;
+  user_id: string;
+  notification_type: NotificationType;
+  email_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}

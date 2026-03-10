@@ -151,7 +151,8 @@ export async function sendConnectionRequest(
       "connection_request",
       "New connection request",
       `${senderName} sent you a connection request.`,
-      "/connections"
+      "/connections",
+      { actorName: senderName }
     );
 
     revalidatePath("/connections");
@@ -249,7 +250,8 @@ export async function acceptConnectionRequest(
       "connection_accepted",
       "Connection accepted",
       `${acceptorName} accepted your connection request.`,
-      profileLink
+      profileLink,
+      { actorName: acceptorName }
     );
 
     revalidatePath("/connections");

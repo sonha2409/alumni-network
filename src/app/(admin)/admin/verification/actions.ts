@@ -93,7 +93,8 @@ export async function approveRequest(requestId: string): Promise<ActionResult> {
       "verification_update",
       "Verification approved!",
       "Your alumni status has been verified. You now have full access to the platform.",
-      "/dashboard"
+      "/dashboard",
+      { verificationStatus: "approved" }
     );
 
     revalidatePath("/admin/verification");
@@ -178,7 +179,8 @@ export async function rejectRequest(
       reviewMessage
         ? `Your verification request needs attention: ${reviewMessage}`
         : "Your verification request was not approved. Please review and resubmit.",
-      "/verification"
+      "/verification",
+      { verificationStatus: "rejected" }
     );
 
     revalidatePath("/admin/verification");

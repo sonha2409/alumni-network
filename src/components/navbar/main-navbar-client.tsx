@@ -156,6 +156,11 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
               >
                 Edit Profile
               </DropdownMenuItem>
+              <DropdownMenuItem
+                render={<Link href="/settings/notifications" />}
+              >
+                Settings
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
@@ -252,6 +257,13 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
               onClick={() => setMobileMenuOpen(false)}
             >
               My Profile
+            </Link>
+            <Link
+              href="/settings/notifications"
+              className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Settings
             </Link>
             {isAdmin && (
               <Link
