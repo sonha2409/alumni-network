@@ -44,6 +44,14 @@ const ACTION_LABELS: Record<AdminAction, string> = {
   promote: "Promoted to moderator",
   demote: "Demoted to user",
   delete: "Deleted account",
+  taxonomy_create_industry: "Created industry",
+  taxonomy_update_industry: "Updated industry",
+  taxonomy_archive_industry: "Archived industry",
+  taxonomy_restore_industry: "Restored industry",
+  taxonomy_create_specialization: "Created specialization",
+  taxonomy_update_specialization: "Updated specialization",
+  taxonomy_archive_specialization: "Archived specialization",
+  taxonomy_restore_specialization: "Restored specialization",
 };
 
 export function UserDetailSheet({

@@ -513,7 +513,36 @@ export type AdminAction =
   | "unsuspend"
   | "promote"
   | "demote"
-  | "delete";
+  | "delete"
+  | "taxonomy_create_industry"
+  | "taxonomy_update_industry"
+  | "taxonomy_archive_industry"
+  | "taxonomy_restore_industry"
+  | "taxonomy_create_specialization"
+  | "taxonomy_update_specialization"
+  | "taxonomy_archive_specialization"
+  | "taxonomy_restore_specialization";
+
+// =============================================================================
+// Admin Taxonomy Management Types
+// =============================================================================
+
+export interface AdminIndustryRow extends Industry {
+  user_count: number;
+  specializations: AdminSpecializationRow[];
+}
+
+export interface AdminSpecializationRow extends Specialization {
+  user_count: number;
+}
+
+export interface AdminTaxonomyData {
+  industries: AdminIndustryRow[];
+  totalIndustries: number;
+  totalSpecializations: number;
+  totalArchivedIndustries: number;
+  totalArchivedSpecializations: number;
+}
 
 export interface AdminAuditLogEntry {
   id: string;
