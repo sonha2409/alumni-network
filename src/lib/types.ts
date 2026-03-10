@@ -500,3 +500,60 @@ export interface GroupsResult {
   pageSize: number;
   totalPages: number;
 }
+
+// =============================================================================
+// Admin User Management Types
+// =============================================================================
+
+export type AdminAction =
+  | "verify"
+  | "ban"
+  | "unban"
+  | "suspend"
+  | "unsuspend"
+  | "promote"
+  | "demote"
+  | "delete";
+
+export interface AdminAuditLogEntry {
+  id: string;
+  admin_id: string;
+  target_user_id: string;
+  action: AdminAction;
+  details: Record<string, unknown>;
+  created_at: string;
+  admin_name: string | null;
+}
+
+export interface AdminUserRow {
+  id: string;
+  email: string;
+  role: "user" | "moderator" | "admin";
+  verification_status: "unverified" | "pending" | "verified" | "rejected";
+  is_active: boolean;
+  suspended_until: string | null;
+  ban_reason: string | null;
+  created_at: string;
+  full_name: string | null;
+  photo_url: string | null;
+  graduation_year: number | null;
+  primary_industry_name: string | null;
+  last_active_at: string | null;
+}
+
+export interface AdminUserFilters {
+  search?: string;
+  role?: "user" | "moderator" | "admin";
+  verificationStatus?: "unverified" | "pending" | "verified" | "rejected";
+  isActive?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminUsersResult {
+  users: AdminUserRow[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}

@@ -48,9 +48,10 @@ export default async function proxy(request: NextRequest) {
   const isPublicRoute = pathname === "/" || isAuthRoute;
   const isOnboarding = pathname.startsWith("/onboarding");
   const isAuthCallback = pathname.startsWith("/auth/callback");
+  const isBannedPage = pathname === "/banned";
 
   // Redirect unauthenticated users away from protected routes
-  if (!user && !isPublicRoute) {
+  if (!user && !isPublicRoute && !isBannedPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
@@ -63,9 +64,52 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Check if user is banned or suspended — redirect to /banned page
+  if (user && !isBannedPage && !isAuthCallback) {
+    const { data: userData } = await supabase
+      .from("users")
+      .select("is_active, suspended_until")
+      .eq("id", user.id)
+      .single();
+
+    if (userData) {
+      const isBanned = !userData.is_active;
+      const isSuspended =
+        userData.suspended_until !== null &&
+        new Date(userData.suspended_until) > new Date();
+
+      if (isBanned || isSuspended) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/banned";
+        return NextResponse.redirect(url);
+      }
+    }
+
+    // If user is on /banned but is no longer banned/suspended, redirect to dashboard
+  } else if (user && isBannedPage) {
+    const { data: userData } = await supabase
+      .from("users")
+      .select("is_active, suspended_until")
+      .eq("id", user.id)
+      .single();
+
+    if (userData) {
+      const isBanned = !userData.is_active;
+      const isSuspended =
+        userData.suspended_until !== null &&
+        new Date(userData.suspended_until) > new Date();
+
+      if (!isBanned && !isSuspended) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/dashboard";
+        return NextResponse.redirect(url);
+      }
+    }
+  }
+
   // Redirect authenticated users without a profile to onboarding
-  // Skip this check for onboarding page itself, auth callback, and public routes
-  if (user && !isOnboarding && !isAuthCallback && !isPublicRoute) {
+  // Skip this check for onboarding page itself, auth callback, banned page, and public routes
+  if (user && !isOnboarding && !isAuthCallback && !isPublicRoute && !isBannedPage) {
     const { count } = await supabase
       .from("profiles")
       .select("id", { count: "exact", head: true })
