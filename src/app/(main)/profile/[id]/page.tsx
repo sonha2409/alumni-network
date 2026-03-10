@@ -14,8 +14,13 @@ import { getProfileWithIndustry } from "@/lib/queries/profiles";
 import { getCareerEntriesWithIndustry } from "@/lib/queries/career-entries";
 import { getEducationEntriesByProfileId } from "@/lib/queries/education-entries";
 import { getAvailabilityTagsByProfileId } from "@/lib/queries/availability-tags";
+import { getContactDetailsByProfileId } from "@/lib/queries/contact-details";
 import { getRelationshipInfo } from "@/lib/queries/connections";
+import { getVisibilityTier } from "@/lib/visibility";
+import type { ProfileVisibilityTier } from "@/lib/types";
 import { ConnectionActions } from "./connection-actions";
+import { RestrictedSection } from "./restricted-section";
+import { ContactDetailsDisplay } from "./contact-details-display";
 
 interface ProfilePageProps {
   params: Promise<{ id: string }>;
@@ -52,24 +57,33 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const isOwnProfile = user?.id === profile.user_id;
 
-  // Fetch relationship info + verification status for non-own profiles
+  // Determine visibility tier
+  let visibilityTier: ProfileVisibilityTier = "tier1_unverified";
   let relationship = null;
-  let isVerified = false;
-  if (user && !isOwnProfile) {
-    const { data: currentUser } = await supabase
-      .from("users")
-      .select("verification_status")
-      .eq("id", user.id)
-      .single();
-    isVerified = currentUser?.verification_status === "verified";
-    relationship = await getRelationshipInfo(user.id, profile.user_id);
+
+  if (user) {
+    if (isOwnProfile) {
+      visibilityTier = "tier3_connected";
+    } else {
+      visibilityTier = await getVisibilityTier(user.id, profile.user_id);
+      relationship = await getRelationshipInfo(user.id, profile.user_id);
+    }
   }
 
-  const [careerEntries, educationEntries, availabilityTags] = await Promise.all([
-    getCareerEntriesWithIndustry(id),
-    getEducationEntriesByProfileId(id),
-    getAvailabilityTagsByProfileId(id),
-  ]);
+  const isVerified = visibilityTier !== "tier1_unverified";
+  const showFullProfile = visibilityTier !== "tier1_unverified";
+  const showContactDetails = visibilityTier === "tier3_connected";
+
+  // Only fetch detailed data if the viewer can see it
+  const [careerEntries, educationEntries, availabilityTags, contactDetails] =
+    await Promise.all([
+      showFullProfile ? getCareerEntriesWithIndustry(id) : Promise.resolve([]),
+      showFullProfile ? getEducationEntriesByProfileId(id) : Promise.resolve([]),
+      showFullProfile ? getAvailabilityTagsByProfileId(id) : Promise.resolve([]),
+      showContactDetails
+        ? getContactDetailsByProfileId(id)
+        : Promise.resolve(null),
+    ]);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -104,13 +118,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 {profile.primary_specialization &&
                   ` · ${profile.primary_specialization.name}`}
               </p>
-              {(profile.city || profile.state_province || profile.country) && (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {[profile.city, profile.state_province, profile.country]
-                    .filter(Boolean)
-                    .join(", ")}
-                </p>
-              )}
+              {showFullProfile &&
+                (profile.city || profile.state_province || profile.country) && (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {[profile.city, profile.state_province, profile.country]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </p>
+                )}
             </div>
 
             {isOwnProfile ? (
@@ -130,8 +145,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         </CardHeader>
 
         <CardContent className="flex flex-col gap-6">
-          {/* Bio */}
-          {profile.bio && (
+          {/* Tier 1: restricted notice */}
+          {!showFullProfile && (
+            <RestrictedSection variant="verify" />
+          )}
+
+          {/* Bio — Tier 2+ */}
+          {showFullProfile && profile.bio && (
             <section>
               <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 About
@@ -140,8 +160,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </section>
           )}
 
-          {/* Availability Tags */}
-          {availabilityTags.length > 0 && (
+          {/* Availability Tags — Tier 2+ */}
+          {showFullProfile && availabilityTags.length > 0 && (
             <>
               <Separator />
               <section>
@@ -162,8 +182,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </>
           )}
 
-          {/* Secondary Industry */}
-          {profile.secondary_industry && (
+          {/* Secondary Industry — Tier 2+ */}
+          {showFullProfile && profile.secondary_industry && (
             <>
               <Separator />
               <section>
@@ -179,109 +199,141 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </>
           )}
 
-          {/* Career History */}
-          <Separator />
-          <section>
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Career history
-            </h2>
-            {careerEntries.length > 0 ? (
-              <div className="flex flex-col gap-4">
-                {careerEntries.map((entry) => (
-                  <div key={entry.id} className="relative pl-4 border-l-2 border-muted">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-sm">{entry.job_title}</p>
-                      {entry.is_current && (
-                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                          Current
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground">{entry.company}</p>
-                    {entry.industry && (
-                      <p className="text-xs text-muted-foreground">
-                        {entry.industry.name}
-                        {entry.specialization && ` · ${entry.specialization.name}`}
-                      </p>
-                    )}
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(entry.start_date).toLocaleDateString("en-US", {
-                        month: "short",
-                        year: "numeric",
-                      })}
-                      {" — "}
-                      {entry.is_current || !entry.end_date
-                        ? "Present"
-                        : new Date(entry.end_date).toLocaleDateString("en-US", {
+          {/* Career History — Tier 2+ */}
+          {showFullProfile && (
+            <>
+              <Separator />
+              <section>
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  Career history
+                </h2>
+                {careerEntries.length > 0 ? (
+                  <div className="flex flex-col gap-4">
+                    {careerEntries.map((entry) => (
+                      <div key={entry.id} className="relative pl-4 border-l-2 border-muted">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-sm">{entry.job_title}</p>
+                          {entry.is_current && (
+                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                              Current
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{entry.company}</p>
+                        {entry.industry && (
+                          <p className="text-xs text-muted-foreground">
+                            {entry.industry.name}
+                            {entry.specialization && ` · ${entry.specialization.name}`}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(entry.start_date).toLocaleDateString("en-US", {
                             month: "short",
                             year: "numeric",
                           })}
-                    </p>
-                    {entry.description && (
-                      <p className="mt-1 text-sm">{entry.description}</p>
-                    )}
+                          {" — "}
+                          {entry.is_current || !entry.end_date
+                            ? "Present"
+                            : new Date(entry.end_date).toLocaleDateString("en-US", {
+                                month: "short",
+                                year: "numeric",
+                              })}
+                        </p>
+                        {entry.description && (
+                          <p className="mt-1 text-sm">{entry.description}</p>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No career entries yet.
-                {isOwnProfile && (
-                  <>
-                    {" "}
-                    <Link href="/profile/edit" className="text-primary underline">
-                      Add your work experience
-                    </Link>
-                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No career entries yet.
+                    {isOwnProfile && (
+                      <>
+                        {" "}
+                        <Link href="/profile/edit" className="text-primary underline">
+                          Add your work experience
+                        </Link>
+                      </>
+                    )}
+                  </p>
                 )}
-              </p>
-            )}
-          </section>
+              </section>
+            </>
+          )}
 
-          {/* Education */}
-          <Separator />
-          <section>
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Education
-            </h2>
-            {educationEntries.length > 0 ? (
-              <div className="flex flex-col gap-3">
-                {educationEntries.map((entry) => (
-                  <div key={entry.id}>
-                    <p className="text-sm font-medium">{entry.institution}</p>
-                    {(entry.degree || entry.field_of_study) && (
-                      <p className="text-sm text-muted-foreground">
-                        {[entry.degree, entry.field_of_study]
-                          .filter(Boolean)
-                          .join(" in ")}
-                      </p>
-                    )}
-                    {(entry.start_year || entry.end_year) && (
-                      <p className="text-xs text-muted-foreground">
-                        {entry.start_year && entry.end_year
-                          ? `${entry.start_year} — ${entry.end_year}`
-                          : entry.start_year
-                            ? `${entry.start_year} — Present`
-                            : `${entry.end_year}`}
-                      </p>
-                    )}
+          {/* Education — Tier 2+ */}
+          {showFullProfile && (
+            <>
+              <Separator />
+              <section>
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  Education
+                </h2>
+                {educationEntries.length > 0 ? (
+                  <div className="flex flex-col gap-3">
+                    {educationEntries.map((entry) => (
+                      <div key={entry.id}>
+                        <p className="text-sm font-medium">{entry.institution}</p>
+                        {(entry.degree || entry.field_of_study) && (
+                          <p className="text-sm text-muted-foreground">
+                            {[entry.degree, entry.field_of_study]
+                              .filter(Boolean)
+                              .join(" in ")}
+                          </p>
+                        )}
+                        {(entry.start_year || entry.end_year) && (
+                          <p className="text-xs text-muted-foreground">
+                            {entry.start_year && entry.end_year
+                              ? `${entry.start_year} — ${entry.end_year}`
+                              : entry.start_year
+                                ? `${entry.start_year} — Present`
+                                : `${entry.end_year}`}
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No education entries yet.
-                {isOwnProfile && (
-                  <>
-                    {" "}
-                    <Link href="/profile/edit" className="text-primary underline">
-                      Add your education
-                    </Link>
-                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No education entries yet.
+                    {isOwnProfile && (
+                      <>
+                        {" "}
+                        <Link href="/profile/edit" className="text-primary underline">
+                          Add your education
+                        </Link>
+                      </>
+                    )}
+                  </p>
                 )}
-              </p>
-            )}
-          </section>
+              </section>
+            </>
+          )}
+
+          {/* Contact Details — Tier 3 only */}
+          {showContactDetails && contactDetails && (
+            <>
+              <Separator />
+              <section>
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  Contact info
+                </h2>
+                <ContactDetailsDisplay contactDetails={contactDetails} />
+              </section>
+            </>
+          )}
+
+          {/* Connect CTA for Tier 2 viewers when target has contact details */}
+          {visibilityTier === "tier2_verified" && profile.has_contact_details && (
+            <>
+              <Separator />
+              <RestrictedSection
+                variant="connect"
+                targetName={profile.full_name}
+              />
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

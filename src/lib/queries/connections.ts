@@ -293,6 +293,7 @@ async function attachProfiles(
       state_province,
       city,
       bio,
+      has_contact_details,
       last_active_at,
       primary_industry:industries!profiles_primary_industry_id_fkey(id, name),
       primary_specialization:specializations!profiles_primary_specialization_id_fkey(id, name)
@@ -331,6 +332,7 @@ async function attachProfiles(
       state_province: p.state_province,
       city: p.city,
       bio: p.bio,
+      has_contact_details: p.has_contact_details ?? false,
       last_active_at: p.last_active_at,
       primary_industry: p.primary_industry as unknown as { id: string; name: string } | null,
       primary_specialization: p.primary_specialization as unknown as {

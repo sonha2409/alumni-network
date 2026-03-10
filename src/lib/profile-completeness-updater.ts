@@ -16,7 +16,7 @@ export async function recalculateProfileCompleteness(
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select(
-      "full_name, graduation_year, primary_industry_id, photo_url, bio, primary_specialization_id, country, state_province, city, secondary_industry_id, secondary_specialization_id"
+      "full_name, graduation_year, primary_industry_id, photo_url, bio, primary_specialization_id, country, state_province, city, secondary_industry_id, secondary_specialization_id, has_contact_details"
     )
     .eq("id", profileId)
     .single();
@@ -50,6 +50,7 @@ export async function recalculateProfileCompleteness(
     has_career_entries: (careerResult.count ?? 0) > 0,
     has_education_entries: (educationResult.count ?? 0) > 0,
     has_availability_tags: (tagsResult.count ?? 0) > 0,
+    has_contact_details: profile.has_contact_details ?? false,
   });
 
   const { error: updateError } = await supabase

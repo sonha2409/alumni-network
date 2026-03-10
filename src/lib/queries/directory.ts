@@ -37,6 +37,7 @@ export async function searchDirectory(
       state_province,
       city,
       bio,
+      has_contact_details,
       last_active_at,
       primary_industry:industries!profiles_primary_industry_id_fkey(id, name),
       primary_specialization:specializations!profiles_primary_specialization_id_fkey(id, name)
@@ -230,6 +231,7 @@ export async function searchDirectory(
       state_province: p.state_province as string | null,
       city: p.city as string | null,
       bio: p.bio as string | null,
+      has_contact_details: (p.has_contact_details as boolean) ?? false,
       last_active_at: p.last_active_at as string,
       primary_industry: p.primary_industry as {
         id: string;

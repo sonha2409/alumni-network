@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
 import { searchDirectory } from "@/lib/queries/directory";
 import { getIndustriesWithSpecializations } from "@/lib/queries/taxonomy";
 import { getAvailabilityTagTypes } from "@/lib/queries/availability-tags";
 import { getConnectionStatusMap } from "@/lib/queries/connections";
-import type { DirectoryFilters } from "@/lib/types";
+import { filterDirectoryProfileForTier } from "@/lib/visibility";
+import type { DirectoryFilters, ProfileVisibilityTier } from "@/lib/types";
 import { DirectoryFiltersBar } from "./directory-filters";
 import { DirectoryGrid } from "./directory-grid";
 import { DirectoryPagination } from "./directory-pagination";
@@ -73,6 +75,18 @@ export default async function DirectoryPage({
     redirect("/login");
   }
 
+  // Determine viewer's verification status
+  const { data: currentUser } = await supabase
+    .from("users")
+    .select("verification_status")
+    .eq("id", user.id)
+    .single();
+
+  const viewerTier: ProfileVisibilityTier =
+    currentUser?.verification_status === "verified"
+      ? "tier2_verified"
+      : "tier1_unverified";
+
   const rawParams = await searchParams;
   const filters = parseSearchParams(rawParams);
 
@@ -82,6 +96,11 @@ export default async function DirectoryPage({
     getIndustriesWithSpecializations(),
     getAvailabilityTagTypes(),
   ]);
+
+  // Apply visibility tier filtering to directory profiles
+  result.profiles = result.profiles.map((p) =>
+    filterDirectoryProfileForTier(p, viewerTier)
+  );
 
   // Fetch connection statuses for the profiles in the results
   const otherUserIds = result.profiles
@@ -115,6 +134,16 @@ export default async function DirectoryPage({
           Discover alumni by name, industry, graduation year, and more.
         </p>
       </div>
+
+      {/* Unverified viewer banner */}
+      {viewerTier === "tier1_unverified" && (
+        <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/50 px-4 py-3 text-center text-sm text-muted-foreground">
+          <Link href="/verification" className="text-primary underline underline-offset-4">
+            Verify your account
+          </Link>{" "}
+          to see full alumni profiles.
+        </div>
+      )}
 
       {/* Filters */}
       <DirectoryFiltersBar

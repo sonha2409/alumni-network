@@ -34,7 +34,7 @@
 | 6   | Profile: education history                           | `DONE` | 2026-03-09. education_entries table + RLS + CRUD actions + inline add/edit/delete forms + display on profile view.              |
 | 7   | Profile: location (region/country/state/city)        | `DONE` | 2026-03-09. Free-text inputs (country/state/city) already functional. Hierarchical dropdown upgrade deferred to Phase 2.        |
 | 8   | Profile: availability tags                           | `DONE` | 2026-03-09. availability_tag_types + user_availability_tags junction table + RLS + checkbox UI + badge display on profile view. |
-| 9   | Profile: visibility controls                         | `TODO` | Connected-only details first                                                                                                    |
+| 9   | Profile: visibility controls                         | `DONE` | 2026-03-09. 3-tier visibility (unverified/verified/connected). `profile_contact_details` table with RLS. `is_connected_to()` reusable Postgres function. App-layer filtering for directory. |
 | 10  | Industry taxonomy (two-level)                        | `DONE` | 2026-03-09. Schema + RLS + seed (20 industries, 132 specializations) + query helpers. No UI yet.                                |
 | 11  | Alumni directory: search + filters                   | `DONE` | 2026-03-09. Full-text search (tsvector), combinable filters (industry, specialization, grad year range, country, city), sort (name, grad year, recently active), nuqs URL state. |
 | 12  | Alumni directory: pagination                         | `DONE` | 2026-03-09. Offset-based pagination (20/page), smart page number display with ellipsis. Cursor-based deferred to Phase 3 (100k+ scale). |
@@ -117,9 +117,21 @@ profiles
 ├── country
 ├── state_province
 ├── city
+├── has_contact_details (boolean, default false)
 ├── profile_completeness (integer, 0-100)
 ├── last_active_at
 ├── last_profile_update_at
+├── created_at
+└── updated_at
+
+profile_contact_details
+├── id (uuid, PK)
+├── profile_id (FK → profiles, UNIQUE, ON DELETE CASCADE)
+├── personal_email (text, nullable)
+├── phone (text, nullable, max 30)
+├── linkedin_url (text, nullable)
+├── github_url (text, nullable)
+├── website_url (text, nullable)
 ├── created_at
 └── updated_at
 

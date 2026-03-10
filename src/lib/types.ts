@@ -81,6 +81,7 @@ export interface Profile {
   city: string | null;
   profile_completeness: number;
   last_active_at: string;
+  has_contact_details: boolean;
   last_profile_update_at: string;
   created_at: string;
   updated_at: string;
@@ -244,6 +245,24 @@ export interface RelationshipInfo {
 }
 
 // =============================================================================
+// Profile Visibility Types
+// =============================================================================
+
+export type ProfileVisibilityTier = "tier1_unverified" | "tier2_verified" | "tier3_connected";
+
+export interface ProfileContactDetails {
+  id: string;
+  profile_id: string;
+  personal_email: string | null;
+  phone: string | null;
+  linkedin_url: string | null;
+  github_url: string | null;
+  website_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// =============================================================================
 // Directory Types
 // =============================================================================
 
@@ -278,6 +297,7 @@ export interface DirectoryProfile {
   last_active_at: string;
   primary_industry: { id: string; name: string } | null;
   primary_specialization: { id: string; name: string } | null;
+  has_contact_details: boolean;
   current_job_title: string | null;
   current_company: string | null;
   availability_tags: { id: string; name: string; slug: string }[];

@@ -18,10 +18,12 @@ import {
   getAvailabilityTagTypes,
   getAvailabilityTagIdsByProfileId,
 } from "@/lib/queries/availability-tags";
+import { getContactDetailsByProfileId } from "@/lib/queries/contact-details";
 import { ProfileEditForm } from "./profile-edit-form";
 import { CareerHistorySection } from "./career-history-section";
 import { EducationHistorySection } from "./education-history-section";
 import { AvailabilityTagsSection } from "./availability-tags-section";
+import { ContactDetailsSection } from "./contact-details-section";
 
 export const metadata: Metadata = {
   title: "Edit Profile — AlumNet",
@@ -44,7 +46,7 @@ export default async function ProfileEditPage() {
     redirect("/onboarding");
   }
 
-  const [industries, careerEntries, educationEntries, tagTypes, selectedTagIds, school] =
+  const [industries, careerEntries, educationEntries, tagTypes, selectedTagIds, school, contactDetails] =
     await Promise.all([
       getIndustriesWithSpecializations(),
       getCareerEntriesByProfileId(profile.id),
@@ -52,6 +54,7 @@ export default async function ProfileEditPage() {
       getAvailabilityTagTypes(),
       getAvailabilityTagIdsByProfileId(profile.id),
       getSchool(),
+      getContactDetailsByProfileId(profile.id),
     ]);
 
   const currentYear = new Date().getFullYear();
@@ -96,6 +99,12 @@ export default async function ProfileEditPage() {
             tagTypes={tagTypes}
             selectedTagIds={selectedTagIds}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="pt-6">
+          <ContactDetailsSection contactDetails={contactDetails} />
         </CardContent>
       </Card>
     </div>

@@ -17,13 +17,14 @@ export function calculateProfileCompleteness(fields: {
   has_career_entries?: boolean;
   has_education_entries?: boolean;
   has_availability_tags?: boolean;
+  has_contact_details?: boolean;
 }): number {
   let score = 0;
 
-  if (fields.full_name) score += 12;
-  if (fields.graduation_year) score += 12;
-  if (fields.primary_industry_id) score += 12;
-  if (fields.photo_url) score += 12;
+  if (fields.full_name) score += 10;
+  if (fields.graduation_year) score += 10;
+  if (fields.primary_industry_id) score += 10;
+  if (fields.photo_url) score += 10;
   if (fields.bio) score += 8;
   if (fields.primary_specialization_id) score += 8;
   if (fields.country || fields.state_province || fields.city) score += 8;
@@ -32,6 +33,7 @@ export function calculateProfileCompleteness(fields: {
   if (fields.has_career_entries) score += 10;
   if (fields.has_education_entries) score += 6;
   if (fields.has_availability_tags) score += 4;
+  if (fields.has_contact_details) score += 8;
 
   return score;
 }
