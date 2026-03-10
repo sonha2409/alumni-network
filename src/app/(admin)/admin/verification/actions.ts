@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
+import { notifyUser } from "@/lib/notifications";
 import type { ActionResult, VerificationDocument } from "@/lib/types";
 
 async function assertAdmin() {
@@ -86,6 +87,15 @@ export async function approveRequest(requestId: string): Promise<ActionResult> {
       });
     }
 
+    // Notify the user that their verification was approved (fire-and-forget)
+    notifyUser(
+      request.user_id,
+      "verification_update",
+      "Verification approved!",
+      "Your alumni status has been verified. You now have full access to the platform.",
+      "/dashboard"
+    );
+
     revalidatePath("/admin/verification");
     return { success: true, data: undefined };
   } catch (err) {
@@ -159,6 +169,17 @@ export async function rejectRequest(
         error: userUpdateError.message,
       });
     }
+
+    // Notify the user that their verification was rejected (fire-and-forget)
+    notifyUser(
+      request.user_id,
+      "verification_update",
+      "Verification update",
+      reviewMessage
+        ? `Your verification request needs attention: ${reviewMessage}`
+        : "Your verification request was not approved. Please review and resubmit.",
+      "/verification"
+    );
 
     revalidatePath("/admin/verification");
     return { success: true, data: undefined };

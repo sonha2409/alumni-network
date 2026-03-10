@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/app/(auth)/actions";
+import { NotificationBell } from "./notification-bell";
+import { useNotifications } from "@/app/(main)/notifications/components/notifications-provider";
 import type { NavbarUserData } from "./main-navbar";
 
 interface MainNavbarClientProps {
@@ -50,6 +52,24 @@ function UserAvatar({ user }: { user: NavbarUserData }) {
     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
       {initials}
     </div>
+  );
+}
+
+function MobileNotificationsLink({ onClick }: { onClick: () => void }) {
+  const { unreadCount } = useNotifications();
+  return (
+    <Link
+      href="/notifications"
+      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+      onClick={onClick}
+    >
+      Notifications
+      {unreadCount > 0 && (
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white">
+          {unreadCount > 99 ? "99+" : unreadCount}
+        </span>
+      )}
+    </Link>
   );
 }
 
@@ -108,8 +128,9 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
           )}
         </div>
 
-        {/* Desktop user menu */}
+        {/* Desktop notification bell + user menu */}
         <div className="hidden items-center gap-2 md:flex">
+          <NotificationBell />
           <DropdownMenu>
             <DropdownMenuTrigger
               className="flex items-center gap-2 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -224,6 +245,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
                   )}
               </Link>
             ))}
+            <MobileNotificationsLink onClick={() => setMobileMenuOpen(false)} />
             <Link
               href={profileHref}
               className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"

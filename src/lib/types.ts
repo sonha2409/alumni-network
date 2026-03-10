@@ -395,3 +395,26 @@ export interface RateLimitInfo {
   limit: number;
   resetsAt: string;
 }
+
+// =============================================================================
+// Notification Types
+// =============================================================================
+
+export type NotificationType =
+  | "connection_request"
+  | "connection_accepted"
+  | "new_message"
+  | "verification_update"
+  | "announcement";
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  link: string | null;
+  is_read: boolean;
+  created_at: string;
+  updated_at: string;
+}

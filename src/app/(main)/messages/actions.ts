@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { checkMessageRateLimit, checkConversationRateLimit } from "@/lib/rate-limit";
 import { findExistingConversation } from "@/lib/queries/messages";
+import { notifyUser } from "@/lib/notifications";
 import type { ActionResult, Message, RateLimitInfo } from "@/lib/types";
 
 /**
@@ -291,6 +292,29 @@ export async function sendMessage(
       ...rateLimitInfo,
       remaining: Math.max(0, rateLimitInfo.remaining - 1),
     };
+
+    // Notify the other participant about the new message (fire-and-forget)
+    if (otherParticipant) {
+      const { data: senderProfile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", user.id)
+        .single();
+
+      const senderName = senderProfile?.full_name ?? "Someone";
+      const preview =
+        parsed.data.content.trim().length > 80
+          ? parsed.data.content.trim().slice(0, 80) + "..."
+          : parsed.data.content.trim();
+
+      notifyUser(
+        otherParticipant.user_id,
+        "new_message",
+        `New message from ${senderName}`,
+        preview,
+        `/messages?conversation=${conversationId}`
+      );
+    }
 
     revalidatePath("/messages");
     return {

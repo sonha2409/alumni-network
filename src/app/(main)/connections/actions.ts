@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
+import { notifyUser } from "@/lib/notifications";
 import type { ActionResult } from "@/lib/types";
 
 /**
@@ -137,6 +138,22 @@ export async function sendConnectionRequest(
       };
     }
 
+    // Send notification to the receiver (fire-and-forget)
+    const { data: senderProfile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("user_id", user.id)
+      .single();
+
+    const senderName = senderProfile?.full_name ?? "Someone";
+    notifyUser(
+      receiverId,
+      "connection_request",
+      "New connection request",
+      `${senderName} sent you a connection request.`,
+      "/connections"
+    );
+
     revalidatePath("/connections");
     revalidatePath(`/profile/${receiverId}`);
     return { success: true, data: undefined };
@@ -215,6 +232,25 @@ export async function acceptConnectionRequest(
         error: "Failed to accept request. Please try again.",
       };
     }
+
+    // Notify the requester that their request was accepted (fire-and-forget)
+    const { data: acceptorProfile } = await supabase
+      .from("profiles")
+      .select("full_name, id")
+      .eq("user_id", user.id)
+      .single();
+
+    const acceptorName = acceptorProfile?.full_name ?? "Someone";
+    const profileLink = acceptorProfile?.id
+      ? `/profile/${acceptorProfile.id}`
+      : "/connections";
+    notifyUser(
+      connection.requester_id,
+      "connection_accepted",
+      "Connection accepted",
+      `${acceptorName} accepted your connection request.`,
+      profileLink
+    );
 
     revalidatePath("/connections");
     return { success: true, data: undefined };

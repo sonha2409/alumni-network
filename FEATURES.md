@@ -83,6 +83,21 @@ A web platform where verified alumni of a single school can discover and connect
 - **Validation**: All auth Server Actions validate input with Zod before calling Supabase. The signup action validates email format, password min length (8 chars), and password confirmation match. Login validates email format and password presence.
 - **Error handling**: Auth Server Actions return `ActionResult<T>`. Supabase errors are logged server-side with structured format (`[ServerAction:actionName]`) and sanitized before returning to the client. Specific errors (e.g., "already registered") are mapped to user-friendly messages.
 
+#### Production Email Configuration
+- **Supabase Auth emails** (registration confirmation, password reset) use Supabase's built-in email service
+- **Local dev**: Emails captured by Inbucket (http://localhost:54324) — no real emails sent
+- **Production setup**:
+  - Enable email confirmations in Supabase dashboard (Auth → Settings → Enable email confirmations)
+  - Configure custom SMTP (recommended: SendGrid, AWS SES, or Resend) in Supabase dashboard for reliable delivery
+  - Customize email templates in Supabase dashboard (branded registration confirmation, password reset emails)
+  - Set `NEXT_PUBLIC_SITE_URL` to production URL (used in email redirect links)
+- **Registration flow with confirmation enabled**:
+  - User signs up → receives confirmation email → clicks link → redirected to `/auth/callback` → session created → redirected to onboarding
+  - Until confirmed, user cannot log in (Supabase enforces this)
+  - Signup page should show "Check your email" message after submission
+- **Password reset flow** (already implemented):
+  - User enters email on forgot-password page → Supabase sends reset link → user clicks link → `/auth/callback?next=/reset-password` → user sets new password
+
 ### F2. Alumni Verification
 - **Trigger**: user submits verification request with supporting info (graduation year, student ID, degree program)
 - **Queue**: admins see pending requests in dashboard, can approve/reject with optional message

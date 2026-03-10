@@ -46,7 +46,7 @@
 | 18  | Real-time messaging (WebSocket)                      | `DONE` | 2026-03-10. Supabase Realtime. conversations + messages tables, optimistic UI, 5-min timestamp grouping, tap-to-toggle timestamps. |
 | 19  | Message rate limiting                                | `DONE` | 2026-03-10. Tier-based: 20/day (new), 500/day (established), unlimited (admin). 5 new convos/day (new), 20/day (established).   |
 | 20  | Message reporting                                    | `DONE` | 2026-03-10. Anonymous reports to moderator queue. UNIQUE(message_id, reporter_id). Status workflow: pending → reviewed → action_taken/dismissed. |
-| 21  | Notifications: in-app                                | `TODO` | Bell icon, unread count                                                                                                         |
+| 21  | Notifications: in-app                                | `DONE` | 2026-03-10. notifications table + RLS + SECURITY DEFINER insert + Realtime. Bell icon with popover dropdown, /notifications page with pagination, mark read/delete. Triggers on connection request/accept, new message, verification approve/reject. |
 | 22  | Notifications: email                                 | `TODO` | Connection requests, new messages                                                                                               |
 | 23  | Groups: basic (admin-created)                        | `TODO` | By year, field, location                                                                                                        |
 | 24  | Admin dashboard: verification queue                  | `TODO` | Approve/reject signups                                                                                                          |

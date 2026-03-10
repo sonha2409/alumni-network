@@ -144,6 +144,7 @@ Build one complete feature at a time: schema + RLS + backend logic + UI together
 - Vercel + Supabase production setup
 - Environment variables
 - CI/CD pipeline
+- Configure Supabase Auth SMTP for production (enable email confirmations, customize email templates, set site URL)
 
 ---
 
