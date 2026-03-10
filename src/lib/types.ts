@@ -303,6 +303,11 @@ export interface DirectoryProfile {
   availability_tags: { id: string; name: string; slug: string }[];
 }
 
+/** A recommended profile with similarity score. */
+export interface RecommendedProfile extends DirectoryProfile {
+  score: number;
+}
+
 /** Paginated directory search result. */
 export interface DirectoryResult {
   profiles: DirectoryProfile[];
