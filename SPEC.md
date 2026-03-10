@@ -48,7 +48,7 @@
 | 20  | Message reporting                                    | `DONE` | 2026-03-10. Anonymous reports to moderator queue. UNIQUE(message_id, reporter_id). Status workflow: pending → reviewed → action_taken/dismissed. |
 | 21  | Notifications: in-app                                | `DONE` | 2026-03-10. notifications table + RLS + SECURITY DEFINER insert + Realtime. Bell icon with popover dropdown, /notifications page with pagination, mark read/delete. Triggers on connection request/accept, new message, verification approve/reject. |
 | 22  | Notifications: email                                 | `DONE` | 2026-03-10. Resend integration. Templates for connection request/accepted, new message, verification update. `notification_preferences` table with per-type email opt-out. One-click unsubscribe. Settings page at `/settings/notifications`. Graceful skip if no API key. |
-| 23  | Groups: basic (admin-created)                        | `TODO` | By year, field, location                                                                                                        |
+| 23  | Groups: basic (admin-created)                        | `DONE` | 2026-03-10. `groups` + `group_members` tables. Admin CRUD (create/update/soft-delete). Verified users browse/join/leave. Type enum (year_based, field_based, location_based, custom). Browse page with search + type filter + pagination. Group detail page with member directory. Future-ready: `role` column on members (member/moderator/owner), `cover_image_url`, `max_members` columns. |
 | 24  | Admin dashboard: verification queue                  | `TODO` | Approve/reject signups                                                                                                          |
 | 25  | Admin dashboard: user management                     | `TODO` | Ban, suspend, view profiles                                                                                                     |
 | 26  | Admin dashboard: analytics                           | `TODO` | Signups, active users, connections                                                                                              |
@@ -310,19 +310,26 @@ announcements
 
 groups
 ├── id (uuid, PK)
-├── name
-├── description (text)
-├── type (enum: year, field, location, custom)
+├── name (text, UNIQUE)
+├── slug (text, UNIQUE)
+├── description (text, nullable)
+├── type (enum: year_based, field_based, location_based, custom)
+├── cover_image_url (text, nullable — Phase 2)
+├── max_members (integer, nullable — Phase 2)
 ├── created_by (FK → users)
 ├── is_active (boolean)
+├── deleted_at (timestamp, nullable)
 ├── created_at
 └── updated_at
 
 group_members
+├── id (uuid, PK)
 ├── group_id (FK → groups)
 ├── user_id (FK → users)
-├── joined_at
-PRIMARY KEY(group_id, user_id)
+├── role (enum: member, moderator, owner — default 'member')
+├── created_at
+└── updated_at
+UNIQUE(group_id, user_id)
 
 bulk_invites
 ├── id (uuid, PK)
@@ -345,6 +352,9 @@ bulk_invites
 - `connections(requester_id, status)` and `connections(receiver_id, status)` — connection queries
 - `messages(conversation_id, created_at)` — message ordering
 - `notifications(user_id, is_read, created_at)` — notification feed
+- `groups(type)` — type-based filtering
+- `groups(is_active) WHERE is_active = true` — active groups partial index
+- `group_members(group_id)` and `group_members(user_id)` — membership lookups
 
 ---
 

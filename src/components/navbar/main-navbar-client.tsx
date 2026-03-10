@@ -25,6 +25,7 @@ const navLinks = [
   { href: "/directory", label: "Directory" },
   { href: "/connections", label: "Connections" },
   { href: "/messages", label: "Messages" },
+  { href: "/groups", label: "Groups" },
   { href: "/verification", label: "Verification" },
 ];
 

@@ -439,3 +439,64 @@ export interface NotificationPreference {
   created_at: string;
   updated_at: string;
 }
+
+// =============================================================================
+// Group Types
+// =============================================================================
+
+export type GroupType = "year_based" | "field_based" | "location_based" | "custom";
+
+export type GroupMemberRole = "member" | "moderator" | "owner";
+
+export interface Group {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  type: GroupType;
+  cover_image_url: string | null;
+  max_members: number | null;
+  created_by: string;
+  is_active: boolean;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GroupMember {
+  id: string;
+  group_id: string;
+  user_id: string;
+  role: GroupMemberRole;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Group with member count and current user's membership status. */
+export interface GroupWithMemberCount extends Group {
+  member_count: number;
+  is_member: boolean;
+}
+
+/** Group detail with creator profile info. */
+export interface GroupWithDetails extends GroupWithMemberCount {
+  created_by_name: string;
+  created_by_photo_url: string | null;
+}
+
+/** Filters for the groups browse page. */
+export interface GroupFilters {
+  search?: string;
+  type?: GroupType;
+  page?: number;
+  pageSize?: number;
+}
+
+/** Paginated groups result. */
+export interface GroupsResult {
+  groups: GroupWithMemberCount[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
