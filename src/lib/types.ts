@@ -564,7 +564,9 @@ export type AdminAction =
   | "taxonomy_create_specialization"
   | "taxonomy_update_specialization"
   | "taxonomy_archive_specialization"
-  | "taxonomy_restore_specialization";
+  | "taxonomy_restore_specialization"
+  | "bulk_invite"
+  | "resend_invite";
 
 // =============================================================================
 // Admin Taxonomy Management Types
@@ -624,6 +626,36 @@ export interface AdminUserFilters {
 
 export interface AdminUsersResult {
   users: AdminUserRow[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+// =============================================================================
+// Bulk Invite Types
+// =============================================================================
+
+export interface BulkInviteRow {
+  id: string;
+  email: string;
+  name: string | null;
+  graduation_year: number | null;
+  invited_by: string;
+  status: "invited" | "signed_up" | "verified";
+  invited_at: string;
+  signed_up_at: string | null;
+  created_at: string;
+}
+
+export interface BulkInviteResult {
+  sent: number;
+  skipped: number;
+  errors: string[];
+}
+
+export interface BulkInviteHistoryResult {
+  invites: BulkInviteRow[];
   totalCount: number;
   page: number;
   pageSize: number;

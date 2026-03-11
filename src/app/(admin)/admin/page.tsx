@@ -23,7 +23,7 @@ export default async function AdminDashboardPage() {
   }
 
   // Fetch quick stats
-  const [pendingResult, totalUsersResult] = await Promise.all([
+  const [pendingResult, totalUsersResult, inviteCountResult] = await Promise.all([
     supabase
       .from("verification_requests")
       .select("id", { count: "exact", head: true })
@@ -31,10 +31,14 @@ export default async function AdminDashboardPage() {
     supabase
       .from("users")
       .select("id", { count: "exact", head: true }),
+    supabase
+      .from("bulk_invites")
+      .select("id", { count: "exact", head: true }),
   ]);
 
   const pendingCount = pendingResult.count ?? 0;
   const totalUsers = totalUsersResult.count ?? 0;
+  const inviteCount = inviteCountResult.count ?? 0;
 
   return (
     <div>
@@ -86,6 +90,24 @@ export default async function AdminDashboardPage() {
               <CardTitle>Analytics</CardTitle>
               <CardDescription>
                 Platform usage statistics, trends, and demographics.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+
+        <Link href="/admin/bulk-invite">
+          <Card className="transition-colors hover:border-primary/50">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                Bulk Invite
+                {inviteCount > 0 && (
+                  <span className="text-sm font-normal text-muted-foreground">
+                    {inviteCount} sent
+                  </span>
+                )}
+              </CardTitle>
+              <CardDescription>
+                Upload a CSV to invite alumni via email.
               </CardDescription>
             </CardHeader>
           </Card>
