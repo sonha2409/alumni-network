@@ -4,7 +4,9 @@ import { redirect } from "next/navigation";
 import { z } from "zod/v4";
 
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { calculateProfileCompleteness } from "@/lib/profile-completeness";
+import { geocodeLocation } from "@/lib/geocoding";
 import type { ActionResult } from "@/lib/types";
 
 const quizSchema = z.object({
@@ -102,6 +104,30 @@ export async function completeOnboardingQuiz(
           error: updateError.message,
         });
         return { success: false, error: "Failed to update profile. Please try again." };
+      }
+
+      // Fire-and-forget: geocode location for map feature
+      if (country || city) {
+        geocodeLocation(city ?? null, state_province ?? null, country ?? null)
+          .then(async (coords) => {
+            if (coords) {
+              const serviceClient = createServiceClient();
+              await serviceClient
+                .from("profiles")
+                .update({
+                  latitude: coords.latitude,
+                  longitude: coords.longitude,
+                  location_geocoded_at: new Date().toISOString(),
+                })
+                .eq("id", profile.id);
+            }
+          })
+          .catch((err) => {
+            console.error("[ServerAction:completeOnboardingQuiz:geocoding]", {
+              profileId: profile.id,
+              error: err instanceof Error ? err.message : "Unknown error",
+            });
+          });
       }
     }
 

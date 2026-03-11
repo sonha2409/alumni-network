@@ -23,6 +23,7 @@ interface MainNavbarClientProps {
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/directory", label: "Directory" },
+  { href: "/map", label: "Map" },
   { href: "/connections", label: "Connections" },
   { href: "/messages", label: "Messages" },
   { href: "/groups", label: "Groups" },

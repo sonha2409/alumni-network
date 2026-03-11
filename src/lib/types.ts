@@ -502,6 +502,49 @@ export interface GroupsResult {
 }
 
 // =============================================================================
+// Map Types
+// =============================================================================
+
+export interface MapFilters {
+  industryId?: string;
+  specializationId?: string;
+  graduationYearMin?: number;
+  graduationYearMax?: number;
+}
+
+export interface CountryMapData {
+  country: string;
+  alumniCount: number;
+  latitude: number;
+  longitude: number;
+}
+
+export interface RegionMapData {
+  stateProvince: string;
+  alumniCount: number;
+  avgLatitude: number;
+  avgLongitude: number;
+}
+
+export interface CityMapData {
+  city: string;
+  alumniCount: number;
+  avgLatitude: number;
+  avgLongitude: number;
+}
+
+export interface AdminCountryMapData extends CountryMapData {
+  verifiedCount: number;
+  unverifiedCount: number;
+}
+
+export interface TrendDataPoint {
+  country: string;
+  month: string;
+  newUsers: number;
+}
+
+// =============================================================================
 // Admin User Management Types
 // =============================================================================
 

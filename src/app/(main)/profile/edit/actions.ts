@@ -4,8 +4,10 @@ import { z } from "zod/v4";
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { recalculateProfileCompleteness } from "@/lib/profile-completeness-updater";
 import { getSchool } from "@/lib/school";
+import { geocodeLocation, hasLocationChanged } from "@/lib/geocoding";
 import type { ActionResult } from "@/lib/types";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -81,7 +83,7 @@ export async function updateProfile(
   // Fetch existing profile
   const { data: existingProfile, error: fetchError } = await supabase
     .from("profiles")
-    .select("id, photo_url")
+    .select("id, photo_url, country, state_province, city")
     .eq("user_id", user.id)
     .single();
 
@@ -230,6 +232,45 @@ export async function updateProfile(
     await recalculateProfileCompleteness(existingProfile.id);
     revalidatePath("/profile/edit");
     revalidatePath(`/profile/${existingProfile.id}`);
+
+    // Fire-and-forget: geocode location if it changed
+    const oldLocation = {
+      country: existingProfile.country ?? null,
+      state_province: existingProfile.state_province ?? null,
+      city: existingProfile.city ?? null,
+    };
+    const newLocation = {
+      country: updateData.country,
+      state_province: updateData.state_province,
+      city: updateData.city,
+    };
+
+    if (hasLocationChanged(oldLocation, newLocation)) {
+      geocodeLocation(
+        newLocation.city,
+        newLocation.state_province,
+        newLocation.country
+      )
+        .then(async (coords) => {
+          if (coords) {
+            const serviceClient = createServiceClient();
+            await serviceClient
+              .from("profiles")
+              .update({
+                latitude: coords.latitude,
+                longitude: coords.longitude,
+                location_geocoded_at: new Date().toISOString(),
+              })
+              .eq("id", existingProfile.id);
+          }
+        })
+        .catch((err) => {
+          console.error("[ServerAction:updateProfile:geocoding]", {
+            profileId: existingProfile.id,
+            error: err instanceof Error ? err.message : "Unknown error",
+          });
+        });
+    }
 
     return { success: true, data: undefined };
   } catch (err) {

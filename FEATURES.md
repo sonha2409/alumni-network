@@ -246,6 +246,67 @@ Each alumni pair gets a similarity score based on weighted factors:
 - Email service: Resend (free tier: 100 emails/day)
 - User can configure email preferences (per notification type)
 
+### F9b. Alumni World Map
+
+Interactive geographic visualization of where alumni are located worldwide.
+
+#### Access:
+- **Verified users only** — unverified users redirected to `/directory`
+- Aggregated counts only — no individual alumni identifiable from map data
+- City-level data respects existing profile visibility rules (names not shown)
+
+#### Map Technology:
+- **Mapbox GL JS** via `react-map-gl` — vector tiles, smooth zoom/pan
+- **Dark mode**: Mapbox light/dark style switching based on app theme
+- **Env**: `NEXT_PUBLIC_MAPBOX_TOKEN` (public, restricted to domain in production)
+
+#### Visual Design:
+- **Country view**: Choropleth-style colored circles sized by alumni count (5 color buckets, light→dark blue)
+- **Region/city view**: Bubble markers with count labels, radius proportional to `log(count)`
+- **Transitions**: Smooth `flyTo` animations (1500ms) on drill-down, fade-in markers
+
+#### Interaction:
+- **Drill-down**: Country → State/Province → City (3 levels)
+- **Click region**: Shows region stats in sidebar + "View in Directory" link (pre-filtered to that location)
+- **Hover**: Tooltip with region name + alumni count
+- **Zoom/pan**: Full Mapbox navigation controls + fullscreen
+
+#### Filters (sidebar):
+- Industry (level 1) + Specialization (level 2, dependent)
+- Graduation year range (min/max)
+- No name search (aggregated data only)
+- URL state via `nuqs` for bookmarkable filtered views
+
+#### Layout:
+- **Desktop**: Full-width map + collapsible sidebar (320px, left side)
+- **Mobile (<768px)**: Full-width map + bottom sheet (triggered by floating button)
+- **Sidebar contents**: Overview stats (total alumni, total countries), breadcrumb navigation, filters, selected region stats card
+
+#### Geocoding (Hybrid strategy):
+- **Country level**: Static JSON lookup (~200 country name→centroid mappings) — no API needed
+- **City/state level**: Nominatim geocoding on profile save — stores `latitude`, `longitude`, `location_geocoded_at` in profiles table
+- **Integration**: Fire-and-forget geocoding in `updateProfile` and `completeOnboardingQuiz` server actions
+- **Backfill**: `scripts/backfill-geocoding.ts` for existing profiles (Nominatim, 1 req/sec)
+
+#### Admin Map (`/admin/map`):
+- **Toggle**: "Include unverified users" switch (shows verified + unverified counts per country)
+- **Trend data**: Monthly new-user counts per country (last 6 months)
+- **Stats**: Verified vs unverified breakdown in sidebar
+- Reuses same `MapView`, `MapSidebar`, `MapFilters` components from user map
+
+#### Database:
+- **Migration 00023**: Adds `latitude`, `longitude`, `location_geocoded_at` to profiles. Partial index on `(latitude, longitude) WHERE latitude IS NOT NULL`.
+- **Migration 00024**: 5 RPC functions (`SECURITY DEFINER`):
+  - `get_map_country_counts(p_filters)` — verified users by country
+  - `get_map_region_counts(p_country, p_filters)` — states within country
+  - `get_map_city_counts(p_country, p_state, p_filters)` — cities within state
+  - `get_map_country_counts_admin(p_include_unverified, p_filters)` — admin with verified/unverified split
+  - `get_map_trend_data(p_country, p_months)` — admin monthly growth
+
+#### Navigation:
+- Main navbar: Dashboard → Directory → **Map** → Connections → Messages → Groups → Verification
+- Admin navbar: Verification → Users → Taxonomy → Analytics → **Map** → Back to App
+
 ### F10. Groups (Basic — Admin-Created)
 
 - **Creation**: admins create groups with name, description, type (year-based, field-based, location-based, custom)

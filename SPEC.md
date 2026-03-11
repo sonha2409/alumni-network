@@ -53,19 +53,20 @@
 | 25  | Admin dashboard: user management                     | `DONE` | 2026-03-10. Searchable user list with role/status/active filters, pagination. User detail sheet with contextual actions (verify, ban/unban, suspend/unsuspend, promote/demote, delete). `admin_audit_log` table with timeline display. Ban/suspension enforcement in proxy → `/banned` page. |
 | 26  | Admin dashboard: analytics                           | `DONE` | 2026-03-10. shadcn/ui Charts (Recharts). 6 Postgres RPC functions. Stat cards (total/verified/pending/unverified, DAU/WAU/MAU). Area chart (signups), donut (status), line (connections+messages), horizontal bars (industries, locations). Empty states, loading skeletons. |
 | 27  | Admin dashboard: taxonomy management                 | `DONE` | 2026-03-10. CRUD for industries & specializations. Expandable rows, search, archive/restore (cascade), user counts, audit logging. |
-| 28  | Admin dashboard: bulk invite                         | `TODO` | CSV upload of alumni emails                                                                                                     |
-| 29  | Admin dashboard: announcements                       | `TODO` | Platform-wide notices                                                                                                           |
-| 30  | Moderator role: report queue                         | `TODO` | Review flagged messages                                                                                                         |
-| 31  | Moderator role: limited user actions                 | `TODO` | Warn, mute (no ban/delete)                                                                                                      |
-| 32  | Account: soft delete + data export                   | `TODO` | 30-day grace → hard delete                                                                                                      |
-| 33  | Profile staleness: periodic update prompts           | `TODO` | Email/in-app nudge                                                                                                              |
-| 34  | Responsive design (mobile-first)                     | `TODO` | All pages                                                                                                                       |
-| 34a | Navigation: main navbar + admin navbar               | `DONE` | 2026-03-09. Separate navbars for main app and admin. Mobile hamburger menu. User dropdown with profile/logout.                  |
-| 34b | Accessibility: aria-describedby + banner roles       | `DONE` | 2026-03-09. All form error messages linked via aria-describedby. Verification banners have role="status"/"alert".               |
-| 35  | Deployment: Vercel + Supabase                        | `TODO` | Free tier initial                                                                                                               |
-| 36  | i18n: user-selectable display language               | `TODO` | Phase 2. Vietnamese/English toggle. Labels currently English with Vietnamese in parentheses for school-specific terms.           |
-| 37  | Multi-school support                                 | `TODO` | Phase 4. School-scoped RLS, school-scoped routing (`/schools/:slug/...`), school admin roles, `school_id` on `users`.           |
-| 38  | Admin: school management UI                          | `TODO` | Phase 4. CRUD for schools table. Currently seed-only.                                                                           |
+| 28  | Alumni world map                                     | `DONE` | 2026-03-10. Interactive Mapbox GL map with country→state→city drill-down. Choropleth + bubble markers. Hybrid geocoding (static country lookup + Nominatim on profile save). Filters (industry, specialization, grad year). Full-width map + collapsible sidebar. Admin variant with unverified toggle + trend data. Backfill script for existing profiles. |
+| 29  | Admin dashboard: bulk invite                         | `TODO` | CSV upload of alumni emails                                                                                                     |
+| 30  | Admin dashboard: announcements                       | `TODO` | Platform-wide notices                                                                                                           |
+| 31  | Moderator role: report queue                         | `TODO` | Review flagged messages                                                                                                         |
+| 32  | Moderator role: limited user actions                 | `TODO` | Warn, mute (no ban/delete)                                                                                                      |
+| 33  | Account: soft delete + data export                   | `TODO` | 30-day grace → hard delete                                                                                                      |
+| 34  | Profile staleness: periodic update prompts           | `TODO` | Email/in-app nudge                                                                                                              |
+| 35  | Responsive design (mobile-first)                     | `TODO` | All pages                                                                                                                       |
+| 35a | Navigation: main navbar + admin navbar               | `DONE` | 2026-03-09. Separate navbars for main app and admin. Mobile hamburger menu. User dropdown with profile/logout.                  |
+| 35b | Accessibility: aria-describedby + banner roles       | `DONE` | 2026-03-09. All form error messages linked via aria-describedby. Verification banners have role="status"/"alert".               |
+| 36  | Deployment: Vercel + Supabase                        | `TODO` | Free tier initial                                                                                                               |
+| 37  | i18n: user-selectable display language               | `TODO` | Phase 2. Vietnamese/English toggle. Labels currently English with Vietnamese in parentheses for school-specific terms.           |
+| 38  | Multi-school support                                 | `TODO` | Phase 4. School-scoped RLS, school-scoped routing (`/schools/:slug/...`), school admin roles, `school_id` on `users`.           |
+| 39  | Admin: school management UI                          | `TODO` | Phase 4. CRUD for schools table. Currently seed-only.                                                                           |
 
 
 ---
@@ -117,6 +118,9 @@ profiles
 ├── country
 ├── state_province
 ├── city
+├── latitude (double precision, nullable — geocoded from city/country)
+├── longitude (double precision, nullable — geocoded from city/country)
+├── location_geocoded_at (timestamptz, nullable)
 ├── has_contact_details (boolean, default false)
 ├── profile_completeness (integer, 0-100)
 ├── last_active_at
@@ -347,6 +351,7 @@ bulk_invites
 - `profiles(graduation_year)` — year-based filtering
 - `profiles(primary_industry_id, primary_specialization_id)` — field filtering
 - `profiles(country, state_province, city)` — location filtering
+- `profiles(latitude, longitude) WHERE latitude IS NOT NULL` — map spatial queries
 - `profiles(full_name) USING gin(to_tsvector(...))` — full-text search
 - `career_history(profile_id, is_current)` — current job lookup
 - `connections(requester_id, status)` and `connections(receiver_id, status)` — connection queries
@@ -366,6 +371,7 @@ bulk_invites
 - **UI**: shadcn/ui + Tailwind CSS
 - **Backend**: Supabase (Postgres + Auth + Realtime + Storage + Edge Functions)
 - **Email**: Resend
+- **Maps**: Mapbox GL JS (`react-map-gl`) + Nominatim (geocoding)
 - **Deployment**: Vercel (frontend) + Supabase (backend)
 - **State management**: React Server Components + `nuqs` for URL state + React Context for client state
 
@@ -426,14 +432,18 @@ graph TD
     F3 --> F25[F25: Admin - User Management]
     F24 --> F26[F26: Admin - Analytics]
     F10 --> F27[F27: Admin - Taxonomy Mgmt]
-    F2 --> F28[F28: Admin - Bulk Invite]
-    F21 --> F29[F29: Admin - Announcements]
-    F20 --> F30[F30: Moderator - Report Queue]
-    F25 --> F31[F31: Moderator - User Actions]
-    F4 --> F32[F32: Account Delete + Export]
-    F4 --> F33[F33: Profile Staleness Prompts]
-    F4 --> F34[F34: Responsive Design]
-    F1 --> F35[F35: Deployment]
+    F7 --> F28[F28: Alumni World Map]
+    F11 --> F28
+    F26 --> F28a[F28a: Admin Map]
+    F28 --> F28a
+    F2 --> F29[F29: Admin - Bulk Invite]
+    F21 --> F30[F30: Admin - Announcements]
+    F20 --> F31[F31: Moderator - Report Queue]
+    F25 --> F32[F32: Moderator - User Actions]
+    F4 --> F33[F33: Account Delete + Export]
+    F4 --> F34[F34: Profile Staleness Prompts]
+    F4 --> F35[F35: Responsive Design]
+    F1 --> F36[F36: Deployment]
 ```
 
 

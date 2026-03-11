@@ -114,6 +114,22 @@ Build one complete feature at a time: schema + RLS + backend logic + UI together
 - Email: Resend integration for key events
 - User notification preferences
 
+### Phase D2: Visualization
+
+#### 10b. Alumni World Map (Feature #28) ✅
+- `latitude`, `longitude`, `location_geocoded_at` columns on profiles + partial index
+- 5 RPC functions for map aggregation (country/region/city counts, admin variants, trend data)
+- Geocoding utility: static country centroids (~200) + Nominatim on profile save
+- `react-map-gl` + `mapbox-gl` — dynamic import with `ssr: false`
+- Map page (`/map`): choropleth country view → bubble markers on drill-down
+- Collapsible sidebar with filters (industry, specialization, grad year) + region stats + "View in Directory" link
+- Mobile bottom sheet for sidebar
+- Admin map (`/admin/map`): unverified user toggle + trend data overlay
+- Geocoding integration in `updateProfile` and `completeOnboardingQuiz` (fire-and-forget)
+- Backfill script: `scripts/backfill-geocoding.ts`
+- Dark mode: Mapbox light/dark style switching
+- Navigation: "Map" added to main navbar (after Directory) and admin navbar (after Analytics)
+
 ### Phase E: Community + Admin
 
 #### 11. Groups (Feature #23)
