@@ -409,6 +409,38 @@ function accountEmailLayout(content: string): string {
 </html>`.trim();
 }
 
+export function profileStalenessEmail(
+  userName: string,
+  monthsAgo: number,
+  quickUpdateLink: string,
+  userId: string
+): { subject: string; html: string } {
+  const timeText =
+    monthsAgo >= 12
+      ? `${Math.floor(monthsAgo / 12)} year${Math.floor(monthsAgo / 12) > 1 ? "s" : ""}`
+      : `${monthsAgo} month${monthsAgo > 1 ? "s" : ""}`;
+
+  const content = `
+    <p style="margin:0 0 8px;font-size:15px;color:#18181b;line-height:1.5;">
+      Hi <strong>${escapeHtml(userName)}</strong>,
+    </p>
+    <p style="margin:0 0 8px;font-size:14px;color:#52525b;line-height:1.5;">
+      Your AlumNet profile was last updated <strong>${timeText} ago</strong>. Keeping your profile current helps fellow alumni find and connect with you.
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      Take a minute to confirm your details are still accurate — or update your job, location, and availability.
+    </p>
+    ${ctaButton("Update My Profile", quickUpdateLink)}
+    <p style="margin:16px 0 0;font-size:13px;color:#71717a;line-height:1.5;">
+      If everything is still correct, you can ignore this email — we&rsquo;ll check in again later.
+    </p>`;
+
+  return {
+    subject: "Is your AlumNet profile still up to date?",
+    html: emailLayout(content, userId, "profile_staleness"),
+  };
+}
+
 // =============================================================================
 // Helpers
 // =============================================================================

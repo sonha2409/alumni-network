@@ -33,6 +33,11 @@ const NOTIFICATION_TYPES: PreferenceConfig[] = [
     label: "Verification updates",
     description: "When your verification status changes",
   },
+  {
+    type: "profile_staleness",
+    label: "Profile update reminders",
+    description: "Periodic reminders to keep your profile up to date",
+  },
 ];
 
 export default async function NotificationSettingsPage() {

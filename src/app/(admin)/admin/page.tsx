@@ -135,6 +135,17 @@ export default async function AdminDashboardPage() {
             </CardHeader>
           </Card>
         </Link>
+
+        <Link href="/admin/settings">
+          <Card className="transition-colors hover:border-primary/50">
+            <CardHeader>
+              <CardTitle>Settings</CardTitle>
+              <CardDescription>
+                Configure platform behavior (staleness thresholds, etc.).
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
       </div>
     </div>
   );

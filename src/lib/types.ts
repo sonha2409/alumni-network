@@ -502,7 +502,8 @@ export type NotificationType =
   | "user_warning"
   | "user_muted"
   | "account_deletion"
-  | "account_reactivated";
+  | "account_reactivated"
+  | "profile_staleness";
 
 export interface Notification {
   id: string;
@@ -662,7 +663,8 @@ export type AdminAction =
   | "dismiss_report"
   | "escalate_report"
   | "account_self_delete"
-  | "account_reactivate";
+  | "account_reactivate"
+  | "update_app_setting";
 
 // =============================================================================
 // Admin Taxonomy Management Types

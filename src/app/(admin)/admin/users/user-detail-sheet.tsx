@@ -65,6 +65,7 @@ const ACTION_LABELS: Record<AdminAction, string> = {
   escalate_report: "Escalated report",
   account_self_delete: "Self-deleted account",
   account_reactivate: "Reactivated account",
+  update_app_setting: "Updated app setting",
 };
 
 export function UserDetailSheet({

@@ -44,6 +44,9 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
               <Link href="/admin/announcements" className={linkClass}>
                 Announcements
               </Link>
+              <Link href="/admin/settings" className={linkClass}>
+                Settings
+              </Link>
             </>
           )}
         </div>
