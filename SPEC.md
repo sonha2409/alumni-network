@@ -56,7 +56,7 @@
 | 28  | Alumni world map                                     | `DONE` | 2026-03-10. Interactive Mapbox GL map with country→state→city drill-down. Choropleth + bubble markers. Hybrid geocoding (static country lookup + Nominatim on profile save). Filters (industry, specialization, grad year). Full-width map + collapsible sidebar. Admin variant with unverified toggle + trend data. Backfill script for existing profiles. |
 | 29  | Admin dashboard: bulk invite                         | `DONE` | 2026-03-10. CSV upload (max 500 rows), email validation, duplicate detection, invite emails via Resend, status tracking (invited→signed_up→verified), invite history with resend. |
 | 40  | Message attachments (media & file sharing)            | `DONE` | 2026-03-10. `message_attachments` table + `message-attachments` storage bucket. Images (JPEG/PNG/WebP/GIF) + docs (PDF/DOCX/XLSX/PPTX/TXT/CSV). 5MB/file, 5 files/msg, 25MB/user quota. Inline image previews, lightbox, document download cards. Media panel (All/Media/Files tabs). Drag-and-drop + paperclip button. Optimistic UI. Signed URLs with onError re-fetch. |
-| 30  | Admin dashboard: announcements                       | `TODO` | Platform-wide notices                                                                                                           |
+| 30  | Admin dashboard: announcements                       | `DONE` | 2026-03-11. `announcements` + `dismissed_announcements` tables. Admin CRUD (create/edit/toggle/delete). Dismissible banner on main app layout. Notification broadcast to all verified users on publish. Announcement email template. Audit logging. |
 | 31  | Moderator role: report queue                         | `TODO` | Review flagged messages                                                                                                         |
 | 32  | Moderator role: limited user actions                 | `TODO` | Warn, mute (no ban/delete)                                                                                                      |
 | 33  | Account: soft delete + data export                   | `TODO` | 30-day grace → hard delete                                                                                                      |
@@ -329,6 +329,13 @@ announcements
 ├── published_at (timestamp)
 ├── created_at
 └── updated_at
+
+dismissed_announcements
+├── id (uuid, PK)
+├── user_id (FK → users)
+├── announcement_id (FK → announcements, CASCADE)
+├── created_at
+└── UNIQUE(user_id, announcement_id)
 
 groups
 ├── id (uuid, PK)

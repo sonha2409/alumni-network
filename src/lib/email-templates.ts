@@ -180,6 +180,28 @@ export function verificationUpdateEmail(
   };
 }
 
+export function announcementEmail(
+  title: string,
+  body: string,
+  link: string | undefined,
+  userId: string
+): { subject: string; html: string } {
+  const dashboardLink = `${siteUrl}/dashboard`;
+  const content = `
+    <p style="margin:0 0 8px;font-size:15px;color:#18181b;line-height:1.5;">
+      <strong>${escapeHtml(title)}</strong>
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      ${escapeHtml(body)}
+    </p>
+    ${link ? ctaButton("Learn More", link) : ctaButton("Go to Dashboard", dashboardLink)}`;
+
+  return {
+    subject: `AlumNet: ${title}`,
+    html: emailLayout(content, userId, "announcement"),
+  };
+}
+
 export function bulkInviteEmail(
   inviterName: string,
   signupUrl: string

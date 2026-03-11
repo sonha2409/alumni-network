@@ -602,7 +602,11 @@ export type AdminAction =
   | "taxonomy_archive_specialization"
   | "taxonomy_restore_specialization"
   | "bulk_invite"
-  | "resend_invite";
+  | "resend_invite"
+  | "create_announcement"
+  | "update_announcement"
+  | "toggle_announcement"
+  | "delete_announcement";
 
 // =============================================================================
 // Admin Taxonomy Management Types
@@ -688,6 +692,27 @@ export interface BulkInviteResult {
   sent: number;
   skipped: number;
   errors: string[];
+}
+
+// =============================================================================
+// Announcement Types
+// =============================================================================
+
+export interface Announcement {
+  id: string;
+  title: string;
+  body: string;
+  link: string | null;
+  created_by: string;
+  is_active: boolean;
+  published_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Announcement with the admin author's name for display in admin table. */
+export interface AnnouncementWithAuthor extends Announcement {
+  author_name: string | null;
 }
 
 export interface BulkInviteHistoryResult {

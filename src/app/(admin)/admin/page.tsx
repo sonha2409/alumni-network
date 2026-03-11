@@ -23,7 +23,7 @@ export default async function AdminDashboardPage() {
   }
 
   // Fetch quick stats
-  const [pendingResult, totalUsersResult, inviteCountResult] = await Promise.all([
+  const [pendingResult, totalUsersResult, inviteCountResult, activeAnnouncementsResult] = await Promise.all([
     supabase
       .from("verification_requests")
       .select("id", { count: "exact", head: true })
@@ -34,11 +34,16 @@ export default async function AdminDashboardPage() {
     supabase
       .from("bulk_invites")
       .select("id", { count: "exact", head: true }),
+    supabase
+      .from("announcements")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", true),
   ]);
 
   const pendingCount = pendingResult.count ?? 0;
   const totalUsers = totalUsersResult.count ?? 0;
   const inviteCount = inviteCountResult.count ?? 0;
+  const activeAnnouncements = activeAnnouncementsResult.count ?? 0;
 
   return (
     <div>
@@ -108,6 +113,24 @@ export default async function AdminDashboardPage() {
               </CardTitle>
               <CardDescription>
                 Upload a CSV to invite alumni via email.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+
+        <Link href="/admin/announcements">
+          <Card className="transition-colors hover:border-primary/50">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                Announcements
+                {activeAnnouncements > 0 && (
+                  <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-orange-500 px-2 text-xs font-medium text-white">
+                    {activeAnnouncements}
+                  </span>
+                )}
+              </CardTitle>
+              <CardDescription>
+                Create and manage platform-wide notices.
               </CardDescription>
             </CardHeader>
           </Card>

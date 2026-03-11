@@ -54,6 +54,10 @@ const ACTION_LABELS: Record<AdminAction, string> = {
   taxonomy_restore_specialization: "Restored specialization",
   bulk_invite: "Sent bulk invites",
   resend_invite: "Resent invite",
+  create_announcement: "Created announcement",
+  update_announcement: "Updated announcement",
+  toggle_announcement: "Toggled announcement",
+  delete_announcement: "Deleted announcement",
 };
 
 export function UserDetailSheet({

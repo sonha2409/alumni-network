@@ -12,6 +12,8 @@ export interface NotifyEmailContext {
   actorName?: string;
   /** For verification_update: "approved" | "rejected" */
   verificationStatus?: "approved" | "rejected";
+  /** For announcement: the announcement body text */
+  announcementBody?: string;
 }
 
 /**
@@ -102,6 +104,7 @@ async function buildEmailTemplate(
     connectionAcceptedEmail,
     newMessageEmail,
     verificationUpdateEmail,
+    announcementEmail,
   } = await import("@/lib/email-templates");
 
   const notificationLink = link ?? "/dashboard";
@@ -121,8 +124,12 @@ async function buildEmailTemplate(
         userId
       );
     case "announcement":
-      // Announcements don't have email templates yet
-      return null;
+      return announcementEmail(
+        context.actorName ?? "Announcement",
+        context.announcementBody ?? "",
+        link,
+        userId
+      );
     default:
       return null;
   }
