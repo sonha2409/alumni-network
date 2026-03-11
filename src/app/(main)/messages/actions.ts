@@ -8,7 +8,20 @@ import { createClient } from "@/lib/supabase/server";
 import { checkMessageRateLimit, checkConversationRateLimit } from "@/lib/rate-limit";
 import { findExistingConversation } from "@/lib/queries/messages";
 import { notifyUser } from "@/lib/notifications";
-import type { ActionResult, Message, RateLimitInfo } from "@/lib/types";
+import type {
+  ActionResult,
+  AttachmentInput,
+  AttachmentWithSender,
+  Message,
+  RateLimitInfo,
+} from "@/lib/types";
+import {
+  ALLOWED_TYPES,
+  MAX_FILE_SIZE,
+  MAX_FILES_PER_MESSAGE,
+  STORAGE_QUOTA_BYTES,
+  isImageType,
+} from "@/lib/attachments";
 
 /**
  * Get or create a 1-on-1 conversation with a connected user.
@@ -167,23 +180,199 @@ export async function getOrCreateConversation(
 }
 
 /**
- * Send a message in a conversation.
+ * Check the current user's storage quota usage for message attachments.
+ */
+export async function checkStorageQuota(): Promise<
+  ActionResult<{ usedBytes: number; limitBytes: number; remainingBytes: number }>
+> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "You must be logged in." };
+  }
+
+  try {
+    const { data, error } = await supabase.rpc("get_user_storage_used", {
+      uid: user.id,
+    });
+
+    if (error) {
+      console.error("[ServerAction:checkStorageQuota]", {
+        userId: user.id,
+        error: error.message,
+      });
+      return { success: false, error: "Failed to check storage quota." };
+    }
+
+    const usedBytes = Number(data) || 0;
+    return {
+      success: true,
+      data: {
+        usedBytes,
+        limitBytes: STORAGE_QUOTA_BYTES,
+        remainingBytes: Math.max(0, STORAGE_QUOTA_BYTES - usedBytes),
+      },
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[ServerAction:checkStorageQuota]", {
+      userId: user.id,
+      error: message,
+    });
+    return { success: false, error: "Something went wrong." };
+  }
+}
+
+/**
+ * Get attachments for a conversation (for the media panel).
+ */
+export async function getConversationAttachments(
+  conversationId: string,
+  filter?: "image" | "document" | null,
+  cursor?: string | null,
+  limit: number = 20
+): Promise<ActionResult<{ attachments: AttachmentWithSender[]; hasMore: boolean }>> {
+  const parsed = z
+    .string()
+    .uuid("Invalid conversation ID")
+    .safeParse(conversationId);
+  if (!parsed.success) {
+    return { success: false, error: "Invalid conversation ID." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "You must be logged in." };
+  }
+
+  try {
+    const { data, error } = await supabase.rpc("get_conversation_attachments", {
+      p_conversation_id: conversationId,
+      p_attachment_type: filter ?? null,
+      p_cursor: cursor ?? null,
+      p_limit: limit + 1,
+    });
+
+    if (error) {
+      console.error("[ServerAction:getConversationAttachments]", {
+        userId: user.id,
+        conversationId,
+        error: error.message,
+      });
+      return { success: false, error: "Failed to load attachments." };
+    }
+
+    const rows = (data ?? []) as Array<{
+      id: string;
+      message_id: string;
+      uploader_id: string;
+      file_name: string;
+      file_path: string;
+      file_size: number;
+      content_type: string;
+      attachment_type: "image" | "document";
+      width: number | null;
+      height: number | null;
+      created_at: string;
+      sender_name: string;
+    }>;
+
+    const hasMore = rows.length > limit;
+    const sliced = hasMore ? rows.slice(0, limit) : rows;
+
+    // Generate signed URLs
+    const attachments: AttachmentWithSender[] = await Promise.all(
+      sliced.map(async (row) => {
+        const { data: signedData } = await supabase.storage
+          .from("message-attachments")
+          .createSignedUrl(row.file_path, 3600);
+
+        return {
+          id: row.id,
+          message_id: row.message_id,
+          uploader_id: row.uploader_id,
+          file_name: row.file_name,
+          file_path: row.file_path,
+          file_size: row.file_size,
+          content_type: row.content_type,
+          attachment_type: row.attachment_type,
+          width: row.width,
+          height: row.height,
+          is_deleted: false,
+          deleted_at: null,
+          created_at: row.created_at,
+          updated_at: row.created_at,
+          signed_url: signedData?.signedUrl ?? null,
+          sender_name: row.sender_name,
+        };
+      })
+    );
+
+    return { success: true, data: { attachments, hasMore } };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[ServerAction:getConversationAttachments]", {
+      userId: user.id,
+      error: message,
+    });
+    return { success: false, error: "Something went wrong." };
+  }
+}
+
+/**
+ * Send a message in a conversation, optionally with file attachments.
  */
 export async function sendMessage(
   conversationId: string,
-  content: string
+  content: string,
+  attachments?: AttachmentInput[]
 ): Promise<ActionResult<{ message: Message; rateLimitInfo: RateLimitInfo }>> {
+  const hasAttachments = attachments && attachments.length > 0;
+
   const schema = z.object({
     conversationId: z.string().uuid("Invalid conversation ID"),
-    content: z
-      .string()
-      .min(1, "Message cannot be empty")
-      .max(5000, "Message must be under 5000 characters"),
+    content: hasAttachments
+      ? z.string().max(5000, "Message must be under 5000 characters")
+      : z
+          .string()
+          .min(1, "Message cannot be empty")
+          .max(5000, "Message must be under 5000 characters"),
   });
 
   const parsed = schema.safeParse({ conversationId, content });
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  // Validate attachments if provided
+  if (hasAttachments) {
+    if (attachments.length > MAX_FILES_PER_MESSAGE) {
+      return {
+        success: false,
+        error: `Maximum ${MAX_FILES_PER_MESSAGE} files per message.`,
+      };
+    }
+    for (const att of attachments) {
+      if (!ALLOWED_TYPES.includes(att.contentType)) {
+        return {
+          success: false,
+          error: `File type not allowed: ${att.fileName}`,
+        };
+      }
+      if (att.fileSize > MAX_FILE_SIZE) {
+        return {
+          success: false,
+          error: `File too large: ${att.fileName} (max 5MB)`,
+        };
+      }
+    }
   }
 
   const supabase = await createClient();
@@ -242,6 +431,39 @@ export async function sendMessage(
     }
   }
 
+  // Validate attachment file paths start with user's folder
+  if (hasAttachments) {
+    for (const att of attachments) {
+      if (!att.filePath.startsWith(`${user.id}/`)) {
+        return {
+          success: false,
+          error: "Invalid file path.",
+        };
+      }
+    }
+
+    // Check storage quota
+    const { data: usedData, error: quotaError } = await supabase.rpc(
+      "get_user_storage_used",
+      { uid: user.id }
+    );
+    if (quotaError) {
+      console.error("[ServerAction:sendMessage]", {
+        userId: user.id,
+        error: quotaError.message,
+      });
+      return { success: false, error: "Failed to check storage quota." };
+    }
+
+    const totalNewSize = attachments.reduce((sum, a) => sum + a.fileSize, 0);
+    if ((Number(usedData) || 0) + totalNewSize > STORAGE_QUOTA_BYTES) {
+      return {
+        success: false,
+        error: "Storage quota exceeded (25MB limit). Delete old files to free space.",
+      };
+    }
+  }
+
   try {
     // Insert message
     const { data: message, error: msgError } = await supabase
@@ -266,12 +488,52 @@ export async function sendMessage(
       };
     }
 
-    // Update conversation metadata
-    const preview =
-      parsed.data.content.trim().length > 100
-        ? parsed.data.content.trim().slice(0, 100) + "..."
-        : parsed.data.content.trim();
+    // Insert attachment rows if present
+    if (hasAttachments) {
+      const attachmentRows = attachments.map((att) => ({
+        message_id: message.id,
+        uploader_id: user.id,
+        file_name: att.fileName,
+        file_path: att.filePath,
+        file_size: att.fileSize,
+        content_type: att.contentType,
+        attachment_type: att.attachmentType,
+        width: att.width ?? null,
+        height: att.height ?? null,
+      }));
 
+      const { error: attError } = await supabase
+        .from("message_attachments")
+        .insert(attachmentRows);
+
+      if (attError) {
+        console.error("[ServerAction:sendMessage] attachment insert", {
+          userId: user.id,
+          messageId: message.id,
+          error: attError.message,
+        });
+        // Message was sent but attachments failed — don't fail the whole action
+      }
+    }
+
+    // Build conversation preview
+    let preview: string;
+    const trimmedContent = parsed.data.content.trim();
+    if (trimmedContent) {
+      preview =
+        trimmedContent.length > 100
+          ? trimmedContent.slice(0, 100) + "..."
+          : trimmedContent;
+    } else if (hasAttachments) {
+      const firstAtt = attachments[0];
+      preview = isImageType(firstAtt.contentType)
+        ? "\ud83d\udcf7 Photo"
+        : `\ud83d\udcce ${firstAtt.fileName}`;
+    } else {
+      preview = "";
+    }
+
+    // Update conversation metadata
     await supabase
       .from("conversations")
       .update({
@@ -302,16 +564,17 @@ export async function sendMessage(
         .single();
 
       const senderName = senderProfile?.full_name ?? "Someone";
-      const preview =
-        parsed.data.content.trim().length > 80
-          ? parsed.data.content.trim().slice(0, 80) + "..."
-          : parsed.data.content.trim();
+      const notifPreview = trimmedContent
+        ? trimmedContent.length > 80
+          ? trimmedContent.slice(0, 80) + "..."
+          : trimmedContent
+        : preview;
 
       notifyUser(
         otherParticipant.user_id,
         "new_message",
         `New message from ${senderName}`,
-        preview,
+        notifPreview,
         `/messages?conversation=${conversationId}`,
         { actorName: senderName }
       );
@@ -533,6 +796,16 @@ export async function deleteMessage(
       });
       return { success: false, error: "Failed to delete message." };
     }
+
+    // Soft-delete associated attachments
+    await supabase
+      .from("message_attachments")
+      .update({
+        is_deleted: true,
+        deleted_at: new Date().toISOString(),
+      })
+      .eq("message_id", messageId)
+      .eq("uploader_id", user.id);
 
     revalidatePath("/messages");
     return { success: true, data: undefined };

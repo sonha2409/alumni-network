@@ -13,6 +13,7 @@ import type { MessageWithSender } from "@/lib/types";
 import { editMessage, deleteMessage } from "../actions";
 import { useMessages } from "./messages-provider";
 import { ReportDialog } from "./report-dialog";
+import { AttachmentPreview } from "./attachment-preview";
 
 interface MessageBubbleProps {
   message: MessageWithSender;
@@ -155,24 +156,34 @@ export function MessageBubble({
               </div>
             </div>
           ) : (
-            <button
-              type="button"
-              className="cursor-pointer text-left"
-              onClick={() => setShowTimestamp((prev) => !prev)}
-              aria-label="Toggle timestamp"
-            >
-              <div
-                className={`rounded-2xl px-4 py-2 ${
-                  isOwn
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
-                }`}
+            <div>
+              <button
+                type="button"
+                className="cursor-pointer text-left"
+                onClick={() => setShowTimestamp((prev) => !prev)}
+                aria-label="Toggle timestamp"
               >
-                <p className="whitespace-pre-wrap break-words text-sm">
-                  {message.content}
-                </p>
-              </div>
-            </button>
+                <div
+                  className={`rounded-2xl px-4 py-2 ${
+                    isOwn
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted"
+                  }`}
+                >
+                  {message.content && (
+                    <p className="whitespace-pre-wrap break-words text-sm">
+                      {message.content}
+                    </p>
+                  )}
+                </div>
+              </button>
+              {message.attachments && message.attachments.length > 0 && (
+                <AttachmentPreview
+                  attachments={message.attachments}
+                  isOwn={isOwn}
+                />
+              )}
+            </div>
           )}
 
           {/* Per-message timestamp — shown on tap/click */}

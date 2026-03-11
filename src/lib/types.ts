@@ -378,6 +378,41 @@ export interface ConversationWithDetails {
   is_muted: boolean;
 }
 
+/** A file attached to a message. */
+export interface MessageAttachment {
+  id: string;
+  message_id: string;
+  uploader_id: string;
+  file_name: string;
+  file_path: string;
+  file_size: number;
+  content_type: string;
+  attachment_type: "image" | "document";
+  width: number | null;
+  height: number | null;
+  is_deleted: boolean;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Input metadata for creating an attachment (after file is uploaded to storage). */
+export interface AttachmentInput {
+  fileName: string;
+  filePath: string;
+  fileSize: number;
+  contentType: string;
+  attachmentType: "image" | "document";
+  width?: number;
+  height?: number;
+}
+
+/** Attachment with a signed URL and sender name — used in the media panel. */
+export interface AttachmentWithSender extends MessageAttachment {
+  signed_url: string | null;
+  sender_name: string;
+}
+
 /** Message with sender profile info for chat display. */
 export interface MessageWithSender extends Message {
   sender: {
@@ -385,6 +420,7 @@ export interface MessageWithSender extends Message {
     full_name: string;
     photo_url: string | null;
   };
+  attachments?: MessageAttachment[];
 }
 
 export interface MessageReport {

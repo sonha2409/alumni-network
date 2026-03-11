@@ -118,13 +118,21 @@ export function MessagesProvider({
             return;
           }
 
-          // For other user's messages: add with sender info
+          // For other user's messages: add with sender info + fetch attachments
+          const conv = conversations.find(
+            (c) => c.id === activeConversationId
+          );
+
+          // Fetch attachments for the new message
+          const { data: msgAttachments } = await supabaseRef.current
+            .from("message_attachments")
+            .select("*")
+            .eq("message_id", newMsg.id)
+            .eq("is_deleted", false);
+
           setActiveMessages((prev) => {
             if (prev.some((m) => m.id === newMsg.id)) return prev;
 
-            const conv = conversations.find(
-              (c) => c.id === activeConversationId
-            );
             if (conv) {
               newMsg.sender = {
                 user_id: conv.other_participant.user_id,
@@ -138,6 +146,8 @@ export function MessagesProvider({
                 photo_url: null,
               };
             }
+
+            newMsg.attachments = msgAttachments ?? [];
 
             return [...prev, newMsg];
           });

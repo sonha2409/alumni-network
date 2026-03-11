@@ -170,6 +170,21 @@ export async function getMessages(
     (profiles ?? []).map((p) => [p.user_id, p])
   );
 
+  // Batch-fetch attachments for these messages
+  const messageIds = sliced.map((m) => m.id);
+  const { data: attachments } = await supabase
+    .from("message_attachments")
+    .select("*")
+    .in("message_id", messageIds)
+    .eq("is_deleted", false);
+
+  const attachmentsByMessageId = new Map<string, typeof attachments>();
+  for (const att of attachments ?? []) {
+    const existing = attachmentsByMessageId.get(att.message_id) ?? [];
+    existing.push(att);
+    attachmentsByMessageId.set(att.message_id, existing);
+  }
+
   const messagesWithSender: MessageWithSender[] = sliced.map((msg) => {
     const profile = profileMap.get(msg.sender_id);
     return {
@@ -179,6 +194,7 @@ export async function getMessages(
         full_name: profile?.full_name ?? "Unknown User",
         photo_url: profile?.photo_url ?? null,
       },
+      attachments: attachmentsByMessageId.get(msg.id) ?? [],
     };
   });
 
