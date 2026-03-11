@@ -202,6 +202,55 @@ export function announcementEmail(
   };
 }
 
+export function userWarningEmail(
+  reason: string,
+  link: string,
+  userId: string
+): { subject: string; html: string } {
+  const fullLink = `${siteUrl}${link}`;
+  const content = `
+    <p style="margin:0 0 8px;font-size:15px;color:#18181b;line-height:1.5;">
+      You have received a <strong style="color:#f59e0b;">warning</strong> from a moderator.
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      <strong>Reason:</strong> ${escapeHtml(reason)}
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      Please review our community guidelines. Continued violations may result in your messaging being restricted.
+    </p>
+    ${ctaButton("View Details", fullLink)}`;
+
+  return {
+    subject: "You've received a warning on AlumNet",
+    html: emailLayout(content, userId, "user_warning"),
+  };
+}
+
+export function userMutedEmail(
+  reason: string,
+  duration: string,
+  link: string,
+  userId: string
+): { subject: string; html: string } {
+  const fullLink = `${siteUrl}${link}`;
+  const content = `
+    <p style="margin:0 0 8px;font-size:15px;color:#18181b;line-height:1.5;">
+      Your messaging has been <strong style="color:#dc2626;">temporarily restricted</strong> for ${escapeHtml(duration)}.
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      <strong>Reason:</strong> ${escapeHtml(reason)}
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      You can still browse the platform, but you won't be able to send messages until the restriction expires.
+    </p>
+    ${ctaButton("View Details", fullLink)}`;
+
+  return {
+    subject: "Your messaging on AlumNet has been restricted",
+    html: emailLayout(content, userId, "user_muted"),
+  };
+}
+
 export function bulkInviteEmail(
   inviterName: string,
   signupUrl: string

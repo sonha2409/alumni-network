@@ -14,6 +14,10 @@ export interface NotifyEmailContext {
   verificationStatus?: "approved" | "rejected";
   /** For announcement: the announcement body text */
   announcementBody?: string;
+  /** For user_warning / user_muted: the reason text */
+  moderationReason?: string;
+  /** For user_muted: human-readable duration (e.g., "7 days") */
+  muteDuration?: string;
 }
 
 /**
@@ -105,6 +109,8 @@ async function buildEmailTemplate(
     newMessageEmail,
     verificationUpdateEmail,
     announcementEmail,
+    userWarningEmail,
+    userMutedEmail,
   } = await import("@/lib/email-templates");
 
   const notificationLink = link ?? "/dashboard";
@@ -128,6 +134,19 @@ async function buildEmailTemplate(
         context.actorName ?? "Announcement",
         context.announcementBody ?? "",
         link,
+        userId
+      );
+    case "user_warning":
+      return userWarningEmail(
+        context.moderationReason ?? "Community guidelines violation",
+        notificationLink,
+        userId
+      );
+    case "user_muted":
+      return userMutedEmail(
+        context.moderationReason ?? "Community guidelines violation",
+        context.muteDuration ?? "a period of time",
+        notificationLink,
         userId
       );
     default:

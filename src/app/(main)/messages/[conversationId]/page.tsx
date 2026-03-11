@@ -25,16 +25,21 @@ export default async function ConversationPage({ params }: Props) {
 
   if (!user) redirect("/login");
 
-  // Check if verified
+  // Check if verified + mute status
   const { data: publicUser } = await supabase
     .from("users")
-    .select("verification_status")
+    .select("verification_status, muted_until")
     .eq("id", user.id)
     .single();
 
   if (!publicUser || publicUser.verification_status !== "verified") {
     redirect("/verification");
   }
+
+  const mutedUntil =
+    publicUser.muted_until && new Date(publicUser.muted_until) > new Date()
+      ? publicUser.muted_until
+      : null;
 
   // Verify user is a participant in this conversation
   const { data: participation } = await supabase
@@ -87,6 +92,7 @@ export default async function ConversationPage({ params }: Props) {
             conversation={currentConversation}
             initialMessages={messages}
             initialHasMore={hasMore}
+            mutedUntil={mutedUntil}
           />
         </div>
       </div>

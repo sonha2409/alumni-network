@@ -384,6 +384,21 @@ export async function sendMessage(
     return { success: false, error: "You must be logged in." };
   }
 
+  // Check if user is muted
+  const { data: muteData } = await supabase
+    .from("users")
+    .select("muted_until")
+    .eq("id", user.id)
+    .single();
+
+  if (muteData?.muted_until && new Date(muteData.muted_until) > new Date()) {
+    const mutedUntil = new Date(muteData.muted_until).toLocaleDateString();
+    return {
+      success: false,
+      error: `Your messaging is temporarily restricted until ${mutedUntil}.`,
+    };
+  }
+
   // Check rate limit
   const rateLimitInfo = await checkMessageRateLimit(user.id);
   if (!rateLimitInfo.allowed) {

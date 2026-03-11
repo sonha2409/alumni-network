@@ -58,6 +58,11 @@ const ACTION_LABELS: Record<AdminAction, string> = {
   update_announcement: "Updated announcement",
   toggle_announcement: "Toggled announcement",
   delete_announcement: "Deleted announcement",
+  warn: "Warned user",
+  mute: "Muted user",
+  unmute: "Unmuted user",
+  dismiss_report: "Dismissed report",
+  escalate_report: "Escalated report",
 };
 
 export function UserDetailSheet({

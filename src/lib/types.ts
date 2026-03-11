@@ -428,12 +428,57 @@ export interface MessageReport {
   message_id: string;
   reporter_id: string;
   reason: string;
-  status: "pending" | "reviewed" | "action_taken" | "dismissed";
+  status: "pending" | "reviewed" | "action_taken" | "dismissed" | "escalated";
   reviewed_by: string | null;
   reviewed_at: string | null;
   reviewer_notes: string | null;
   created_at: string;
   updated_at: string;
+}
+
+/** Report with joined message and user data for the moderation queue. */
+export interface ModerationReportRow {
+  id: string;
+  reason: string;
+  status: "pending" | "reviewed" | "action_taken" | "dismissed" | "escalated";
+  created_at: string;
+  reviewed_at: string | null;
+  reviewer_notes: string | null;
+  message_id: string;
+  message_content: string;
+  message_is_deleted: boolean;
+  message_created_at: string;
+  conversation_id: string;
+  reported_user_id: string;
+  reported_user_name: string | null;
+  reported_user_photo: string | null;
+  reported_user_email: string;
+  reported_user_muted_until: string | null;
+  reporter_id: string;
+  report_count: number;
+  warning_count: number;
+}
+
+/** Conversation message for moderation context view. */
+export interface ModerationContextMessage {
+  id: string;
+  sender_id: string;
+  sender_name: string;
+  content: string;
+  is_deleted: boolean;
+  created_at: string;
+  is_reported: boolean;
+}
+
+/** User warning record. */
+export interface UserWarning {
+  id: string;
+  user_id: string;
+  moderator_id: string;
+  report_id: string | null;
+  reason: string;
+  created_at: string;
+  moderator_name: string | null;
 }
 
 /** Rate limit info returned with messaging actions. */
@@ -453,7 +498,9 @@ export type NotificationType =
   | "connection_accepted"
   | "new_message"
   | "verification_update"
-  | "announcement";
+  | "announcement"
+  | "user_warning"
+  | "user_muted";
 
 export interface Notification {
   id: string;
@@ -606,7 +653,12 @@ export type AdminAction =
   | "create_announcement"
   | "update_announcement"
   | "toggle_announcement"
-  | "delete_announcement";
+  | "delete_announcement"
+  | "warn"
+  | "mute"
+  | "unmute"
+  | "dismiss_report"
+  | "escalate_report";
 
 // =============================================================================
 // Admin Taxonomy Management Types

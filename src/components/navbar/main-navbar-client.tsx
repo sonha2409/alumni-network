@@ -83,6 +83,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
     : "/onboarding";
 
   const isAdmin = user.role === "admin";
+  const isModerator = user.role === "moderator";
 
   return (
     <nav className="border-b bg-background" aria-label="Main navigation">
@@ -126,6 +127,14 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
               className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               Admin
+            </Link>
+          )}
+          {isModerator && (
+            <Link
+              href="/moderation/reports"
+              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              Moderation
             </Link>
           )}
         </div>
@@ -274,6 +283,15 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Admin
+              </Link>
+            )}
+            {isModerator && (
+              <Link
+                href="/moderation/reports"
+                className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Moderation
               </Link>
             )}
           </div>

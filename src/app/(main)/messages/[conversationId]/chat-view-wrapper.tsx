@@ -11,6 +11,7 @@ interface ChatViewWrapperProps {
   conversation: ConversationWithDetails;
   initialMessages: MessageWithSender[];
   initialHasMore: boolean;
+  mutedUntil: string | null;
 }
 
 /**
@@ -23,6 +24,7 @@ export function ChatViewWrapper({
   conversation,
   initialMessages,
   initialHasMore,
+  mutedUntil,
 }: ChatViewWrapperProps) {
   const { setMessages } = useMessages();
 
@@ -36,6 +38,7 @@ export function ChatViewWrapper({
       conversationId={conversationId}
       currentUserId={currentUserId}
       conversation={conversation}
+      mutedUntil={mutedUntil}
     />
   );
 }

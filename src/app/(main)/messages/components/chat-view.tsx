@@ -16,12 +16,14 @@ interface ChatViewProps {
   conversationId: string;
   currentUserId: string;
   conversation: ConversationWithDetails;
+  mutedUntil?: string | null;
 }
 
 export function ChatView({
   conversationId,
   currentUserId,
   conversation,
+  mutedUntil,
 }: ChatViewProps) {
   const {
     activeMessages,
@@ -226,10 +228,20 @@ export function ChatView({
         </div>
 
         {/* Message input */}
-        <MessageInput
-          conversationId={conversationId}
-          currentUserId={currentUserId}
-        />
+        {mutedUntil ? (
+          <div
+            className="border-t bg-red-50 px-4 py-3 text-center text-sm text-red-700 dark:bg-red-950/30 dark:text-red-400"
+            role="alert"
+          >
+            Your messaging is temporarily restricted until{" "}
+            {new Date(mutedUntil).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}.
+          </div>
+        ) : (
+          <MessageInput
+            conversationId={conversationId}
+            currentUserId={currentUserId}
+          />
+        )}
       </div>
 
       {/* Media panel (desktop: side panel, mobile: full overlay) */}

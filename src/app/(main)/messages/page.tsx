@@ -14,16 +14,20 @@ export default async function MessagesPage() {
 
   if (!user) redirect("/login");
 
-  // Check if verified
+  // Check if verified + mute status
   const { data: publicUser } = await supabase
     .from("users")
-    .select("verification_status")
+    .select("verification_status, muted_until, muted_reason")
     .eq("id", user.id)
     .single();
 
   if (!publicUser || publicUser.verification_status !== "verified") {
     redirect("/verification");
   }
+
+  const isMuted =
+    publicUser.muted_until !== null &&
+    new Date(publicUser.muted_until) > new Date();
 
   const [{ conversations }, unreadCount] = await Promise.all([
     getConversations(user.id),
@@ -36,6 +40,20 @@ export default async function MessagesPage() {
       initialUnreadCount={unreadCount}
       currentUserId={user.id}
     >
+      {isMuted && (
+        <div
+          className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300"
+          role="alert"
+        >
+          <p className="font-medium">Your messaging is temporarily restricted</p>
+          <p className="mt-1 text-red-700 dark:text-red-400">
+            {publicUser.muted_reason ? `Reason: ${publicUser.muted_reason}. ` : ""}
+            Restriction ends on{" "}
+            {new Date(publicUser.muted_until!).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}.
+            You can still browse conversations but cannot send new messages.
+          </p>
+        </div>
+      )}
       <div className="flex h-[calc(100vh-8rem)] flex-col rounded-lg border bg-background shadow-sm md:flex-row">
         {/* Conversation list — full width on mobile, sidebar on desktop */}
         <div className="flex w-full flex-col border-r md:w-80 lg:w-96">
