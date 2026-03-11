@@ -69,6 +69,18 @@ export default async function ConversationPage({ params }: Props) {
     notFound();
   }
 
+  // Check if the other participant's account is deleted
+  // Query is_active directly — admins can read all users via RLS,
+  // so we can't rely on null to detect deleted users.
+  const otherUserId = currentConversation.other_participant.user_id;
+  const { data: otherUserRow } = await supabase
+    .from("users")
+    .select("is_active, deleted_at")
+    .eq("id", otherUserId)
+    .maybeSingle();
+
+  const isOtherUserDeleted = !otherUserRow || !otherUserRow.is_active;
+
   return (
     <MessagesProvider
       initialConversations={conversations}
@@ -93,6 +105,7 @@ export default async function ConversationPage({ params }: Props) {
             initialMessages={messages}
             initialHasMore={hasMore}
             mutedUntil={mutedUntil}
+            isOtherUserDeleted={isOtherUserDeleted}
           />
         </div>
       </div>

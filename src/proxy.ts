@@ -49,9 +49,11 @@ export default async function proxy(request: NextRequest) {
   const isOnboarding = pathname.startsWith("/onboarding");
   const isAuthCallback = pathname.startsWith("/auth/callback");
   const isBannedPage = pathname === "/banned";
+  const isAccountDeletedPage = pathname === "/account-deleted";
+  const isStatusPage = isBannedPage || isAccountDeletedPage;
 
   // Redirect unauthenticated users away from protected routes
-  if (!user && !isPublicRoute && !isBannedPage) {
+  if (!user && !isPublicRoute && !isStatusPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
@@ -64,19 +66,27 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Check if user is banned or suspended — redirect to /banned page
-  if (user && !isBannedPage && !isAuthCallback) {
+  // Check if user is banned, suspended, or self-deleted — redirect appropriately
+  if (user && !isStatusPage && !isAuthCallback) {
     const { data: userData } = await supabase
       .from("users")
-      .select("is_active, suspended_until")
+      .select("is_active, suspended_until, deleted_at")
       .eq("id", user.id)
       .single();
 
     if (userData) {
-      const isBanned = !userData.is_active;
+      const isInactive = !userData.is_active;
+      const isSelfDeleted = isInactive && userData.deleted_at !== null;
+      const isBanned = isInactive && userData.deleted_at === null;
       const isSuspended =
         userData.suspended_until !== null &&
         new Date(userData.suspended_until) > new Date();
+
+      if (isSelfDeleted) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/account-deleted";
+        return NextResponse.redirect(url);
+      }
 
       if (isBanned || isSuspended) {
         const url = request.nextUrl.clone();
@@ -85,21 +95,35 @@ export default async function proxy(request: NextRequest) {
       }
     }
 
-    // If user is on /banned but is no longer banned/suspended, redirect to dashboard
-  } else if (user && isBannedPage) {
+    // If user is on a status page but is no longer restricted, redirect to dashboard
+  } else if (user && isStatusPage) {
     const { data: userData } = await supabase
       .from("users")
-      .select("is_active, suspended_until")
+      .select("is_active, suspended_until, deleted_at")
       .eq("id", user.id)
       .single();
 
     if (userData) {
-      const isBanned = !userData.is_active;
+      const isInactive = !userData.is_active;
+      const isSelfDeleted = isInactive && userData.deleted_at !== null;
+      const isBanned = isInactive && userData.deleted_at === null;
       const isSuspended =
         userData.suspended_until !== null &&
         new Date(userData.suspended_until) > new Date();
 
-      if (!isBanned && !isSuspended) {
+      // Self-deleted user on /account-deleted is fine — that's where they should be
+      if (isSelfDeleted && isAccountDeletedPage) {
+        // Allow through
+      } else if (isBanned || isSuspended) {
+        // Banned/suspended user should be on /banned, not /account-deleted
+        if (isAccountDeletedPage) {
+          const url = request.nextUrl.clone();
+          url.pathname = "/banned";
+          return NextResponse.redirect(url);
+        }
+        // Already on /banned — allow through
+      } else {
+        // User is active — redirect to dashboard
         const url = request.nextUrl.clone();
         url.pathname = "/dashboard";
         return NextResponse.redirect(url);

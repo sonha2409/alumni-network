@@ -315,6 +315,100 @@ function inviteEmailLayout(content: string): string {
 </html>`.trim();
 }
 
+export function accountDeletionRequestedEmail(
+  userName: string,
+  daysRemaining: number,
+  userId: string
+): { subject: string; html: string } {
+  const settingsLink = `${siteUrl}/account-deleted`;
+  const content = `
+    <p style="margin:0 0 8px;font-size:15px;color:#18181b;line-height:1.5;">
+      Hi <strong>${escapeHtml(userName)}</strong>,
+    </p>
+    <p style="margin:0 0 8px;font-size:14px;color:#52525b;line-height:1.5;">
+      Your AlumNet account has been scheduled for deletion. Your profile has been hidden from the directory and your connections have been removed.
+    </p>
+    <p style="margin:0 0 8px;font-size:14px;color:#52525b;line-height:1.5;">
+      You have <strong>${daysRemaining} days</strong> to change your mind. After that, all your data will be permanently deleted and cannot be recovered.
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      To reactivate your account, simply log in and click "Reactivate Account".
+    </p>
+    ${ctaButton("Reactivate My Account", settingsLink)}
+    <p style="margin:16px 0 0;font-size:12px;color:#a1a1aa;line-height:1.5;">
+      If you didn't request this deletion, please log in immediately and reactivate your account, then change your password.
+    </p>`;
+
+  return {
+    subject: "Your AlumNet account is scheduled for deletion",
+    html: accountEmailLayout(content),
+  };
+}
+
+export function accountReactivatedEmail(
+  userName: string
+): { subject: string; html: string } {
+  const dashboardLink = `${siteUrl}/dashboard`;
+  const content = `
+    <p style="margin:0 0 8px;font-size:15px;color:#18181b;line-height:1.5;">
+      Welcome back, <strong>${escapeHtml(userName)}</strong>!
+    </p>
+    <p style="margin:0 0 8px;font-size:14px;color:#52525b;line-height:1.5;">
+      Your AlumNet account has been successfully reactivated. Your profile is visible again in the directory.
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      Please note that your previous connections were removed during the deletion process and will need to be re-established.
+    </p>
+    ${ctaButton("Go to Dashboard", dashboardLink)}`;
+
+  return {
+    subject: "Your AlumNet account has been reactivated",
+    html: accountEmailLayout(content),
+  };
+}
+
+/**
+ * Simplified email layout for account deletion/reactivation emails.
+ * No unsubscribe link — these are transactional, not preference-based.
+ */
+function accountEmailLayout(content: string): string {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:#ffffff;border-radius:8px;overflow:hidden;">
+          <tr>
+            <td style="padding:24px 32px 16px;border-bottom:1px solid #e4e4e7;">
+              <strong style="font-size:18px;color:#18181b;">AlumNet</strong>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 32px;">
+              ${content}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:16px 32px 24px;border-top:1px solid #e4e4e7;">
+              <p style="margin:0;font-size:12px;color:#a1a1aa;line-height:1.5;">
+                This is a transactional email from AlumNet regarding your account status.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`.trim();
+}
+
 // =============================================================================
 // Helpers
 // =============================================================================

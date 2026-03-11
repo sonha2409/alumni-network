@@ -111,6 +111,8 @@ async function buildEmailTemplate(
     announcementEmail,
     userWarningEmail,
     userMutedEmail,
+    accountDeletionRequestedEmail,
+    accountReactivatedEmail,
   } = await import("@/lib/email-templates");
 
   const notificationLink = link ?? "/dashboard";
@@ -149,6 +151,14 @@ async function buildEmailTemplate(
         notificationLink,
         userId
       );
+    case "account_deletion":
+      return accountDeletionRequestedEmail(
+        context.actorName ?? "User",
+        30,
+        userId
+      );
+    case "account_reactivated":
+      return accountReactivatedEmail(context.actorName ?? "User");
     default:
       return null;
   }

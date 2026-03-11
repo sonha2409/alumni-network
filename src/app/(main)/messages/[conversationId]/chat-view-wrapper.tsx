@@ -12,6 +12,7 @@ interface ChatViewWrapperProps {
   initialMessages: MessageWithSender[];
   initialHasMore: boolean;
   mutedUntil: string | null;
+  isOtherUserDeleted?: boolean;
 }
 
 /**
@@ -25,6 +26,7 @@ export function ChatViewWrapper({
   initialMessages,
   initialHasMore,
   mutedUntil,
+  isOtherUserDeleted,
 }: ChatViewWrapperProps) {
   const { setMessages } = useMessages();
 
@@ -39,6 +41,7 @@ export function ChatViewWrapper({
       currentUserId={currentUserId}
       conversation={conversation}
       mutedUntil={mutedUntil}
+      isOtherUserDeleted={isOtherUserDeleted}
     />
   );
 }

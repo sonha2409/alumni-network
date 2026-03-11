@@ -429,6 +429,20 @@ export async function sendMessage(
     .maybeSingle();
 
   if (otherParticipant) {
+    // Check if other user's account is still active
+    const { data: otherUserData } = await supabase
+      .from("users")
+      .select("is_active")
+      .eq("id", otherParticipant.user_id)
+      .maybeSingle();
+
+    if (!otherUserData || !otherUserData.is_active) {
+      return {
+        success: false,
+        error: "This person is no longer available.",
+      };
+    }
+
     const { data: connectionExists } = await supabase
       .from("connections")
       .select("id")

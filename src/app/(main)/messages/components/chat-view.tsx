@@ -17,6 +17,7 @@ interface ChatViewProps {
   currentUserId: string;
   conversation: ConversationWithDetails;
   mutedUntil?: string | null;
+  isOtherUserDeleted?: boolean;
 }
 
 export function ChatView({
@@ -24,6 +25,7 @@ export function ChatView({
   currentUserId,
   conversation,
   mutedUntil,
+  isOtherUserDeleted,
 }: ChatViewProps) {
   const {
     activeMessages,
@@ -119,30 +121,43 @@ export function ChatView({
           </Link>
 
           {/* Other user info */}
-          <Link
-            href={`/profile/${otherUser.profile_id}`}
-            className="flex items-center gap-3 hover:opacity-80"
-          >
-            {otherUser.photo_url ? (
-              <img
-                src={otherUser.photo_url}
-                alt={otherUser.full_name}
-                className="h-9 w-9 rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
-                {otherUser.full_name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .slice(0, 2)
-                  .toUpperCase()}
+          {isOtherUserDeleted ? (
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
+                ?
               </div>
-            )}
-            <div>
-              <p className="text-sm font-semibold">{otherUser.full_name}</p>
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground">
+                  Deleted User
+                </p>
+              </div>
             </div>
-          </Link>
+          ) : (
+            <Link
+              href={`/profile/${otherUser.profile_id}`}
+              className="flex items-center gap-3 hover:opacity-80"
+            >
+              {otherUser.photo_url ? (
+                <img
+                  src={otherUser.photo_url}
+                  alt={otherUser.full_name}
+                  className="h-9 w-9 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
+                  {otherUser.full_name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase()}
+                </div>
+              )}
+              <div>
+                <p className="text-sm font-semibold">{otherUser.full_name}</p>
+              </div>
+            </Link>
+          )}
 
           <div className="flex-1" />
 
@@ -228,7 +243,15 @@ export function ChatView({
         </div>
 
         {/* Message input */}
-        {mutedUntil ? (
+        {isOtherUserDeleted ? (
+          <div
+            className="border-t bg-muted/50 px-4 py-3 text-center text-sm text-muted-foreground"
+            role="status"
+          >
+            This person is no longer available. You can view the conversation
+            history but cannot send new messages.
+          </div>
+        ) : mutedUntil ? (
           <div
             className="border-t bg-red-50 px-4 py-3 text-center text-sm text-red-700 dark:bg-red-950/30 dark:text-red-400"
             role="alert"

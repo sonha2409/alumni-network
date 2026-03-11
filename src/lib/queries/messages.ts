@@ -95,8 +95,6 @@ export async function getConversations(
       if (!otherUserId) return null;
 
       const profile = profileMap.get(otherUserId);
-      if (!profile) return null;
-
       const participation = participationMap.get(conv.id);
 
       return {
@@ -107,9 +105,9 @@ export async function getConversations(
         created_at: conv.created_at,
         other_participant: {
           user_id: otherUserId,
-          full_name: profile.full_name,
-          photo_url: profile.photo_url,
-          profile_id: profile.id,
+          full_name: profile?.full_name ?? "Deleted User",
+          photo_url: profile?.photo_url ?? null,
+          profile_id: profile?.id ?? "",
         },
         unread_count: unreadCounts.get(conv.id) ?? 0,
         is_muted: participation?.isMuted ?? false,
@@ -191,7 +189,7 @@ export async function getMessages(
       ...msg,
       sender: {
         user_id: msg.sender_id,
-        full_name: profile?.full_name ?? "Unknown User",
+        full_name: profile?.full_name ?? "Deleted User",
         photo_url: profile?.photo_url ?? null,
       },
       attachments: attachmentsByMessageId.get(msg.id) ?? [],

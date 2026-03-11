@@ -59,7 +59,7 @@
 | 30  | Admin dashboard: announcements                       | `DONE` | 2026-03-11. `announcements` + `dismissed_announcements` tables. Admin CRUD (create/edit/toggle/delete). Dismissible banner on main app layout. Notification broadcast to all verified users on publish. Announcement email template. Audit logging. |
 | 31  | Moderator role: report queue                         | `DONE` | 2026-03-11. `/moderation/reports` page with filterable queue (pending/escalated/actioned/dismissed). Report detail sheet with conversation context, prior warnings. Moderator navbar (Reports only) + admin sees all links. `is_moderator()` helper function. RLS policy for moderator message access. |
 | 32  | Moderator role: limited user actions                 | `DONE` | 2026-03-11. Warn (notification + email + persistent record), mute (1d/7d/30d via SECURITY DEFINER), unmute (early release), escalate to admin, dismiss. `user_warnings` table. `muted_until`/`muted_reason` columns on users. Mute enforcement in sendMessage() + disabled input UI. Mute banner on messages page. Audit logging for all moderator actions. |
-| 33  | Account: soft delete + data export                   | `TODO` | 30-day grace → hard delete                                                                                                      |
+| 33  | Account: soft delete + data export                   | `DONE` | 2026-03-11. Self-service deletion from /settings/account. Password confirmation, 30-day grace period, /account-deleted reactivation page. JSON data export. pg_cron hard-delete daily. Audit log. Phase 2: Edge Function for storage cleanup + 7-day reminder email. |
 | 34  | Profile staleness: periodic update prompts           | `TODO` | Email/in-app nudge                                                                                                              |
 | 35  | Responsive design (mobile-first)                     | `TODO` | All pages                                                                                                                       |
 | 35a | Navigation: main navbar + admin navbar               | `DONE` | 2026-03-09. Separate navbars for main app and admin. Mobile hamburger menu. User dropdown with profile/logout.                  |
@@ -85,8 +85,20 @@ users
 ├── verification_status (enum: unverified, pending, verified, rejected)
 ├── is_active (boolean — soft delete flag)
 ├── deleted_at (timestamp, nullable)
+├── deletion_requested_at (timestamp, nullable — self-service deletion tracking)
+├── deletion_reason (text, nullable — user-provided reason for leaving)
 ├── created_at
 └── updated_at
+
+account_deletion_log
+├── id (uuid, PK)
+├── user_id (uuid — no FK, user is deleted)
+├── email (text)
+├── deletion_requested_at (timestamp)
+├── hard_deleted_at (timestamp)
+├── reason (text, nullable)
+├── data_export_generated (boolean)
+└── created_at
 
 schools
 ├── id (uuid, PK)

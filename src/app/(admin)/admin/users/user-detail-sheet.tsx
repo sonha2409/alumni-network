@@ -63,6 +63,8 @@ const ACTION_LABELS: Record<AdminAction, string> = {
   unmute: "Unmuted user",
   dismiss_report: "Dismissed report",
   escalate_report: "Escalated report",
+  account_self_delete: "Self-deleted account",
+  account_reactivate: "Reactivated account",
 };
 
 export function UserDetailSheet({
