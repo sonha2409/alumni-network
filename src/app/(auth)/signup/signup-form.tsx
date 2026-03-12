@@ -24,9 +24,11 @@ export function SignupForm() {
         toast.success("Account created! Let's set up your profile.");
         router.push("/onboarding");
       } else {
-        // Generic message for both new signups needing email confirmation
-        // and duplicate emails (Fix 8: prevent email enumeration)
-        toast.success("Check your email to verify your account.");
+        // Email confirmation required, or duplicate email (Fix 8: prevent enumeration).
+        // Both cases show the same message to avoid leaking account existence.
+        toast.success(
+          "Account created! Please check your email to verify your account, then log in."
+        );
         router.push("/login");
       }
     }

@@ -87,6 +87,12 @@ export async function signup(
       return { success: false, error: "Something went wrong. Please try again." };
     }
 
+    // Email confirmation enabled: session is null until user confirms email.
+    // Return empty userId so the client shows "Check your email" message.
+    if (!data.session) {
+      return { success: true, data: { userId: "" } };
+    }
+
     return { success: true, data: { userId: data.user.id } };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
