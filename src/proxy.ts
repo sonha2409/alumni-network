@@ -74,12 +74,14 @@ export default async function proxy(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    // Fix 4: Fail-closed — if we can't verify user status, redirect to login
+    // Fix 4: Fail-closed — if we can't verify user status, sign out and redirect to login.
+    // Sign out prevents redirect loop (session exists → proxy redirects from /login → no user row → loop).
     if (statusError) {
-      console.error("[Proxy] Failed to fetch user status, redirecting to login", {
+      console.error("[Proxy] Failed to fetch user status, signing out and redirecting to login", {
         userId: user.id,
         error: statusError.message,
       });
+      await supabase.auth.signOut();
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       return NextResponse.redirect(url);
@@ -150,12 +152,13 @@ export default async function proxy(request: NextRequest) {
       .select("id", { count: "exact", head: true })
       .eq("user_id", user.id);
 
-    // Fix 4: Fail-closed — if we can't check profile, redirect to login
+    // Fix 4: Fail-closed — if we can't check profile, sign out and redirect to login
     if (profileError) {
-      console.error("[Proxy] Failed to check profile existence, redirecting to login", {
+      console.error("[Proxy] Failed to check profile existence, signing out and redirecting to login", {
         userId: user.id,
         error: profileError.message,
       });
+      await supabase.auth.signOut();
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       return NextResponse.redirect(url);
