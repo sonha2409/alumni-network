@@ -182,6 +182,22 @@ Every feature or significant change follows this layered process. Do NOT skip la
 - **Wait for approval**: Never auto-edit files on bug reports. Get confirmation before applying changes.
 - **Verify the fix**: After applying, run build + tests (L5.5) to confirm the fix doesn't introduce regressions.
 
+## Session Continuity Advisory
+
+When transitioning to a new feature, **proactively advise** whether to continue in the current session or start a new one. Present a brief assessment covering:
+
+- **Context usage**: Estimate how much context window has been consumed so far. If heavy (e.g., multiple large files read, long implementation, extensive back-and-forth), recommend a new session.
+- **Work continuity**: If the next feature shares significant context with what was just built (same files, same domain, dependent code), recommend staying. If it's an unrelated domain or different part of the stack, recommend a new session.
+- **Recommendation format**:
+  ```
+  📋 Session Check:
+  - Context used: [low / moderate / heavy]
+  - Next feature relation: [closely related / loosely related / unrelated]
+  - Recommendation: [continue in this session / start a new session]
+  - Reason: [1-sentence explanation]
+  ```
+- Always let the user make the final call.
+
 ## Response Template
 
 For feature work, structure responses using this format:

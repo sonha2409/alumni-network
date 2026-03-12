@@ -61,6 +61,8 @@ export function MessagesProvider({
     ReturnType<typeof createClient>["channel"]
   > | null>(null);
   const supabaseRef = useRef(createClient());
+  const activeMessagesRef = useRef(activeMessages);
+  activeMessagesRef.current = activeMessages;
 
   // Subscribe to real-time message updates for the active conversation
   useEffect(() => {
@@ -179,7 +181,50 @@ export function MessagesProvider({
           );
         }
       )
-      .subscribe();
+      .subscribe(async (status) => {
+        // Fix 6: Gap fill — fetch messages that may have been sent between
+        // initial server render and subscription becoming active
+        if (status === "SUBSCRIBED") {
+          const lastMessage = activeMessagesRef.current[activeMessagesRef.current.length - 1];
+          if (!lastMessage) return;
+
+          const { data: missed } = await supabaseRef.current
+            .from("messages")
+            .select("*")
+            .eq("conversation_id", activeConversationId)
+            .gt("created_at", lastMessage.created_at)
+            .order("created_at", { ascending: true });
+
+          if (missed && missed.length > 0) {
+            setActiveMessages((prev) => {
+              const existingIds = new Set(prev.map((m) => m.id));
+              const newMessages = missed.filter((m) => !existingIds.has(m.id));
+              if (newMessages.length === 0) return prev;
+
+              // Add sender info for new messages
+              const conv = conversations.find(
+                (c) => c.id === activeConversationId
+              );
+              const withSender = newMessages.map((msg) => {
+                const isSelf = msg.sender_id === currentUserId;
+                return {
+                  ...msg,
+                  sender: isSelf
+                    ? { user_id: currentUserId, full_name: "You", photo_url: null }
+                    : {
+                        user_id: conv?.other_participant.user_id ?? msg.sender_id,
+                        full_name: conv?.other_participant.full_name ?? "Unknown",
+                        photo_url: conv?.other_participant.photo_url ?? null,
+                      },
+                  attachments: [],
+                } as MessageWithSender;
+              });
+
+              return [...prev, ...withSender];
+            });
+          }
+        }
+      });
 
     channelRef.current = channel;
 

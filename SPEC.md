@@ -64,7 +64,15 @@
 | 35  | Responsive design (mobile-first)                     | `DONE` | 2026-03-11. All pages audited & fixed for 375px–1280px. Message bubbles, media panel, admin tables (card layout on mobile), admin navbar hamburger menu, map mobile filters (always-mounted bottom sheet), profile/dashboard/groups/notifications stacking, analytics chart widths. |
 | 35a | Navigation: main navbar + admin navbar               | `DONE` | 2026-03-09. Separate navbars for main app and admin. Mobile hamburger menu. User dropdown with profile/logout.                  |
 | 35b | Accessibility: aria-describedby + banner roles       | `DONE` | 2026-03-09. All form error messages linked via aria-describedby. Verification banners have role="status"/"alert".               |
-| 36  | Deployment: Vercel + Supabase                        | `TODO` | Free tier initial                                                                                                               |
+| 35c-1 | Security: role escalation RLS                      | `DONE` | 2026-03-11. `users_update_own` RLS WITH CHECK to prevent self-modification of `role` and `verification_status`. See ADR-019. |
+| 35c-2 | Security: block bypass in sendMessage              | `DONE` | 2026-03-11. Add block check in `sendMessage()` — currently only checked in `getOrCreateConversation()`. |
+| 35c-3 | Security: analytics RPC auth                       | `DONE` | 2026-03-11. Add `is_admin()` guard to 6 analytics functions (converted from SQL to plpgsql for IF/RAISE). |
+| 35c-4 | Security: proxy fail-closed                        | `DONE` | 2026-03-11. Redirect to `/login` when Supabase status query errors, instead of silently continuing. |
+| 35c-5 | Reliability: duplicate conversation prevention     | `DONE` | 2026-03-11. `user_pair` column + unique index on `conversations`. Backfill existing rows. |
+| 35c-6 | Reliability: real-time subscription gap fill       | `DONE` | 2026-03-11. Fetch missed messages after subscription reaches SUBSCRIBED status, dedup by ID. |
+| 35c-7 | Security: conversation participant RLS             | `DONE` | 2026-03-11. `create_conversation_with_participant()` SECURITY DEFINER function. Drop direct INSERT policy on `conversation_participants`. |
+| 35c-8 | Security: signup email enumeration                 | `DONE` | 2026-03-11. Return generic success on duplicate email signup instead of revealing account exists. |
+| 36  | Deployment: Vercel + Supabase                        | `TODO` | Free tier initial. No longer blocked.                                                                           |
 | 37  | i18n: user-selectable display language               | `TODO` | Phase 2. Vietnamese/English toggle. Labels currently English with Vietnamese in parentheses for school-specific terms.           |
 | 38  | Multi-school support                                 | `TODO` | Phase 4. School-scoped RLS, school-scoped routing (`/schools/:slug/...`), school admin roles, `school_id` on `users`.           |
 | 39  | Admin: school management UI                          | `TODO` | Phase 4. CRUD for schools table. Currently seed-only.                                                                           |
@@ -487,7 +495,23 @@ graph TD
     F4 --> F33[F33: Account Delete + Export]
     F4 --> F34[F34: Profile Staleness Prompts]
     F4 --> F35[F35: Responsive Design]
-    F1 --> F36[F36: Deployment]
+    F2 --> F35c1[F35c-1: Role Escalation RLS]
+    F18 --> F35c2[F35c-2: Block Bypass Fix]
+    F26 --> F35c3[F35c-3: Analytics RPC Auth]
+    F2 --> F35c4[F35c-4: Proxy Fail-Closed]
+    F18 --> F35c5[F35c-5: Duplicate Conversations]
+    F18 --> F35c6[F35c-6: RT Gap Fill]
+    F18 --> F35c7[F35c-7: Participant RLS]
+    F35c5 --> F35c7
+    F2 --> F35c8[F35c-8: Email Enumeration]
+    F35c1 --> F36[F36: Deployment]
+    F35c2 --> F36
+    F35c3 --> F36
+    F35c4 --> F36
+    F35c5 --> F36
+    F35c6 --> F36
+    F35c7 --> F36
+    F35c8 --> F36
 ```
 
 

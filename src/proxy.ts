@@ -68,11 +68,22 @@ export default async function proxy(request: NextRequest) {
 
   // Check if user is banned, suspended, or self-deleted — redirect appropriately
   if (user && !isStatusPage && !isAuthCallback) {
-    const { data: userData } = await supabase
+    const { data: userData, error: statusError } = await supabase
       .from("users")
       .select("is_active, suspended_until, deleted_at")
       .eq("id", user.id)
       .single();
+
+    // Fix 4: Fail-closed — if we can't verify user status, redirect to login
+    if (statusError) {
+      console.error("[Proxy] Failed to fetch user status, redirecting to login", {
+        userId: user.id,
+        error: statusError.message,
+      });
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
 
     if (userData) {
       const isInactive = !userData.is_active;
@@ -134,10 +145,21 @@ export default async function proxy(request: NextRequest) {
   // Redirect authenticated users without a profile to onboarding
   // Skip this check for onboarding page itself, auth callback, banned page, and public routes
   if (user && !isOnboarding && !isAuthCallback && !isPublicRoute && !isBannedPage) {
-    const { count } = await supabase
+    const { count, error: profileError } = await supabase
       .from("profiles")
       .select("id", { count: "exact", head: true })
       .eq("user_id", user.id);
+
+    // Fix 4: Fail-closed — if we can't check profile, redirect to login
+    if (profileError) {
+      console.error("[Proxy] Failed to check profile existence, redirecting to login", {
+        userId: user.id,
+        error: profileError.message,
+      });
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
 
     if (count === 0) {
       const url = request.nextUrl.clone();

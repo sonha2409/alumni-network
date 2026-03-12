@@ -1,12 +1,10 @@
 "use server";
 
-import { randomUUID } from "crypto";
 import { z } from "zod/v4";
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { checkMessageRateLimit, checkConversationRateLimit } from "@/lib/rate-limit";
-import { findExistingConversation } from "@/lib/queries/messages";
 import { notifyUser } from "@/lib/notifications";
 import type {
   ActionResult,
@@ -48,113 +46,47 @@ export async function getOrCreateConversation(
     return { success: false, error: "You cannot message yourself." };
   }
 
-  // Check current user is verified
-  const { data: currentUser } = await supabase
-    .from("users")
-    .select("verification_status, is_active")
-    .eq("id", user.id)
-    .single();
-
-  if (!currentUser || currentUser.verification_status !== "verified") {
-    return {
-      success: false,
-      error: "You must be verified to send messages.",
-    };
-  }
-
-  // Check target user exists and is active
-  const { data: targetUser } = await supabase
-    .from("users")
-    .select("id, is_active")
-    .eq("id", otherUserId)
-    .single();
-
-  if (!targetUser || !targetUser.is_active) {
-    return { success: false, error: "This user is not available." };
-  }
-
-  // Check connection exists (must be connected to message)
-  const { data: connection } = await supabase
-    .from("connections")
-    .select("id")
-    .eq("status", "accepted")
-    .or(
-      `and(requester_id.eq.${user.id},receiver_id.eq.${otherUserId}),and(requester_id.eq.${otherUserId},receiver_id.eq.${user.id})`
-    )
-    .maybeSingle();
-
-  if (!connection) {
-    return {
-      success: false,
-      error: "You can only message users you are connected with.",
-    };
-  }
-
-  // Check for existing block
-  const { data: block } = await supabase
-    .from("blocks")
-    .select("id")
-    .or(
-      `and(blocker_id.eq.${user.id},blocked_id.eq.${otherUserId}),and(blocker_id.eq.${otherUserId},blocked_id.eq.${user.id})`
-    )
-    .maybeSingle();
-
-  if (block) {
-    return { success: false, error: "Unable to message this user." };
-  }
-
-  // Check if conversation already exists
-  const existingConvId = await findExistingConversation(user.id, otherUserId);
-  if (existingConvId) {
-    return { success: true, data: { conversationId: existingConvId } };
-  }
-
-  // Check conversation rate limit (only for new conversations)
+  // Check conversation rate limit before RPC (avoid DB call if rate limited)
+  // We need to know if this is a new conversation to decide on rate limiting.
+  // The RPC handles dedup, so we check rate limit optimistically here.
   const rateLimitInfo = await checkConversationRateLimit(user.id);
-  if (!rateLimitInfo.allowed) {
-    return {
-      success: false,
-      error: `You've reached your daily limit for new conversations. Resets at ${new Date(rateLimitInfo.resetsAt).toLocaleTimeString()}.`,
-    };
-  }
 
   try {
-    // Create conversation with a pre-generated ID
-    // (We generate the UUID server-side because the INSERT RLS policy
-    // passes WITH CHECK, but the SELECT policy requires the user to be
-    // a participant — which doesn't exist yet. So we can't use RETURNING.)
-    const conversationId = randomUUID();
+    // Use atomic SECURITY DEFINER function that handles:
+    // verification, blocks, connection check, dedup via user_pair
+    const { data: conversationId, error: rpcError } = await supabase.rpc(
+      "create_conversation_with_participant",
+      { p_other_user_id: otherUserId }
+    );
 
-    const { error: convError } = await supabase
-      .from("conversations")
-      .insert({ id: conversationId });
-
-    if (convError) {
+    if (rpcError) {
       console.error("[ServerAction:getOrCreateConversation]", {
         userId: user.id,
         otherUserId,
-        error: convError.message,
+        error: rpcError.message,
       });
-      return {
-        success: false,
-        error: "Failed to create conversation. Please try again.",
-      };
-    }
 
-    // Add both participants
-    const { error: participantError } = await supabase
-      .from("conversation_participants")
-      .insert([
-        { conversation_id: conversationId, user_id: user.id },
-        { conversation_id: conversationId, user_id: otherUserId },
-      ]);
+      // Map DB-level errors to user-friendly messages
+      const msg = rpcError.message;
+      if (msg.includes("Not authenticated")) {
+        return { success: false, error: "You must be logged in." };
+      }
+      if (msg.includes("Cannot message yourself")) {
+        return { success: false, error: "You cannot message yourself." };
+      }
+      if (msg.includes("not verified")) {
+        return { success: false, error: "You must be verified to send messages." };
+      }
+      if (msg.includes("not available")) {
+        return { success: false, error: "This user is not available." };
+      }
+      if (msg.includes("Unable to message")) {
+        return { success: false, error: "Unable to message this user." };
+      }
+      if (msg.includes("Not connected")) {
+        return { success: false, error: "You can only message users you are connected with." };
+      }
 
-    if (participantError) {
-      console.error("[ServerAction:getOrCreateConversation]", {
-        userId: user.id,
-        otherUserId,
-        error: participantError.message,
-      });
       return {
         success: false,
         error: "Failed to create conversation. Please try again.",
@@ -164,7 +96,7 @@ export async function getOrCreateConversation(
     revalidatePath("/messages");
     return {
       success: true,
-      data: { conversationId, rateLimitInfo },
+      data: { conversationId: conversationId as string, rateLimitInfo },
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
@@ -440,6 +372,22 @@ export async function sendMessage(
       return {
         success: false,
         error: "This person is no longer available.",
+      };
+    }
+
+    // Fix 2: Check for blocks in existing conversations
+    const { data: blockExists } = await supabase
+      .from("blocks")
+      .select("id")
+      .or(
+        `and(blocker_id.eq.${user.id},blocked_id.eq.${otherParticipant.user_id}),and(blocker_id.eq.${otherParticipant.user_id},blocked_id.eq.${user.id})`
+      )
+      .maybeSingle();
+
+    if (blockExists) {
+      return {
+        success: false,
+        error: "Unable to send message.",
       };
     }
 

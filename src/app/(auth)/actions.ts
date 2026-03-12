@@ -71,11 +71,10 @@ export async function signup(
     if (error) {
       console.error("[ServerAction:signup]", { email, error: error.message });
 
+      // Fix 8: Don't reveal whether email is already registered (OWASP recommendation).
+      // Return generic success so user sees "Check your email" message.
       if (error.message.toLowerCase().includes("already registered")) {
-        return {
-          success: false,
-          error: "An account with this email already exists.",
-        };
+        return { success: true, data: { userId: "" } };
       }
 
       return {

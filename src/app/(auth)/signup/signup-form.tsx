@@ -20,8 +20,15 @@ export function SignupForm() {
 
   useEffect(() => {
     if (state?.success) {
-      toast.success("Account created! Let's set up your profile.");
-      router.push("/onboarding");
+      if (state.data?.userId) {
+        toast.success("Account created! Let's set up your profile.");
+        router.push("/onboarding");
+      } else {
+        // Generic message for both new signups needing email confirmation
+        // and duplicate emails (Fix 8: prevent email enumeration)
+        toast.success("Check your email to verify your account.");
+        router.push("/login");
+      }
     }
   }, [state, router]);
 

@@ -412,6 +412,20 @@ Interactive geographic visualization of where alumni are located worldwide.
 - English only for Phase 1
 - Extract user-facing strings to constants (cheap now, expensive to retrofit later)
 
+### Post-Launch Hardening (Phase 2)
+
+Identified during pre-deploy architecture audit ([ADR-019](docs/adrs/019-pre-deploy-security-hardening.md)). These items were assessed as acceptable risk for soft launch (<100 users) but should be addressed before scaling:
+
+- **Redis-based rate limiting**: Replace DB-query rate limiting in messaging with atomic Redis counters. Current approach has a race condition window where two rapid requests can both pass the check.
+- **Security headers**: Add CSP, X-Frame-Options, X-Content-Type-Options, and Referrer-Policy via `next.config.ts` `headers()`. Important for XSS protection with user-generated content.
+- **Storage cleanup job**: Soft-deleted message attachments remain in Supabase Storage indefinitely. Add a scheduled function to purge files where `is_deleted = true` and `deleted_at` is older than 30 days.
+- **Missing database indexes**: `notifications(user_id, is_read)` for bulk mark-all-read, `message_reports(reporter_id)`, `dismissed_announcements(user_id)`, `user_warnings(moderator_id)`.
+- **Message soft-delete at RLS level**: Currently `messages.is_deleted` is filtered by app code only. Add RLS policy `WHERE is_deleted = false` so direct API queries also respect deletion.
+- **Mute enforcement at RLS level**: Currently checked in `sendMessage()` server action only. Add a trigger or RLS check on `messages` INSERT to enforce at DB level.
+- **Unit test fixes**: 10 failing tests (4 in profile-completeness scoring, 6 in onboarding actions). Mocks need updating after schema changes.
+- **Unread count query optimization**: Current implementation runs N queries for N conversations (O(n)). Replace with a single batch RPC using `GROUP BY conversation_id`.
+- **E2E test suite**: Playwright is configured but has zero test files. Critical paths to cover: signup → onboarding → verification, connection → messaging, admin approve/reject, moderator warn/mute.
+
 ---
 
 ## UI/UX Guidelines
