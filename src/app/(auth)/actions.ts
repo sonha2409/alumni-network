@@ -63,9 +63,13 @@ export async function signup(
   const supabase = await createClient();
 
   try {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: `${siteUrl}/auth/callback?next=/onboarding`,
+      },
     });
 
     if (error) {
