@@ -33,6 +33,24 @@ export default async function proxy(request: NextRequest) {
     }
   );
 
+  // Handle PKCE code exchange: if a `code` param is present on any route,
+  // exchange it for a session before proceeding. This handles cases where
+  // Supabase redirects to the site root or /login instead of /auth/callback.
+  const code = request.nextUrl.searchParams.get("code");
+  const next = request.nextUrl.searchParams.get("next");
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      // Strip code/next params and redirect to the intended destination
+      const url = request.nextUrl.clone();
+      url.searchParams.delete("code");
+      url.searchParams.delete("next");
+      url.pathname = next ?? "/dashboard";
+      return NextResponse.redirect(url);
+    }
+    console.error("[Proxy] Code exchange failed", { error: error.message });
+  }
+
   // IMPORTANT: Do not remove this getUser() call.
   // It refreshes the auth token and is required for Server Components to work.
   const {
