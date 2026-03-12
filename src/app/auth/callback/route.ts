@@ -27,6 +27,10 @@ export async function GET(request: Request) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+    console.error("[AuthCallback] Code exchange failed", {
+      code: code.substring(0, 8) + "...",
+      error: error.message,
+    });
   }
 
   // Flow 2: Token hash verification (from custom email templates)
@@ -38,8 +42,17 @@ export async function GET(request: Request) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+    console.error("[AuthCallback] Token hash verification failed", {
+      type,
+      error: error.message,
+    });
   }
 
   // If both flows fail, redirect to login
+  console.error("[AuthCallback] All flows failed, redirecting to login", {
+    hasCode: !!code,
+    hasTokenHash: !!tokenHash,
+    type,
+  });
   return NextResponse.redirect(`${origin}/login`);
 }
