@@ -72,7 +72,64 @@ export function ReportTable({
 
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-lg border">
+      {/* Mobile card layout */}
+      <div className="space-y-2 md:hidden">
+        {reports.map((report) => (
+          <button
+            key={report.id}
+            type="button"
+            onClick={() => onSelectReport(report)}
+            className="w-full rounded-lg border p-3 text-left transition-colors hover:bg-muted/30"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                {report.reported_user_photo ? (
+                  <img
+                    src={report.reported_user_photo}
+                    alt=""
+                    className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
+                    {(report.reported_user_name ?? "?")[0].toUpperCase()}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">
+                    {report.reported_user_name ?? "Unknown"}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {report.reported_user_email}
+                  </p>
+                </div>
+              </div>
+              <StatusBadge status={report.status} />
+            </div>
+            <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">
+              {report.message_is_deleted ? (
+                <span className="italic">[Deleted]</span>
+              ) : (
+                report.message_content.slice(0, 120) +
+                (report.message_content.length > 120 ? "..." : "")
+              )}
+            </p>
+            <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
+              <span>{timeAgo(report.created_at)}</span>
+              <span>{report.report_count} reports</span>
+              {report.warning_count > 0 && (
+                <span className="text-yellow-600">{report.warning_count} warnings</span>
+              )}
+              {report.reported_user_muted_until &&
+                new Date(report.reported_user_muted_until) > new Date() && (
+                  <span className="text-red-600">Muted</span>
+                )}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Desktop table layout */}
+      <div className="hidden overflow-hidden rounded-lg border md:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50">

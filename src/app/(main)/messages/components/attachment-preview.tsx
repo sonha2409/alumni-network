@@ -104,7 +104,7 @@ function ImageGrid({ images }: { images: MessageAttachment[] }) {
                 <img
                   src={url}
                   alt={img.file_name}
-                  className="max-w-[300px] rounded-lg object-cover"
+                  className="max-w-full rounded-lg object-cover sm:max-w-[300px]"
                   style={
                     img.width && img.height
                       ? { aspectRatio: `${img.width}/${img.height}` }

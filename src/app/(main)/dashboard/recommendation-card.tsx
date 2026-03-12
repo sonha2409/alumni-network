@@ -49,7 +49,7 @@ export function RecommendationCard({
   return (
     <Link
       href={`/profile/${profile.id}`}
-      className="group relative flex flex-col rounded-xl border border-border bg-card p-5 transition-all duration-300 hover:border-foreground/20 hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5 dark:hover:shadow-black/20 animate-in fade-in slide-in-from-bottom-3 duration-500"
+      className="group relative flex flex-col rounded-xl border border-border bg-card p-4 transition-all duration-300 hover:border-foreground/20 hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5 dark:hover:shadow-black/20 animate-in fade-in slide-in-from-bottom-3 duration-500 sm:p-5"
       style={{ animationDelay: `${animDelay}ms`, animationFillMode: "both" }}
     >
       {/* Match score badge */}

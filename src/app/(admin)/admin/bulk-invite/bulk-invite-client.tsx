@@ -350,8 +350,8 @@ export function BulkInviteClient() {
               {/* Preview table */}
               <div className="max-h-64 overflow-auto rounded-md border">
                 <div className="min-w-full">
-                  {/* Header */}
-                  <div className="sticky top-0 grid grid-cols-[1fr_1fr_auto_auto] gap-2 border-b bg-muted/50 px-3 py-2 text-xs font-medium text-muted-foreground">
+                  {/* Header (md+) */}
+                  <div className="sticky top-0 hidden border-b bg-muted/50 px-3 py-2 text-xs font-medium text-muted-foreground md:grid md:grid-cols-[1fr_1fr_auto_auto] md:gap-2">
                     <span>Email</span>
                     <span>Name</span>
                     <span>Year</span>
@@ -361,28 +361,49 @@ export function BulkInviteClient() {
                   {preview.map((row, idx) => (
                     <div
                       key={idx}
-                      className={`grid grid-cols-[1fr_1fr_auto_auto] gap-2 border-b px-3 py-2 text-sm last:border-b-0 ${
+                      className={`border-b px-3 py-2 text-sm last:border-b-0 ${
                         row.errors.length > 0 ? "bg-red-50 dark:bg-red-950/20" : ""
                       }`}
                     >
-                      <span className="truncate">{row.email}</span>
-                      <span className="truncate text-muted-foreground">
-                        {row.name || "—"}
-                      </span>
-                      <span className="min-w-[3rem] text-muted-foreground">
-                        {row.graduation_year || "—"}
-                      </span>
-                      <span className="min-w-[5rem]">
-                        {row.errors.length > 0 ? (
-                          <span className="text-xs text-red-600 dark:text-red-400">
-                            {row.errors.join(", ")}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-green-600 dark:text-green-400">
-                            Valid
-                          </span>
+                      {/* Mobile card layout */}
+                      <div className="flex flex-col gap-1 md:hidden">
+                        <div className="flex items-center justify-between">
+                          <span className="truncate font-medium">{row.email}</span>
+                          {row.errors.length > 0 ? (
+                            <span className="ml-2 flex-shrink-0 text-xs text-red-600 dark:text-red-400">Error</span>
+                          ) : (
+                            <span className="ml-2 flex-shrink-0 text-xs text-green-600 dark:text-green-400">Valid</span>
+                          )}
+                        </div>
+                        <div className="flex gap-3 text-xs text-muted-foreground">
+                          {row.name && <span>{row.name}</span>}
+                          {row.graduation_year && <span>Class of {row.graduation_year}</span>}
+                        </div>
+                        {row.errors.length > 0 && (
+                          <p className="text-xs text-red-600 dark:text-red-400">{row.errors.join(", ")}</p>
                         )}
-                      </span>
+                      </div>
+                      {/* Desktop grid layout */}
+                      <div className="hidden md:grid md:grid-cols-[1fr_1fr_auto_auto] md:gap-2">
+                        <span className="truncate">{row.email}</span>
+                        <span className="truncate text-muted-foreground">
+                          {row.name || "—"}
+                        </span>
+                        <span className="min-w-[3rem] text-muted-foreground">
+                          {row.graduation_year || "—"}
+                        </span>
+                        <span className="min-w-[5rem]">
+                          {row.errors.length > 0 ? (
+                            <span className="text-xs text-red-600 dark:text-red-400">
+                              {row.errors.join(", ")}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-green-600 dark:text-green-400">
+                              Valid
+                            </span>
+                          )}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -434,8 +455,8 @@ export function BulkInviteClient() {
             </p>
           ) : (
             <>
-              {/* Table header */}
-              <div className="grid grid-cols-[1fr_1fr_auto_auto_auto] gap-2 border-b px-3 py-2 text-xs font-medium text-muted-foreground">
+              {/* Table header (md+) */}
+              <div className="hidden border-b px-3 py-2 text-xs font-medium text-muted-foreground md:grid md:grid-cols-[1fr_1fr_auto_auto_auto] md:gap-2">
                 <span>Email</span>
                 <span>Name</span>
                 <span className="min-w-[3rem]">Year</span>
@@ -448,31 +469,58 @@ export function BulkInviteClient() {
                 {invites.map((invite) => (
                   <div
                     key={invite.id}
-                    className="grid grid-cols-[1fr_1fr_auto_auto_auto] items-center gap-2 px-3 py-2 text-sm"
+                    className="px-3 py-2 text-sm"
                   >
-                    <span className="truncate">{invite.email}</span>
-                    <span className="truncate text-muted-foreground">
-                      {invite.name || "—"}
-                    </span>
-                    <span className="min-w-[3rem] text-muted-foreground">
-                      {invite.graduation_year || "—"}
-                    </span>
-                    <span className="min-w-[5rem]">
-                      <InviteStatusBadge status={invite.status} />
-                    </span>
-                    <span className="min-w-[4.5rem]">
-                      {invite.status === "invited" && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 text-xs"
-                          disabled={resendingId === invite.id}
-                          onClick={() => handleResend(invite.id)}
-                        >
-                          {resendingId === invite.id ? "Sending..." : "Resend"}
-                        </Button>
-                      )}
-                    </span>
+                    {/* Mobile card layout */}
+                    <div className="flex flex-col gap-1 md:hidden">
+                      <div className="flex items-center justify-between">
+                        <span className="truncate font-medium">{invite.email}</span>
+                        <InviteStatusBadge status={invite.status} />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex gap-3 text-xs text-muted-foreground">
+                          {invite.name && <span>{invite.name}</span>}
+                          {invite.graduation_year && <span>Class of {invite.graduation_year}</span>}
+                        </div>
+                        {invite.status === "invited" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs"
+                            disabled={resendingId === invite.id}
+                            onClick={() => handleResend(invite.id)}
+                          >
+                            {resendingId === invite.id ? "Sending..." : "Resend"}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    {/* Desktop grid layout */}
+                    <div className="hidden items-center md:grid md:grid-cols-[1fr_1fr_auto_auto_auto] md:gap-2">
+                      <span className="truncate">{invite.email}</span>
+                      <span className="truncate text-muted-foreground">
+                        {invite.name || "—"}
+                      </span>
+                      <span className="min-w-[3rem] text-muted-foreground">
+                        {invite.graduation_year || "—"}
+                      </span>
+                      <span className="min-w-[5rem]">
+                        <InviteStatusBadge status={invite.status} />
+                      </span>
+                      <span className="min-w-[4.5rem]">
+                        {invite.status === "invited" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs"
+                            disabled={resendingId === invite.id}
+                            onClick={() => handleResend(invite.id)}
+                          >
+                            {resendingId === invite.id ? "Sending..." : "Resend"}
+                          </Button>
+                        )}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>

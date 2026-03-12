@@ -7,7 +7,7 @@ interface MapLegendProps {
 
 export function MapLegend({ buckets, colors }: MapLegendProps) {
   return (
-    <div className="absolute bottom-6 left-4 z-10 rounded-lg border border-border bg-background/90 p-3 shadow-sm backdrop-blur-sm">
+    <div className="absolute bottom-6 left-4 z-10 hidden rounded-lg border border-border bg-background/90 p-3 shadow-sm backdrop-blur-sm sm:block">
       <p className="mb-2 text-xs font-medium text-muted-foreground">
         Alumni count
       </p>

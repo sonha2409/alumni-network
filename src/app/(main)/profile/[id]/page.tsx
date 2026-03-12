@@ -92,16 +92,16 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       {!isOwnProfile && user && <ViewTracker profileId={profile.id} />}
       <Card>
         <CardHeader>
-          <div className="flex items-start gap-4">
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
             {/* Avatar */}
             {profile.photo_url ? (
               <img
                 src={profile.photo_url}
                 alt={profile.full_name}
-                className="h-24 w-24 rounded-full object-cover"
+                className="h-24 w-24 flex-shrink-0 rounded-full object-cover"
               />
             ) : (
-              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted text-2xl font-semibold text-muted-foreground">
+              <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-muted text-2xl font-semibold text-muted-foreground">
                 {profile.full_name
                   .split(" ")
                   .map((n) => n[0])
@@ -111,7 +111,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               </div>
             )}
 
-            <div className="flex-1">
+            <div className="flex-1 text-center sm:text-left">
               <h1 className="text-2xl font-bold">{profile.full_name}</h1>
               <p className="text-muted-foreground">
                 Class of {profile.graduation_year}

@@ -245,7 +245,7 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
                     type="category"
                     tickLine={false}
                     axisLine={false}
-                    width={120}
+                    width={80}
                     tickMargin={4}
                     tick={{ fontSize: 12 }}
                   />
@@ -280,7 +280,7 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
                     type="category"
                     tickLine={false}
                     axisLine={false}
-                    width={120}
+                    width={80}
                     tickMargin={4}
                     tick={{ fontSize: 12 }}
                   />

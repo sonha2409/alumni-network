@@ -116,7 +116,7 @@ export function MessageBubble({
           <div className="w-8" />
         )}
 
-        <div className="flex max-w-[70%] flex-col">
+        <div className="flex max-w-[85%] flex-col sm:max-w-[70%]">
           {isEditing ? (
             <div className="flex flex-col gap-1">
               <textarea

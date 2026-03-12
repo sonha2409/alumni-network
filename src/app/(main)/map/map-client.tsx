@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useTransition } from "react";
+import { useState, useCallback, useTransition, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 import { Loader2Icon } from "lucide-react";
@@ -79,9 +79,18 @@ export function MapClient({ initialCountryData, industries }: MapClientProps) {
     return filters;
   }, [industryId, specializationId, yearMin, yearMax]);
 
+  // Track last applied filters to skip duplicate calls (e.g. from multiple MapFilters mounts)
+  const lastAppliedFilters = useRef<string>("");
+
   // Refresh data at current view level when filters change
   const handleFiltersChange = useCallback(() => {
     const filters = buildFilters();
+    const filterKey = JSON.stringify(filters);
+
+    // Skip if filters haven't actually changed (prevents reset on component mount)
+    if (filterKey === lastAppliedFilters.current) return;
+    lastAppliedFilters.current = filterKey;
+
     startTransition(async () => {
       if (viewLevel === "country") {
         const data = await fetchCountryData(filters);

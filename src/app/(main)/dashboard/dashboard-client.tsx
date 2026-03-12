@@ -109,7 +109,7 @@ export function DashboardClient({
       {hasProfile && (
         <section>
           {/* Section header with view toggle */}
-          <div className="flex items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
                 <Sparkles className="h-4 w-4 text-primary" />

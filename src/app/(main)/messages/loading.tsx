@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MessagesLoading() {
   return (
-    <div className="flex h-[calc(100vh-8rem)] rounded-lg border bg-background shadow-sm md:flex-row">
+    <div className="flex h-[calc(100vh-8rem)] flex-col rounded-lg border bg-background shadow-sm md:flex-row">
       {/* Conversation list skeleton */}
       <div className="w-full border-r md:w-80 lg:w-96">
         <div className="border-b px-4 py-3">

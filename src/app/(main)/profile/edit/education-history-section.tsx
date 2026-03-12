@@ -75,7 +75,7 @@ export function EducationHistorySection({
               onClose={() => setEditingId(null)}
             />
           ) : (
-            <div className="flex items-start justify-between rounded-lg border p-4">
+            <div className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex-1">
                 <p className="font-medium">{entry.institution}</p>
                 {(entry.degree || entry.field_of_study) && (

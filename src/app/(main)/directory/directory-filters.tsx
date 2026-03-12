@@ -165,7 +165,7 @@ export function DirectoryFiltersBar({
               setSort(e.target.value || null);
               setPage(null);
             }}
-            className={selectClass + " min-w-[140px]"}
+            className={selectClass + " min-w-[120px] sm:min-w-[140px]"}
             aria-label="Sort by"
           >
             <option value="name">Name (A-Z)</option>
