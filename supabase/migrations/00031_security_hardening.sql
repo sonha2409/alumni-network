@@ -278,7 +278,7 @@ BEGIN
   END IF;
 
   -- Create new conversation
-  v_new_id := uuid_generate_v4();
+  v_new_id := gen_random_uuid();
 
   BEGIN
     INSERT INTO public.conversations (id, user_pair)

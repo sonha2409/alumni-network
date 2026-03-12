@@ -15,7 +15,7 @@ ALTER TABLE public.users
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS public.account_deletion_log (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL,
   email text NOT NULL,
   deletion_requested_at timestamptz NOT NULL,

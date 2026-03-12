@@ -31,7 +31,7 @@ $$;
 -- =============================================================================
 
 CREATE TABLE public.profile_contact_details (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   profile_id uuid NOT NULL UNIQUE REFERENCES public.profiles(id) ON DELETE CASCADE,
   personal_email text,
   phone text CHECK (char_length(phone) <= 30),

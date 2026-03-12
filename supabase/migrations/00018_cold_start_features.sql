@@ -10,7 +10,7 @@
 -- =============================================================================
 
 CREATE TABLE profile_views (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   profile_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   viewer_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   view_date date NOT NULL DEFAULT CURRENT_DATE,

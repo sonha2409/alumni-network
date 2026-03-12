@@ -8,7 +8,7 @@
 -- Hardcoded so all environments share the same ID.
 
 CREATE TABLE public.schools (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
   name_en text,
   abbreviation text,

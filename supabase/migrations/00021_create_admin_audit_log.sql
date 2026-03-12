@@ -17,7 +17,7 @@ CREATE INDEX idx_users_suspended_until ON public.users(suspended_until)
 -- =============================================================================
 
 CREATE TABLE public.admin_audit_log (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   admin_id uuid NOT NULL REFERENCES public.users(id),
   target_user_id uuid NOT NULL REFERENCES public.users(id),
   action text NOT NULL CHECK (action IN (

@@ -6,7 +6,7 @@
 -- =============================================================================
 
 CREATE TABLE public.message_attachments (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   message_id uuid NOT NULL REFERENCES public.messages(id) ON DELETE CASCADE,
   uploader_id uuid NOT NULL REFERENCES public.users(id),
   file_name text NOT NULL,

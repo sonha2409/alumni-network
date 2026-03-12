@@ -61,7 +61,7 @@ ALTER TABLE public.admin_audit_log
 -- =============================================================================
 
 CREATE TABLE public.user_warnings (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   moderator_id uuid NOT NULL REFERENCES public.users(id),
   report_id uuid REFERENCES public.message_reports(id) ON DELETE SET NULL,

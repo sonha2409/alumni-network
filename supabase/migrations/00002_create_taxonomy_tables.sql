@@ -6,7 +6,7 @@
 -- Industries (Level 1)
 -- =============================================================================
 create table public.industries (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   name text not null,
   slug text not null unique,
   is_archived boolean not null default false,
@@ -26,7 +26,7 @@ create trigger on_industries_updated
 -- Specializations (Level 2)
 -- =============================================================================
 create table public.specializations (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   industry_id uuid not null references public.industries(id) on delete cascade,
   name text not null,
   slug text not null unique,

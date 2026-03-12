@@ -3,7 +3,7 @@
 -- =============================================================================
 
 CREATE TABLE public.profiles (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL UNIQUE REFERENCES public.users(id) ON DELETE CASCADE,
   full_name text NOT NULL,
   photo_url text,

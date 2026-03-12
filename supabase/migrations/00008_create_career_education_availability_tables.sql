@@ -8,7 +8,7 @@
 -- =============================================================================
 
 CREATE TABLE public.career_entries (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   profile_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   job_title text NOT NULL,
   company text NOT NULL,
@@ -92,7 +92,7 @@ CREATE POLICY career_entries_admin_all ON public.career_entries
 -- =============================================================================
 
 CREATE TABLE public.education_entries (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   profile_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   institution text NOT NULL,
   degree text,
@@ -178,7 +178,7 @@ CREATE POLICY education_entries_admin_all ON public.education_entries
 -- =============================================================================
 
 CREATE TABLE public.availability_tag_types (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL UNIQUE,
   slug text NOT NULL UNIQUE,
   description text,
@@ -221,7 +221,7 @@ CREATE POLICY availability_tag_types_admin_all ON public.availability_tag_types
 -- =============================================================================
 
 CREATE TABLE public.user_availability_tags (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   profile_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   tag_type_id uuid NOT NULL REFERENCES public.availability_tag_types(id) ON DELETE CASCADE,
   created_at timestamptz NOT NULL DEFAULT now(),

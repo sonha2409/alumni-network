@@ -4,7 +4,7 @@
 -- =============================================================================
 
 CREATE TABLE bulk_invites (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   email text NOT NULL,
   name text,
   graduation_year integer,

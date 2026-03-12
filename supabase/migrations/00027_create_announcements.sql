@@ -4,7 +4,7 @@
 
 -- Announcements table
 CREATE TABLE announcements (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
   body TEXT NOT NULL,
   link TEXT,
@@ -17,7 +17,7 @@ CREATE TABLE announcements (
 
 -- Dismissed announcements (tracks per-user dismissals)
 CREATE TABLE dismissed_announcements (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   announcement_id UUID NOT NULL REFERENCES announcements(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

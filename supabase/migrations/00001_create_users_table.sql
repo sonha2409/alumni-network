@@ -2,9 +2,6 @@
 -- This table extends Supabase's auth.users with app-specific fields.
 -- A trigger auto-creates a row here whenever a new user signs up via Supabase Auth.
 
--- Enable UUID generation
-create extension if not exists "uuid-ossp";
-
 -- Create the public.users table
 create table public.users (
   id uuid primary key references auth.users(id) on delete cascade,

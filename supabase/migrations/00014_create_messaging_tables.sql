@@ -6,7 +6,7 @@
 -- =============================================================================
 
 CREATE TABLE public.conversations (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   last_message_at timestamptz,
   last_message_preview text,
   is_active boolean NOT NULL DEFAULT true,
@@ -25,7 +25,7 @@ CREATE TRIGGER handle_conversations_updated_at
 -- =============================================================================
 
 CREATE TABLE public.conversation_participants (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id uuid NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
   user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   last_read_at timestamptz NOT NULL DEFAULT now(),
@@ -51,7 +51,7 @@ CREATE TRIGGER handle_conversation_participants_updated_at
 -- =============================================================================
 
 CREATE TABLE public.messages (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id uuid NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
   sender_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   content text NOT NULL CHECK (char_length(content) <= 5000),
@@ -85,7 +85,7 @@ CREATE INDEX idx_conversations_last_message_at
 -- =============================================================================
 
 CREATE TABLE public.message_reports (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   message_id uuid NOT NULL REFERENCES public.messages(id) ON DELETE CASCADE,
   reporter_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   reason text NOT NULL CHECK (char_length(reason) <= 1000),

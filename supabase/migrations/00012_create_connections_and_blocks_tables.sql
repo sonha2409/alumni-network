@@ -7,7 +7,7 @@
 -- =============================================================================
 
 CREATE TABLE public.connections (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   requester_id uuid NOT NULL REFERENCES public.users(id),
   receiver_id uuid NOT NULL REFERENCES public.users(id),
   status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected')),
@@ -85,7 +85,7 @@ CREATE POLICY connections_admin_all ON public.connections
 -- =============================================================================
 
 CREATE TABLE public.blocks (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   blocker_id uuid NOT NULL REFERENCES public.users(id),
   blocked_id uuid NOT NULL REFERENCES public.users(id),
   created_at timestamptz NOT NULL DEFAULT now(),

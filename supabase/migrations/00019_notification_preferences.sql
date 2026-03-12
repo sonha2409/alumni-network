@@ -7,7 +7,7 @@
 
 -- Create notification_preferences table
 CREATE TABLE notification_preferences (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   notification_type notification_type NOT NULL,
   email_enabled BOOLEAN NOT NULL DEFAULT true,

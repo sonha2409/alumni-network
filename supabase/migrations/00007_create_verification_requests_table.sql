@@ -5,7 +5,7 @@
 
 -- verification_requests table
 CREATE TABLE public.verification_requests (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   graduation_year integer NOT NULL,
   student_id text,

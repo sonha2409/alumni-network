@@ -46,7 +46,7 @@ CREATE POLICY verification_docs_delete_owner ON storage.objects
 -- -----------------------------------------------------------------------------
 
 CREATE TABLE public.verification_documents (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   request_id uuid NOT NULL REFERENCES public.verification_requests(id) ON DELETE CASCADE,
   file_name text NOT NULL,
   file_path text NOT NULL,
