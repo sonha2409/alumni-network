@@ -76,7 +76,7 @@
 | 36a | Reset password page                                  | `DONE` | 2026-03-13. `/reset-password` page with new password form. `updatePassword` server action. Proxy excludes `/reset-password` from profile check. |
 | 37  | i18n: user-selectable display language               | `DONE` | 2026-03-13. `next-intl` (non-routing, cookie-based). 20 namespaces, 230+ strings in en.json + vi.json. `preferred_language` column on users. `/settings/language` page. Synced on login. DB taxonomy data (industries, tags) not yet translated. |
 | 41  | Auth: Google OAuth (Sign in with Google)             | `DONE` | 2026-03-13. Client-side OAuth via Supabase. Auto-links by email. Same verification flow as email users. |
-| 42  | Onboarding: Google profile import (name + avatar)    | `TODO` | Pre-populate onboarding form with Google name and avatar. User can still change both. No schema changes needed. |
+| 42  | Onboarding: Google profile import (name + avatar)    | `DONE` | 2026-03-13. Pre-populate onboarding form with Google name and avatar. User can still change both. No schema changes. |
 | 38  | Multi-school support                                 | `TODO` | Phase 4. School-scoped RLS, school-scoped routing (`/schools/:slug/...`), school admin roles, `school_id` on `users`.           |
 | 39  | Admin: school management UI                          | `TODO` | Phase 4. CRUD for schools table. Currently seed-only.                                                                           |
 
