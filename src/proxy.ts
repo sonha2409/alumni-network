@@ -87,6 +87,7 @@ export default async function proxy(request: NextRequest) {
     pathname.startsWith("/forgot-password");
   const isPublicRoute = pathname === "/" || isAuthRoute;
   const isOnboarding = pathname.startsWith("/onboarding");
+  const isResetPassword = pathname.startsWith("/reset-password");
   const isAuthCallback = pathname.startsWith("/auth/callback");
   const isBannedPage = pathname === "/banned";
   const isAccountDeletedPage = pathname === "/account-deleted";
@@ -186,7 +187,7 @@ export default async function proxy(request: NextRequest) {
 
   // Redirect authenticated users without a profile to onboarding
   // Skip this check for onboarding page itself, auth callback, banned page, and public routes
-  if (user && !isOnboarding && !isAuthCallback && !isPublicRoute && !isBannedPage) {
+  if (user && !isOnboarding && !isResetPassword && !isAuthCallback && !isPublicRoute && !isBannedPage) {
     const { count, error: profileError } = await supabase
       .from("profiles")
       .select("id", { count: "exact", head: true })

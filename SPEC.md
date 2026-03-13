@@ -72,8 +72,8 @@
 | 35c-6 | Reliability: real-time subscription gap fill       | `DONE` | 2026-03-11. Fetch missed messages after subscription reaches SUBSCRIBED status, dedup by ID. |
 | 35c-7 | Security: conversation participant RLS             | `DONE` | 2026-03-11. `create_conversation_with_participant()` SECURITY DEFINER function. Drop direct INSERT policy on `conversation_participants`. |
 | 35c-8 | Security: signup email enumeration                 | `DONE` | 2026-03-11. Return generic success on duplicate email signup instead of revealing account exists. |
-| 36  | Deployment: Vercel + Supabase                        | `IN PROGRESS` | Email confirmation redirect fixed. Password reset flow works (code exchange + session). Missing `/reset-password` page (see #36a). |
-| 36a | Reset password page                                  | `TODO` | Dedicated `/reset-password` page with "set new password" form. User lands here after clicking password reset email link. Currently 404. |
+| 36  | Deployment: Vercel + Supabase                        | `DONE` | 2026-03-13. Email confirmation redirect fixed. Password reset flow works (code exchange + session). Reset password page complete. |
+| 36a | Reset password page                                  | `DONE` | 2026-03-13. `/reset-password` page with new password form. `updatePassword` server action. Proxy excludes `/reset-password` from profile check. |
 | 37  | i18n: user-selectable display language               | `TODO` | Phase 2. Vietnamese/English toggle. Labels currently English with Vietnamese in parentheses for school-specific terms.           |
 | 38  | Multi-school support                                 | `TODO` | Phase 4. School-scoped RLS, school-scoped routing (`/schools/:slug/...`), school admin roles, `school_id` on `users`.           |
 | 39  | Admin: school management UI                          | `TODO` | Phase 4. CRUD for schools table. Currently seed-only.                                                                           |

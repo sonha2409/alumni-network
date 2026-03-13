@@ -30,6 +30,16 @@ const resetPasswordSchema = z.object({
   email: z.email("Please enter a valid email address"),
 });
 
+const updatePasswordSchema = z
+  .object({
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
 // ---------------------------------------------------------------------------
 // Server Actions
 // ---------------------------------------------------------------------------
@@ -210,4 +220,50 @@ export async function resetPassword(
 
   // Always return success to prevent email enumeration
   return { success: true, data: undefined };
+}
+
+export async function updatePassword(
+  _prevState: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const raw = {
+    password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
+  };
+
+  const parsed = updatePasswordSchema.safeParse(raw);
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string[]> = {};
+    for (const issue of parsed.error.issues) {
+      const key = String(issue.path[0]);
+      if (!fieldErrors[key]) fieldErrors[key] = [];
+      fieldErrors[key].push(issue.message);
+    }
+    return {
+      success: false,
+      error: "Please fix the errors below.",
+      fieldErrors,
+    };
+  }
+
+  const { password } = parsed.data;
+  const supabase = await createClient();
+
+  try {
+    const { error } = await supabase.auth.updateUser({ password });
+
+    if (error) {
+      console.error("[ServerAction:updatePassword]", { error: error.message });
+      return {
+        success: false,
+        error: "Failed to update password. Please try again.",
+      };
+    }
+
+    return { success: true, data: undefined };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[ServerAction:updatePassword]", { error: message });
+    return { success: false, error: "Something went wrong. Please try again." };
+  }
 }
