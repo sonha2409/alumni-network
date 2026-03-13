@@ -77,6 +77,13 @@ A web platform where verified alumni of a single school can discover and connect
 - **`updated_at` trigger**: A Postgres trigger (`on_users_updated`) automatically sets `updated_at = now()` on every `public.users` update. This pattern is reused for all tables with `updated_at`.
 - **Email confirmation**: Disabled in development (Supabase default for local dev). In production, Supabase's email confirmation can be enabled via the dashboard — the signup flow already handles the case where `data.user` may not have a confirmed session.
 - **Password reset flow**: Uses Supabase's `resetPasswordForEmail()` which sends a magic link. The link redirects to `/auth/callback?next=/reset-password` where a route handler exchanges the code for a session. The reset password response always returns success to prevent email enumeration.
+- **Reset password page** (`/reset-password`): **TODO** — Dedicated page where users land after clicking the password reset email link. Must be an authenticated page (user has a session from the code exchange). Requirements:
+  - Form with "New password" + "Confirm new password" fields
+  - Validation: min 8 chars, passwords must match (Zod)
+  - Uses `supabase.auth.updateUser({ password })` to set the new password
+  - Success: toast + redirect to `/dashboard`
+  - Error: inline error message
+  - If no session (user navigates directly): redirect to `/forgot-password`
 - **Auth callback route** (`/auth/callback`): Handles code exchange for all Supabase email flows (password reset, email verification). Redirects to the `next` query param on success, or `/login` on failure.
 - **Middleware session refresh**: The Next.js middleware calls `supabase.auth.getUser()` on every request. This is mandatory — it refreshes the JWT token and ensures Server Components receive a valid session.
 - **RLS dependency**: All RLS policies on `public.users` (and future tables) use `auth.uid()` to identify the current user. The middleware's session refresh ensures `auth.uid()` is always current.

@@ -99,6 +99,15 @@ Current template:
 **Expected behavior after fix**:
 - User signs up → receives confirmation email → clicks link → email is confirmed by Supabase → PKCE exchange fails → proxy redirects to `/login?email_confirmed=true` → user sees "Email confirmed! Please sign in to continue." → user logs in → reaches onboarding/dashboard
 
+**Status**: RESOLVED (2026-03-13). The initial proxy redirect fix didn't work because
+the proxy was also missing cookie forwarding on the success path. A second fix copied
+`supabaseResponse` cookies onto the redirect response. The auth callback route handler
+was also rewritten to use manual cookie management (same pattern as proxy) for robustness.
+
+Additionally, the password reset email template in Supabase needed to use `{{ .ConfirmationURL }}`
+(not a custom URL with `{{ .TokenHash }}`). After fixing the template, the reset flow works
+but lands on `/reset-password` which is a 404 — tracked as Feature #36a in SPEC.md.
+
 **If this fix doesn't work** (verify by testing the full signup flow on production):
 - Check Vercel runtime logs for `[Proxy] Code exchange failed` — if this log doesn't appear, the proxy isn't intercepting the request at all (check matcher config)
 - If the user still lands on `/login` without the `email_confirmed` param, the proxy redirect isn't firing — the code exchange might be throwing an unhandled error instead of returning an error object
