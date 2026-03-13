@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import {
   Card,
@@ -34,7 +35,8 @@ export async function generateMetadata({
   const profile = await getProfileWithIndustry(id);
 
   if (!profile) {
-    return { title: "Profile Not Found — AlumNet" };
+    const t = await getTranslations("profile");
+    return { title: t("notFoundTitle") };
   }
 
   return {
@@ -76,6 +78,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const showContactDetails = visibilityTier === "tier3_connected";
 
   // Only fetch detailed data if the viewer can see it
+  const t = await getTranslations("profile");
+  const tc = await getTranslations("common");
+
   const [careerEntries, educationEntries, availabilityTags, contactDetails] =
     await Promise.all([
       showFullProfile ? getCareerEntriesWithIndustry(id) : Promise.resolve([]),
@@ -114,7 +119,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             <div className="flex-1 text-center sm:text-left">
               <h1 className="text-2xl font-bold">{profile.full_name}</h1>
               <p className="text-muted-foreground">
-                Class of {profile.graduation_year}
+                {tc("classOf", { year: profile.graduation_year })}
               </p>
               <p className="mt-1 text-sm">
                 {profile.primary_industry.name}
@@ -134,7 +139,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             {isOwnProfile ? (
               <Link href="/profile/edit">
                 <Button variant="outline" size="sm">
-                  Edit profile
+                  {t("editProfile")}
                 </Button>
               </Link>
             ) : relationship ? (
@@ -157,7 +162,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           {showFullProfile && profile.bio && (
             <section>
               <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                About
+                {t("about")}
               </h2>
               <p className="whitespace-pre-line text-sm">{profile.bio}</p>
             </section>
@@ -169,7 +174,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               <Separator />
               <section>
                 <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Available for
+                  {t("availableFor")}
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {availabilityTags.map((tag) => (
@@ -191,7 +196,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               <Separator />
               <section>
                 <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Also interested in
+                  {t("alsoInterestedIn")}
                 </h2>
                 <p className="text-sm">
                   {profile.secondary_industry.name}
@@ -208,7 +213,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               <Separator />
               <section>
                 <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Career history
+                  {t("careerHistory")}
                 </h2>
                 {careerEntries.length > 0 ? (
                   <div className="flex flex-col gap-4">
@@ -218,7 +223,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                           <p className="font-medium text-sm">{entry.job_title}</p>
                           {entry.is_current && (
                             <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                              Current
+                              {t("current")}
                             </span>
                           )}
                         </div>
@@ -236,7 +241,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                           })}
                           {" — "}
                           {entry.is_current || !entry.end_date
-                            ? "Present"
+                            ? tc("present")
                             : new Date(entry.end_date).toLocaleDateString("en-US", {
                                 month: "short",
                                 year: "numeric",
@@ -250,12 +255,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    No career entries yet.
+                    {t("noCareerEntries")}
                     {isOwnProfile && (
                       <>
                         {" "}
                         <Link href="/profile/edit" className="text-primary underline">
-                          Add your work experience
+                          {t("addWorkExperience")}
                         </Link>
                       </>
                     )}
@@ -271,7 +276,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               <Separator />
               <section>
                 <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Education
+                  {t("education")}
                 </h2>
                 {educationEntries.length > 0 ? (
                   <div className="flex flex-col gap-3">
@@ -290,7 +295,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                             {entry.start_year && entry.end_year
                               ? `${entry.start_year} — ${entry.end_year}`
                               : entry.start_year
-                                ? `${entry.start_year} — Present`
+                                ? `${entry.start_year} — ${tc("present")}`
                                 : `${entry.end_year}`}
                           </p>
                         )}
@@ -299,12 +304,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    No education entries yet.
+                    {t("noEducationEntries")}
                     {isOwnProfile && (
                       <>
                         {" "}
                         <Link href="/profile/edit" className="text-primary underline">
-                          Add your education
+                          {t("addEducation")}
                         </Link>
                       </>
                     )}
@@ -320,7 +325,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               <Separator />
               <section>
                 <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Contact info
+                  {t("contactInfo")}
                 </h2>
                 <ContactDetailsDisplay contactDetails={contactDetails} />
               </section>

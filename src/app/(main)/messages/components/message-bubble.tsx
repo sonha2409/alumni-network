@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +30,8 @@ export function MessageBubble({
   showAvatar,
   showGroupTimestamp,
 }: MessageBubbleProps) {
+  const t = useTranslations("messages");
+  const tc = useTranslations("common");
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -89,7 +92,7 @@ export function MessageBubble({
         )}
         <div className="rounded-2xl bg-muted/50 px-4 py-2">
           <p className="text-xs italic text-muted-foreground">
-            This message was deleted
+            {t("deleted")}
           </p>
         </div>
       </div>
@@ -142,7 +145,7 @@ export function MessageBubble({
                   disabled={isSubmitting}
                   className="rounded px-2 py-0.5 text-primary hover:bg-muted"
                 >
-                  Save
+                  {tc("save")}
                 </button>
                 <button
                   onClick={() => {
@@ -151,7 +154,7 @@ export function MessageBubble({
                   }}
                   className="rounded px-2 py-0.5 text-muted-foreground hover:bg-muted"
                 >
-                  Cancel
+                  {tc("cancel")}
                 </button>
               </div>
             </div>
@@ -161,7 +164,7 @@ export function MessageBubble({
                 type="button"
                 className="cursor-pointer text-left"
                 onClick={() => setShowTimestamp((prev) => !prev)}
-                aria-label="Toggle timestamp"
+                aria-label={t("toggleTimestamp")}
               >
                 <div
                   className={`rounded-2xl px-4 py-2 ${
@@ -197,7 +200,7 @@ export function MessageBubble({
                 {formatMessageTime(message.created_at)}
               </span>
               {message.is_edited && (
-                <span className="text-[10px] text-muted-foreground">(edited)</span>
+                <span className="text-[10px] text-muted-foreground">{t("edited")}</span>
               )}
             </div>
           )}
@@ -209,7 +212,7 @@ export function MessageBubble({
                 isOwn ? "justify-end" : ""
               }`}
             >
-              <span className="text-[10px] text-muted-foreground">(edited)</span>
+              <span className="text-[10px] text-muted-foreground">{t("edited")}</span>
             </div>
           )}
         </div>
@@ -220,7 +223,7 @@ export function MessageBubble({
             <DropdownMenu>
               <DropdownMenuTrigger
                 className="rounded-md p-1 hover:bg-muted"
-                aria-label="Message actions"
+                aria-label={t("messageActions")}
               >
                 <svg
                   className="h-4 w-4 text-muted-foreground"
@@ -240,7 +243,7 @@ export function MessageBubble({
               <DropdownMenuContent align={isOwn ? "end" : "start"}>
                 {canEdit && (
                   <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                    Edit
+                    {tc("edit")}
                   </DropdownMenuItem>
                 )}
                 {canDelete && (
@@ -248,7 +251,7 @@ export function MessageBubble({
                     onClick={handleDelete}
                     className="text-destructive"
                   >
-                    Delete
+                    {tc("delete")}
                   </DropdownMenuItem>
                 )}
                 {(canEdit || canDelete) && !isOwn && <DropdownMenuSeparator />}
@@ -257,7 +260,7 @@ export function MessageBubble({
                     onClick={() => setReportOpen(true)}
                     className="text-destructive"
                   >
-                    Report
+                    {t("report")}
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>

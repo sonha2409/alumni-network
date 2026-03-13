@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   Dialog,
@@ -23,6 +24,8 @@ interface WarnDialogProps {
 }
 
 export function WarnDialog({ open, onClose, onConfirm, isPending, userName }: WarnDialogProps) {
+  const t = useTranslations("moderation.warnDialog");
+  const tCommon = useTranslations("common");
   const [reason, setReason] = useState("");
 
   const handleConfirm = () => {
@@ -41,33 +44,33 @@ export function WarnDialog({ open, onClose, onConfirm, isPending, userName }: Wa
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Warn User</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
-            Send a warning to <strong>{userName}</strong>. They will receive a notification and email.
+            {t("description", { name: userName })}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
-          <Label htmlFor="warn-reason">Reason</Label>
+          <Label htmlFor="warn-reason">{t("reason")}</Label>
           <Textarea
             id="warn-reason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Explain the reason for this warning..."
+            placeholder={t("placeholder")}
             rows={3}
             maxLength={1000}
           />
-          <p className="text-xs text-muted-foreground">{reason.length}/1000</p>
+          <p className="text-xs text-muted-foreground">{t("charCount", { count: reason.length })}</p>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isPending}>
-            Cancel
+            {tCommon("cancel")}
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={isPending || reason.trim().length === 0}
             className="bg-yellow-600 hover:bg-yellow-700"
           >
-            {isPending ? "Sending..." : "Send Warning"}
+            {isPending ? t("sending") : t("sendWarning")}
           </Button>
         </DialogFooter>
       </DialogContent>

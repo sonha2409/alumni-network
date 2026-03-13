@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,16 +20,6 @@ import type { NavbarUserData } from "./main-navbar";
 interface MainNavbarClientProps {
   user: NavbarUserData;
 }
-
-const navLinks = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/directory", label: "Directory" },
-  { href: "/map", label: "Map" },
-  { href: "/connections", label: "Connections" },
-  { href: "/messages", label: "Messages" },
-  { href: "/groups", label: "Groups" },
-  { href: "/verification", label: "Verification" },
-];
 
 function UserAvatar({ user }: { user: NavbarUserData }) {
   const initials = user.fullName
@@ -59,13 +50,14 @@ function UserAvatar({ user }: { user: NavbarUserData }) {
 
 function MobileNotificationsLink({ onClick }: { onClick: () => void }) {
   const { unreadCount } = useNotifications();
+  const t = useTranslations("nav");
   return (
     <Link
       href="/notifications"
       className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
       onClick={onClick}
     >
-      Notifications
+      {t("notifications")}
       {unreadCount > 0 && (
         <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white">
           {unreadCount > 99 ? "99+" : unreadCount}
@@ -77,6 +69,17 @@ function MobileNotificationsLink({ onClick }: { onClick: () => void }) {
 
 export function MainNavbarClient({ user }: MainNavbarClientProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const t = useTranslations("nav");
+
+  const navLinks = [
+    { href: "/dashboard", label: t("dashboard") },
+    { href: "/directory", label: t("directory") },
+    { href: "/map", label: t("map") },
+    { href: "/connections", label: t("connections") },
+    { href: "/messages", label: t("messages") },
+    { href: "/groups", label: t("groups") },
+    { href: "/verification", label: t("verification") },
+  ];
 
   const profileHref = user.profileId
     ? `/profile/${user.profileId}`
@@ -126,7 +129,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
               href="/admin/verification"
               className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              Admin
+              {t("admin")}
             </Link>
           )}
           {isModerator && (
@@ -134,7 +137,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
               href="/moderation/reports"
               className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              Moderation
+              {t("moderation")}
             </Link>
           )}
         </div>
@@ -145,14 +148,14 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
           <DropdownMenu>
             <DropdownMenuTrigger
               className="flex items-center gap-2 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              aria-label="User menu"
+              aria-label={t("userMenu")}
             >
               <UserAvatar user={user} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <div className="px-2 py-1.5">
                 <p className="text-sm font-medium">
-                  {user.fullName ?? "Welcome"}
+                  {user.fullName ?? t("welcome")}
                 </p>
                 <p className="text-xs text-muted-foreground">{user.email}</p>
               </div>
@@ -160,17 +163,17 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
               <DropdownMenuItem
                 render={<Link href={profileHref} />}
               >
-                My Profile
+                {t("myProfile")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 render={<Link href="/profile/edit" />}
               >
-                Edit Profile
+                {t("editProfile")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 render={<Link href="/settings/notifications" />}
               >
-                Settings
+                {t("settings")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -179,7 +182,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
                   form?.requestSubmit();
                 }}
               >
-                Sign out
+                {t("signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -194,7 +197,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-expanded={mobileMenuOpen}
           aria-controls="mobile-menu"
-          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-label={mobileMenuOpen ? t("closeMenu") : t("openMenu")}
         >
           {mobileMenuOpen ? (
             <svg
@@ -267,14 +270,14 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
               className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
               onClick={() => setMobileMenuOpen(false)}
             >
-              My Profile
+              {t("myProfile")}
             </Link>
             <Link
               href="/settings/notifications"
               className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Settings
+              {t("settings")}
             </Link>
             {isAdmin && (
               <Link
@@ -282,7 +285,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
                 className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Admin
+                {t("admin")}
               </Link>
             )}
             {isModerator && (
@@ -291,7 +294,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
                 className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Moderation
+                {t("moderation")}
               </Link>
             )}
           </div>
@@ -300,7 +303,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
               <UserAvatar user={user} />
               <div>
                 <p className="text-sm font-medium">
-                  {user.fullName ?? "Welcome"}
+                  {user.fullName ?? t("welcome")}
                 </p>
                 <p className="text-xs text-muted-foreground">{user.email}</p>
               </div>
@@ -312,7 +315,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
                 size="sm"
                 className="w-full"
               >
-                Sign out
+                {t("signOut")}
               </Button>
             </form>
           </div>

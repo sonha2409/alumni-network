@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,8 @@ import { login } from "@/app/(auth)/actions";
 import type { ActionResult } from "@/lib/types";
 
 export function LoginForm() {
+  const t = useTranslations("auth.login");
+  const tc = useTranslations("common");
   const searchParams = useSearchParams();
   const emailConfirmed = searchParams.get("email_confirmed") === "true";
 
@@ -26,7 +29,7 @@ export function LoginForm() {
           role="status"
           className="rounded-lg border border-green-500/50 bg-green-500/10 px-4 py-3 text-sm text-green-700 dark:text-green-400"
         >
-          Email confirmed! Please sign in to continue.
+          {t("emailConfirmed")}
         </div>
       )}
 
@@ -40,12 +43,12 @@ export function LoginForm() {
       )}
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{tc("email")}</Label>
         <Input
           id="email"
           name="email"
           type="email"
-          placeholder="you@example.com"
+          placeholder={tc("emailPlaceholder")}
           autoComplete="email"
           required
           aria-invalid={
@@ -68,19 +71,19 @@ export function LoginForm() {
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{tc("password")}</Label>
           <Link
             href="/forgot-password"
             className="text-sm text-muted-foreground underline-offset-4 hover:underline"
           >
-            Forgot password?
+            {t("forgotPassword")}
           </Link>
         </div>
         <Input
           id="password"
           name="password"
           type="password"
-          placeholder="••••••••"
+          placeholder={tc("passwordPlaceholder")}
           autoComplete="current-password"
           required
           aria-invalid={
@@ -102,16 +105,16 @@ export function LoginForm() {
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? "Signing in…" : "Sign in"}
+        {isPending ? t("signingIn") : t("signIn")}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
+        {t("noAccount")}{" "}
         <Link
           href="/signup"
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
-          Sign up
+          {t("signUp")}
         </Link>
       </p>
     </form>

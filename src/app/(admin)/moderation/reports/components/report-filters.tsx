@@ -1,12 +1,6 @@
 "use client";
 
-const STATUSES = [
-  { value: "pending", label: "Pending" },
-  { value: "escalated", label: "Escalated" },
-  { value: "action_taken", label: "Actioned" },
-  { value: "dismissed", label: "Dismissed" },
-  { value: "all", label: "All" },
-];
+import { useTranslations } from "next-intl";
 
 interface ReportFiltersProps {
   status: string;
@@ -15,6 +9,16 @@ interface ReportFiltersProps {
 }
 
 export function ReportFilters({ status, onStatusChange, totalCount }: ReportFiltersProps) {
+  const t = useTranslations("moderation");
+
+  const STATUSES = [
+    { value: "pending", label: t("filterPending") },
+    { value: "escalated", label: t("filterEscalated") },
+    { value: "action_taken", label: t("filterActioned") },
+    { value: "dismissed", label: t("filterDismissed") },
+    { value: "all", label: t("filterAll") },
+  ];
+
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-wrap gap-1 rounded-lg border bg-muted/50 p-1">
@@ -33,7 +37,7 @@ export function ReportFilters({ status, onStatusChange, totalCount }: ReportFilt
         ))}
       </div>
       <p className="text-sm text-muted-foreground">
-        {totalCount} report{totalCount !== 1 ? "s" : ""}
+        {t("reportCount", { count: totalCount })}
       </p>
     </div>
   );

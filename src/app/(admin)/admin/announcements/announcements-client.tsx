@@ -12,6 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -37,6 +38,8 @@ import {
 } from "./actions";
 
 export function AnnouncementsClient() {
+  const t = useTranslations("admin.announcements");
+  const tCommon = useTranslations("common");
   const [announcements, setAnnouncements] = useState<AnnouncementWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
@@ -95,7 +98,7 @@ export function AnnouncementsClient() {
     startTransition(async () => {
       const result = await createAnnouncement({ title, body, link: link || undefined });
       if (result.success) {
-        toast.success("Announcement published and notifications sent.");
+        toast.success(t("publishedToast"));
         setCreateOpen(false);
         resetForm();
         fetchAnnouncements();
@@ -115,7 +118,7 @@ export function AnnouncementsClient() {
         link: link || undefined,
       });
       if (result.success) {
-        toast.success("Announcement updated.");
+        toast.success(t("updatedToast"));
         setEditOpen(false);
         resetForm();
         setSelected(null);
@@ -132,7 +135,7 @@ export function AnnouncementsClient() {
       const result = await toggleAnnouncement(announcement.id, !announcement.is_active);
       if (result.success) {
         toast.success(
-          announcement.is_active ? "Announcement deactivated." : "Announcement activated."
+          announcement.is_active ? t("deactivatedToast") : t("activatedToast")
         );
         fetchAnnouncements();
       } else {
@@ -146,7 +149,7 @@ export function AnnouncementsClient() {
     startTransition(async () => {
       const result = await deleteAnnouncement(selected.id);
       if (result.success) {
-        toast.success("Announcement deleted.");
+        toast.success(t("deletedToast"));
         setDeleteOpen(false);
         setSelected(null);
         fetchAnnouncements();
@@ -182,7 +185,7 @@ export function AnnouncementsClient() {
       <div className="flex justify-end">
         <Button onClick={openCreate}>
           <Plus className="mr-2 h-4 w-4" />
-          New Announcement
+          {t("newAnnouncement")}
         </Button>
       </div>
 
@@ -192,7 +195,7 @@ export function AnnouncementsClient() {
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Megaphone className="mb-4 h-12 w-12 text-muted-foreground/40" />
             <p className="text-sm text-muted-foreground">
-              No announcements yet. Create one to notify all verified users.
+              {t("noAnnouncements")}
             </p>
           </CardContent>
         </Card>
@@ -210,7 +213,7 @@ export function AnnouncementsClient() {
                     <span className="truncate">{announcement.title}</span>
                     {!announcement.is_active && (
                       <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                        Inactive
+                        {t("inactive")}
                       </span>
                     )}
                   </CardTitle>
@@ -222,7 +225,7 @@ export function AnnouncementsClient() {
                     className="h-8 w-8"
                     onClick={() => handleToggle(announcement)}
                     disabled={isPending}
-                    title={announcement.is_active ? "Deactivate" : "Activate"}
+                    title={announcement.is_active ? t("deactivate") : t("activate")}
                   >
                     {announcement.is_active ? (
                       <ToggleRight className="h-4 w-4 text-green-600" />
@@ -267,9 +270,9 @@ export function AnnouncementsClient() {
                 </a>
               )}
               <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                <span>By {announcement.author_name ?? "Unknown"}</span>
+                <span>{t("byAuthor", { name: announcement.author_name ?? "Unknown" })}</span>
                 <span>&middot;</span>
-                <span>Published {formatDate(announcement.published_at)}</span>
+                <span>{t("publishedOn", { date: formatDate(announcement.published_at) })}</span>
               </div>
             </CardContent>
           </Card>
@@ -286,7 +289,7 @@ export function AnnouncementsClient() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create Announcement</DialogTitle>
+            <DialogTitle>{t("createTitle")}</DialogTitle>
           </DialogHeader>
           <AnnouncementForm
             title={title}
@@ -299,11 +302,11 @@ export function AnnouncementsClient() {
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>
-              Cancel
+              {tCommon("cancel")}
             </Button>
             <Button onClick={handleCreate} disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Publish
+              {t("publish")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -322,7 +325,7 @@ export function AnnouncementsClient() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Announcement</DialogTitle>
+            <DialogTitle>{t("editTitle")}</DialogTitle>
           </DialogHeader>
           <AnnouncementForm
             title={title}
@@ -335,11 +338,11 @@ export function AnnouncementsClient() {
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditOpen(false)}>
-              Cancel
+              {tCommon("cancel")}
             </Button>
             <Button onClick={handleUpdate} disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Changes
+              {t("saveChangesBtn")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -355,19 +358,18 @@ export function AnnouncementsClient() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Announcement</DialogTitle>
+            <DialogTitle>{t("deleteTitle")}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Are you sure you want to delete &ldquo;{selected?.title}&rdquo;? This action
-            cannot be undone. Users who already received the notification will keep it.
+            {t("deleteConfirm", { title: selected?.title ?? "" })}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteOpen(false)}>
-              Cancel
+              {tCommon("cancel")}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Delete
+              {tCommon("delete")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -397,15 +399,16 @@ function AnnouncementForm({
   onBodyChange: (v: string) => void;
   onLinkChange: (v: string) => void;
 }) {
+  const t = useTranslations("admin.announcements");
   return (
     <div className="space-y-4">
       <div>
-        <Label htmlFor="announcement-title">Title</Label>
+        <Label htmlFor="announcement-title">{t("titleLabel")}</Label>
         <Input
           id="announcement-title"
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
-          placeholder="e.g. Platform maintenance this weekend"
+          placeholder={t("titlePlaceholder")}
           maxLength={200}
           aria-describedby={fieldErrors.title ? "title-error" : undefined}
         />
@@ -416,12 +419,12 @@ function AnnouncementForm({
         )}
       </div>
       <div>
-        <Label htmlFor="announcement-body">Body</Label>
+        <Label htmlFor="announcement-body">{t("bodyLabel")}</Label>
         <Textarea
           id="announcement-body"
           value={body}
           onChange={(e) => onBodyChange(e.target.value)}
-          placeholder="Write the announcement content..."
+          placeholder={t("bodyPlaceholder")}
           rows={4}
           maxLength={2000}
           aria-describedby={fieldErrors.body ? "body-error" : undefined}
@@ -432,16 +435,16 @@ function AnnouncementForm({
           </p>
         )}
         <p className="mt-1 text-xs text-muted-foreground">
-          {body.length}/2000 characters
+          {t("bodyCharCount", { count: body.length })}
         </p>
       </div>
       <div>
-        <Label htmlFor="announcement-link">Link (optional)</Label>
+        <Label htmlFor="announcement-link">{t("linkLabel")}</Label>
         <Input
           id="announcement-link"
           value={link}
           onChange={(e) => onLinkChange(e.target.value)}
-          placeholder="https://..."
+          placeholder={t("linkPlaceholder")}
           maxLength={500}
           aria-describedby={fieldErrors.link ? "link-error" : undefined}
         />

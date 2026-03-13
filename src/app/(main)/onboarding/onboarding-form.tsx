@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +18,7 @@ interface OnboardingFormProps {
 }
 
 export function OnboardingForm({ industries, minGraduationYear, maxGraduationYear }: OnboardingFormProps) {
+  const t = useTranslations("onboarding");
   const router = useRouter();
   const [state, formAction, isPending] = useActionState<
     ActionResult<{ profileId: string }> | null,
@@ -32,7 +34,7 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
 
   useEffect(() => {
     if (state?.success) {
-      toast.success("Profile created! Let's set up a few more things.");
+      toast.success(t("profileCreated"));
       router.push("/onboarding/quiz");
     }
   }, [state, router]);
@@ -60,12 +62,12 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
 
       {/* Full Name */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="full_name">Full name *</Label>
+        <Label htmlFor="full_name">{t("fullName")}</Label>
         <Input
           id="full_name"
           name="full_name"
           type="text"
-          placeholder="Your full name"
+          placeholder={t("fullNamePlaceholder")}
           autoComplete="name"
           required
           minLength={2}
@@ -90,12 +92,12 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
 
       {/* Graduation Year */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="graduation_year">Graduation year *</Label>
+        <Label htmlFor="graduation_year">{t("gradYear")}</Label>
         <Input
           id="graduation_year"
           name="graduation_year"
           type="number"
-          placeholder="e.g. 2020"
+          placeholder={t("gradYearPlaceholder")}
           min={minGraduationYear}
           max={maxGraduationYear}
           required
@@ -119,7 +121,7 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
 
       {/* Primary Industry */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="primary_industry_id">Career field *</Label>
+        <Label htmlFor="primary_industry_id">{t("careerField")}</Label>
         <select
           id="primary_industry_id"
           name="primary_industry_id"
@@ -140,7 +142,7 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
           }
           className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <option value="">Select your career field</option>
+          <option value="">{t("selectCareerField")}</option>
           {industries.map((industry) => (
             <option key={industry.id} value={industry.id}>
               {industry.name}
@@ -159,7 +161,7 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
       {specializations.length > 0 && (
         <div className="flex flex-col gap-2">
           <Label htmlFor="primary_specialization_id">
-            Specialization (optional)
+            {t("specLabel")}
           </Label>
           <select
             id="primary_specialization_id"
@@ -168,7 +170,7 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
             key={selectedIndustryId}
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <option value="">Select a specialization</option>
+            <option value="">{t("selectSpec")}</option>
             {specializations.map((spec) => (
               <option key={spec.id} value={spec.id}>
                 {spec.name}
@@ -186,7 +188,7 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
 
       {/* Photo Upload */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="photo">Profile photo (optional)</Label>
+        <Label htmlFor="photo">{t("profilePhoto")}</Label>
         <div className="flex items-center gap-4">
           {photoPreview && (
             <img
@@ -206,7 +208,7 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
           />
         </div>
         <p className="text-xs text-muted-foreground">
-          JPEG, PNG, or WebP. Max 5 MB.
+          {t("photoHint")}
         </p>
         {state?.success === false && state.fieldErrors?.photo && (
           <p id="photo-error" className="text-sm text-destructive">
@@ -216,7 +218,7 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? "Creating profile…" : "Create profile"}
+        {isPending ? t("creatingProfile") : t("createProfile")}
       </Button>
     </form>
   );

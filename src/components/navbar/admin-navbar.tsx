@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface AdminNavbarProps {
   role: "moderator" | "admin";
@@ -13,6 +14,8 @@ const linkClass =
 
 export function AdminNavbar({ role }: AdminNavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const tAdmin = useTranslations("admin.navbar");
+  const tNav = useTranslations("nav");
 
   return (
     <nav className="border-b bg-background" aria-label="Admin navigation">
@@ -20,42 +23,39 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
         {/* Logo + desktop links */}
         <div className="flex items-center gap-4 min-w-0">
           <span className="flex-shrink-0 text-lg font-bold tracking-tight">
-            AlumNet{" "}
-            <span className="text-sm font-normal text-muted-foreground">
-              {role === "admin" ? "Admin" : "Moderation"}
-            </span>
+            {role === "admin" ? tAdmin("adminTitle") : tAdmin("moderationTitle")}
           </span>
 
           {/* Desktop nav links — hidden on mobile */}
           <div className="hidden items-center gap-1 md:flex">
             <Link href="/moderation/reports" className={linkClass}>
-              Reports
+              {tAdmin("reports")}
             </Link>
             {role === "admin" && (
               <>
                 <Link href="/admin/verification" className={linkClass}>
-                  Verification
+                  {tNav("verification")}
                 </Link>
                 <Link href="/admin/users" className={linkClass}>
-                  Users
+                  {tAdmin("users")}
                 </Link>
                 <Link href="/admin/taxonomy" className={linkClass}>
-                  Taxonomy
+                  {tAdmin("taxonomy")}
                 </Link>
                 <Link href="/admin/analytics" className={linkClass}>
-                  Analytics
+                  {tAdmin("analytics")}
                 </Link>
                 <Link href="/admin/map" className={linkClass}>
-                  Map
+                  {tNav("map")}
                 </Link>
                 <Link href="/admin/bulk-invite" className={linkClass}>
-                  Invite
+                  {tAdmin("invite")}
                 </Link>
                 <Link href="/admin/announcements" className={linkClass}>
-                  Announcements
+                  {tAdmin("announcements")}
                 </Link>
                 <Link href="/admin/settings" className={linkClass}>
-                  Settings
+                  {tNav("settings")}
                 </Link>
               </>
             )}
@@ -65,13 +65,13 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
         {/* Right side: back link (desktop) + hamburger (mobile) */}
         <div className="flex items-center gap-2">
           <Link href="/dashboard" className={linkClass + " hidden sm:inline-flex"}>
-            &larr; Back to App
+            {tNav("backToApp")}
           </Link>
           <button
             type="button"
             onClick={() => setMobileOpen((prev) => !prev)}
             className="rounded-md p-2 text-muted-foreground hover:bg-muted md:hidden"
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-label={mobileOpen ? tNav("closeMenu") : tNav("openMenu")}
           >
             {mobileOpen ? (
               <X className="h-5 w-5" />
@@ -91,7 +91,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
               className={linkClass}
               onClick={() => setMobileOpen(false)}
             >
-              Reports
+              {tAdmin("reports")}
             </Link>
             {role === "admin" && (
               <>
@@ -100,56 +100,56 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
-                  Verification
+                  {tNav("verification")}
                 </Link>
                 <Link
                   href="/admin/users"
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
-                  Users
+                  {tAdmin("users")}
                 </Link>
                 <Link
                   href="/admin/taxonomy"
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
-                  Taxonomy
+                  {tAdmin("taxonomy")}
                 </Link>
                 <Link
                   href="/admin/analytics"
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
-                  Analytics
+                  {tAdmin("analytics")}
                 </Link>
                 <Link
                   href="/admin/map"
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
-                  Map
+                  {tNav("map")}
                 </Link>
                 <Link
                   href="/admin/bulk-invite"
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
-                  Invite
+                  {tAdmin("invite")}
                 </Link>
                 <Link
                   href="/admin/announcements"
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
-                  Announcements
+                  {tAdmin("announcements")}
                 </Link>
                 <Link
                   href="/admin/settings"
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
-                  Settings
+                  {tNav("settings")}
                 </Link>
               </>
             )}
@@ -159,7 +159,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
               className={linkClass}
               onClick={() => setMobileOpen(false)}
             >
-              &larr; Back to App
+              {tNav("backToApp")}
             </Link>
           </div>
         </div>

@@ -14,6 +14,7 @@ import {
   SlidersHorizontalIcon,
 } from "lucide-react";
 
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import type { IndustryWithSpecializations } from "@/lib/types";
 import type { ViewLevel } from "./map-client";
@@ -66,6 +67,7 @@ export function MapSidebar({
   isPending,
 }: MapSidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const t = useTranslations("map");
 
   return (
     <>
@@ -78,11 +80,11 @@ export function MapSidebar({
         <div className={`flex h-full flex-col overflow-y-auto ${isOpen ? "" : "invisible"}`}>
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <h2 className="text-sm font-semibold">Alumni Map</h2>
+              <h2 className="text-sm font-semibold">{t("title")}</h2>
               <button
                 onClick={onToggle}
                 className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                aria-label="Close sidebar"
+                aria-label={t("closeSidebar")}
               >
                 <ChevronLeftIcon className="h-4 w-4" />
               </button>
@@ -94,14 +96,14 @@ export function MapSidebar({
                 <UsersIcon className="h-4 w-4 text-primary" />
                 <div>
                   <p className="text-lg font-bold leading-none">{totalAlumni}</p>
-                  <p className="text-[11px] text-muted-foreground">Alumni</p>
+                  <p className="text-[11px] text-muted-foreground">{t("alumni")}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2">
                 <GlobeIcon className="h-4 w-4 text-primary" />
                 <div>
                   <p className="text-lg font-bold leading-none">{totalCountries}</p>
-                  <p className="text-[11px] text-muted-foreground">Countries</p>
+                  <p className="text-[11px] text-muted-foreground">{t("countries")}</p>
                 </div>
               </div>
             </div>
@@ -114,7 +116,7 @@ export function MapSidebar({
                     onClick={onBackToCountries}
                     className="text-primary hover:underline"
                   >
-                    World
+                    {t("world")}
                   </button>
                   {viewLevel === "city" && (
                     <>
@@ -165,7 +167,7 @@ export function MapSidebar({
                         {selectedRegion.alumniCount}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {selectedRegion.alumniCount === 1 ? "alumnus" : "alumni"} in this area
+                        {t("alumniInArea", { count: selectedRegion.alumniCount })}
                       </p>
                     </div>
                   </div>
@@ -174,7 +176,7 @@ export function MapSidebar({
                     href={buildDirectoryLink(selectedRegion, viewLevel)}
                     className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                   >
-                    View in Directory
+                    {t("viewInDirectory")}
                     <ExternalLinkIcon className="h-3.5 w-3.5" />
                   </Link>
 
@@ -184,7 +186,7 @@ export function MapSidebar({
                       className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     >
                       <ArrowLeftIcon className="h-3.5 w-3.5" />
-                      {viewLevel === "city" ? "Back to regions" : "Back to world"}
+                      {viewLevel === "city" ? t("backToRegions") : t("backToWorld")}
                     </button>
                   )}
                 </div>
@@ -195,7 +197,7 @@ export function MapSidebar({
               <div className="flex-1 px-4 py-8 text-center">
                 <MapPinIcon className="mx-auto h-8 w-8 text-muted-foreground/40" />
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Click a location on the map to see details
+                  {t("clickLocation")}
                 </p>
               </div>
             )}
@@ -207,7 +209,7 @@ export function MapSidebar({
         <button
           onClick={onToggle}
           className="absolute left-0 top-1/2 z-10 hidden -translate-y-1/2 rounded-r-lg border border-l-0 border-border bg-background p-2 shadow-sm hover:bg-muted md:block"
-          aria-label="Open sidebar"
+          aria-label={t("openSidebar")}
         >
           <ChevronRightIcon className="h-4 w-4" />
         </button>
@@ -221,7 +223,7 @@ export function MapSidebar({
           onClick={() => setMobileOpen(true)}
         >
           <SlidersHorizontalIcon className="h-4 w-4" />
-          Filters
+          {t("filtersLabel")}
         </Button>
         <Button
           size="sm"
@@ -232,7 +234,7 @@ export function MapSidebar({
           <MapPinIcon className="h-4 w-4" />
           {selectedRegion
             ? `${selectedRegion.name} · ${selectedRegion.alumniCount}`
-            : `${totalAlumni} Alumni`}
+            : `${totalAlumni} ${t("alumni")}`}
         </Button>
       </div>
 
@@ -257,7 +259,7 @@ export function MapSidebar({
           </div>
 
           <div className="flex items-center justify-between px-4 pb-2">
-            <h2 className="text-sm font-semibold">Alumni Map</h2>
+            <h2 className="text-sm font-semibold">{t("title")}</h2>
             <button
               onClick={() => setMobileOpen(false)}
               className="rounded-md p-1 text-muted-foreground hover:text-foreground"
@@ -272,14 +274,14 @@ export function MapSidebar({
               <UsersIcon className="h-4 w-4 text-primary" />
               <div>
                 <p className="text-lg font-bold leading-none">{totalAlumni}</p>
-                <p className="text-[11px] text-muted-foreground">Alumni</p>
+                <p className="text-[11px] text-muted-foreground">{t("alumni")}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2">
               <GlobeIcon className="h-4 w-4 text-primary" />
               <div>
                 <p className="text-lg font-bold leading-none">{totalCountries}</p>
-                <p className="text-[11px] text-muted-foreground">Countries</p>
+                <p className="text-[11px] text-muted-foreground">{t("countries")}</p>
               </div>
             </div>
           </div>
@@ -292,7 +294,7 @@ export function MapSidebar({
                   onClick={() => { onBackToCountries(); setMobileOpen(false); }}
                   className="text-primary hover:underline"
                 >
-                  World
+                  {t("world")}
                 </button>
                 {viewLevel === "city" && (
                   <>
@@ -335,7 +337,7 @@ export function MapSidebar({
                       {selectedRegion.alumniCount}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {selectedRegion.alumniCount === 1 ? "alumnus" : "alumni"}
+                      {t("alumniInArea", { count: selectedRegion.alumniCount })}
                     </p>
                   </div>
                 </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +17,7 @@ interface VerificationQueueProps {
 
 export function VerificationQueue({ requests }: VerificationQueueProps) {
   const router = useRouter();
+  const t = useTranslations("admin.verification");
   const [selectedRequest, setSelectedRequest] = useState<VerificationRequestWithUser | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -49,9 +51,8 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
 
     if (result.success) {
       toast.success(
-        `Approved ${result.data.approved} request${result.data.approved !== 1 ? "s" : ""}${
-          result.data.failed > 0 ? `. ${result.data.failed} failed.` : "."
-        }`
+        t("approvedCount", { count: result.data.approved }) +
+        (result.data.failed > 0 ? ` ${t("failedCount", { count: result.data.failed })}` : "")
       );
       setSelectedIds(new Set());
       router.refresh();
@@ -68,8 +69,8 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Verification Queue</CardTitle>
-          <CardDescription>No pending verification requests.</CardDescription>
+          <CardTitle>{t("queueTitle")}</CardTitle>
+          <CardDescription>{t("noPending")}</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -81,16 +82,16 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Verification Queue</CardTitle>
+              <CardTitle>{t("queueTitle")}</CardTitle>
               <CardDescription>
-                {requests.length} pending request{requests.length !== 1 ? "s" : ""}
+                {t("pendingCount", { count: requests.length })}
               </CardDescription>
             </div>
             {selectedIds.size > 0 && (
               <Button onClick={handleBulkApprove} disabled={isBulkApproving}>
                 {isBulkApproving
-                  ? "Approving..."
-                  : `Approve Selected (${selectedIds.size})`}
+                  ? t("approving")
+                  : t("approveSelected", { count: selectedIds.size })}
               </Button>
             )}
           </div>
@@ -104,7 +105,7 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
                 checked={selectedIds.size === requests.length}
                 onChange={toggleSelectAll}
                 className="h-4 w-4 rounded border-gray-300"
-                aria-label="Select all"
+                aria-label={t("selectAll")}
               />
             </div>
             <div>Name</div>
@@ -128,7 +129,7 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
                     checked={selectedIds.has(request.id)}
                     onChange={() => toggleSelect(request.id)}
                     className="h-4 w-4 rounded border-gray-300"
-                    aria-label={`Select ${request.user_full_name}`}
+                    aria-label={t("selectUser", { name: request.user_full_name })}
                   />
                 </div>
 
@@ -162,7 +163,7 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
 
                 <div className="text-sm text-muted-foreground">
                   <span className="sm:hidden">Docs: </span>
-                  {request.document_count > 0 ? `${request.document_count} file${request.document_count !== 1 ? "s" : ""}` : "—"}
+                  {request.document_count > 0 ? t("files", { count: request.document_count }) : "—"}
                 </div>
 
                 <div className="text-sm text-muted-foreground">
@@ -178,7 +179,7 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
                       setSheetOpen(true);
                     }}
                   >
-                    Review
+                    {t("review")}
                   </Button>
                 </div>
               </div>

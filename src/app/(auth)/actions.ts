@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod/v4";
 
@@ -154,6 +155,26 @@ export async function login(
         success: false,
         error: "Invalid email or password.",
       };
+    }
+
+    // Sync the user's language preference to cookie after successful login
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      const { data: userData } = await supabase
+        .from("users")
+        .select("preferred_language")
+        .eq("id", user.id)
+        .single();
+      if (userData?.preferred_language) {
+        const cookieStore = await cookies();
+        cookieStore.set("NEXT_LOCALE", userData.preferred_language, {
+          path: "/",
+          maxAge: 60 * 60 * 24 * 365,
+          sameSite: "lax",
+        });
+      }
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import {
   Sheet,
@@ -36,6 +37,8 @@ export function RequestDetailSheet({
   onOpenChange,
   onActionComplete,
 }: RequestDetailSheetProps) {
+  const t = useTranslations("admin.verification");
+  const tCommon = useTranslations("common");
   const [rejectMessage, setRejectMessage] = useState("");
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
@@ -73,7 +76,7 @@ export function RequestDetailSheet({
     setIsApproving(false);
 
     if (result.success) {
-      toast.success(`${request.user_full_name} has been verified.`);
+      toast.success(t("verifiedToast", { name: request.user_full_name }));
       onOpenChange(false);
       onActionComplete();
     } else {
@@ -88,7 +91,7 @@ export function RequestDetailSheet({
     setIsRejecting(false);
 
     if (result.success) {
-      toast.success(`Request from ${request.user_full_name} has been rejected.`);
+      toast.success(t("rejectedToast", { name: request.user_full_name }));
       setRejectMessage("");
       setShowRejectForm(false);
       onOpenChange(false);
@@ -102,9 +105,9 @@ export function RequestDetailSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-lg overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Verification Request</SheetTitle>
+          <SheetTitle>{t("requestDetail")}</SheetTitle>
           <SheetDescription>
-            Review the details below and approve or reject this request.
+            {t("requestDetailDesc")}
           </SheetDescription>
         </SheetHeader>
 
@@ -131,27 +134,27 @@ export function RequestDetailSheet({
 
           <div className="space-y-3">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Graduation Year</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("gradYearLabel")}</p>
               <p>{request.graduation_year}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Program/Class</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("programLabel")}</p>
               <p>{request.specialization_name}</p>
             </div>
             {request.student_id && (
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Student ID</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("studentIdLabel")}</p>
                 <p>{request.student_id}</p>
               </div>
             )}
             {request.supporting_info && (
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Additional Information</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("additionalInfoLabel")}</p>
                 <p className="whitespace-pre-wrap">{request.supporting_info}</p>
               </div>
             )}
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Submitted</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("submittedLabel")}</p>
               <p>{new Date(request.created_at).toISOString().slice(0, 10)}</p>
             </div>
           </div>
@@ -162,10 +165,10 @@ export function RequestDetailSheet({
               <Separator />
               <div className="space-y-2">
                 <p className="text-sm font-medium text-muted-foreground">
-                  Supporting Documents ({request.document_count})
+                  {t("docsLabel", { count: request.document_count })}
                 </p>
                 {isLoadingDocs ? (
-                  <p className="text-sm text-muted-foreground">Loading documents...</p>
+                  <p className="text-sm text-muted-foreground">{t("loadingDocs")}</p>
                 ) : (
                   <ul className="space-y-2">
                     {documents.map((doc) => (
@@ -189,7 +192,7 @@ export function RequestDetailSheet({
                             rel="noopener noreferrer"
                             className="ml-2 whitespace-nowrap text-sm font-medium text-primary hover:underline"
                           >
-                            View
+                            {tCommon("view")}
                           </a>
                         )}
                       </li>
@@ -209,25 +212,25 @@ export function RequestDetailSheet({
                 disabled={isApproving}
                 className="flex-1"
               >
-                {isApproving ? "Approving..." : "Approve"}
+                {isApproving ? t("approving") : t("approve")}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setShowRejectForm(true)}
                 className="flex-1"
               >
-                Reject
+                {t("rejectLabel")}
               </Button>
             </div>
           ) : (
             <div className="space-y-3">
               <div className="space-y-2">
-                <Label htmlFor="reject_message">Rejection Reason (optional)</Label>
+                <Label htmlFor="reject_message">{t("rejectionReason")}</Label>
                 <Textarea
                   id="reject_message"
                   value={rejectMessage}
                   onChange={(e) => setRejectMessage(e.target.value)}
-                  placeholder="Provide a reason for the rejection..."
+                  placeholder={t("rejectionPlaceholder")}
                   rows={3}
                   maxLength={500}
                 />
@@ -239,7 +242,7 @@ export function RequestDetailSheet({
                   disabled={isRejecting}
                   className="flex-1"
                 >
-                  {isRejecting ? "Rejecting..." : "Confirm Reject"}
+                  {isRejecting ? t("rejecting") : t("confirmReject")}
                 </Button>
                 <Button
                   variant="outline"
@@ -249,7 +252,7 @@ export function RequestDetailSheet({
                   }}
                   className="flex-1"
                 >
-                  Cancel
+                  {tCommon("cancel")}
                 </Button>
               </div>
             </div>

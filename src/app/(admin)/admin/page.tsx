@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -45,12 +46,14 @@ export default async function AdminDashboardPage() {
   const inviteCount = inviteCountResult.count ?? 0;
   const activeAnnouncements = activeAnnouncementsResult.count ?? 0;
 
+  const t = await getTranslations("admin.dashboard");
+
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">
-          Overview of platform administration.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -59,7 +62,7 @@ export default async function AdminDashboardPage() {
           <Card className="transition-colors hover:border-primary/50">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                Verification Queue
+                {t("verificationQueue")}
                 {pendingCount > 0 && (
                   <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-xs font-medium text-primary-foreground">
                     {pendingCount}
@@ -67,7 +70,7 @@ export default async function AdminDashboardPage() {
                 )}
               </CardTitle>
               <CardDescription>
-                Review and approve alumni verification requests.
+                {t("verificationDesc")}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -77,13 +80,13 @@ export default async function AdminDashboardPage() {
           <Card className="transition-colors hover:border-primary/50">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                User Management
+                {t("userManagement")}
                 <span className="text-sm font-normal text-muted-foreground">
-                  {totalUsers} users
+                  {t("usersCount", { count: totalUsers })}
                 </span>
               </CardTitle>
               <CardDescription>
-                Search, filter, and manage platform users.
+                {t("userManagementDesc")}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -92,9 +95,9 @@ export default async function AdminDashboardPage() {
         <Link href="/admin/analytics">
           <Card className="transition-colors hover:border-primary/50">
             <CardHeader>
-              <CardTitle>Analytics</CardTitle>
+              <CardTitle>{t("analytics")}</CardTitle>
               <CardDescription>
-                Platform usage statistics, trends, and demographics.
+                {t("analyticsDesc")}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -104,15 +107,15 @@ export default async function AdminDashboardPage() {
           <Card className="transition-colors hover:border-primary/50">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                Bulk Invite
+                {t("bulkInvite")}
                 {inviteCount > 0 && (
                   <span className="text-sm font-normal text-muted-foreground">
-                    {inviteCount} sent
+                    {t("sent", { count: inviteCount })}
                   </span>
                 )}
               </CardTitle>
               <CardDescription>
-                Upload a CSV to invite alumni via email.
+                {t("bulkInviteDesc")}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -122,7 +125,7 @@ export default async function AdminDashboardPage() {
           <Card className="transition-colors hover:border-primary/50">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                Announcements
+                {t("announcements")}
                 {activeAnnouncements > 0 && (
                   <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-orange-500 px-2 text-xs font-medium text-white">
                     {activeAnnouncements}
@@ -130,7 +133,7 @@ export default async function AdminDashboardPage() {
                 )}
               </CardTitle>
               <CardDescription>
-                Create and manage platform-wide notices.
+                {t("announcementsDesc")}
               </CardDescription>
             </CardHeader>
           </Card>
@@ -139,9 +142,9 @@ export default async function AdminDashboardPage() {
         <Link href="/admin/settings">
           <Card className="transition-colors hover:border-primary/50">
             <CardHeader>
-              <CardTitle>Settings</CardTitle>
+              <CardTitle>{t("settingsCard")}</CardTitle>
               <CardDescription>
-                Configure platform behavior (staleness thresholds, etc.).
+                {t("settingsDesc")}
               </CardDescription>
             </CardHeader>
           </Card>

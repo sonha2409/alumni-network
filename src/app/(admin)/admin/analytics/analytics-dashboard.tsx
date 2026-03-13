@@ -30,6 +30,7 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart";
+import { useTranslations } from "next-intl";
 import type { AnalyticsData } from "./actions";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -75,6 +76,7 @@ interface AnalyticsDashboardProps {
 }
 
 export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
+  const t = useTranslations("admin.analytics");
   const statusTotal = data.userStatusBreakdown.reduce(
     (sum, s) => sum + s.count,
     0
@@ -92,9 +94,9 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
       {/* Stat Cards Row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Users"
+          title={t("totalUsers")}
           value={data.totalUsers}
-          description="All registered accounts"
+          description={t("allAccounts")}
         />
         {data.userStatusBreakdown
           .filter((s) => s.status !== "rejected")
@@ -105,8 +107,8 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
               value={s.count}
               description={
                 statusTotal > 0
-                  ? `${((s.count / statusTotal) * 100).toFixed(1)}% of users`
-                  : "No users yet"
+                  ? t("percentOfUsers", { percent: ((s.count / statusTotal) * 100).toFixed(1) })
+                  : t("noUsersYet")
               }
             />
           ))}
@@ -114,21 +116,21 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
 
       {/* Active Users */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard title="Daily Active" value={data.activeUsers.dau} description="Last 24 hours" />
-        <StatCard title="Weekly Active" value={data.activeUsers.wau} description="Last 7 days" />
-        <StatCard title="Monthly Active" value={data.activeUsers.mau} description="Last 30 days" />
+        <StatCard title={t("dailyActive")} value={data.activeUsers.dau} description={t("last24h")} />
+        <StatCard title={t("weeklyActive")} value={data.activeUsers.wau} description={t("last7d")} />
+        <StatCard title={t("monthlyActive")} value={data.activeUsers.mau} description={t("last30d")} />
       </div>
 
       {/* Signups + Status Breakdown */}
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Signups Over Time</CardTitle>
-            <CardDescription>New user registrations per month</CardDescription>
+            <CardTitle>{t("signupsOverTime")}</CardTitle>
+            <CardDescription>{t("signupsDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             {data.signupsOverTime.every((d) => d.count === 0) ? (
-              <EmptyChart message="No signups data yet" />
+              <EmptyChart message={t("noSignupsData")} />
             ) : (
               <ChartContainer config={signupsChartConfig} className="h-64 w-full">
                 <AreaChart data={data.signupsOverTime} accessibilityLayer>
@@ -152,12 +154,12 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>User Status</CardTitle>
-            <CardDescription>Breakdown by verification status</CardDescription>
+            <CardTitle>{t("userStatus")}</CardTitle>
+            <CardDescription>{t("userStatusDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             {statusTotal === 0 ? (
-              <EmptyChart message="No users yet" />
+              <EmptyChart message={t("noUsersYet")} />
             ) : (
               <ChartContainer config={statusChartConfig} className="mx-auto h-64 w-full">
                 <PieChart accessibilityLayer>
@@ -187,12 +189,12 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
       {/* Connections & Messages */}
       <Card>
         <CardHeader>
-          <CardTitle>Activity Over Time</CardTitle>
-          <CardDescription>Connections made and messages sent per month</CardDescription>
+          <CardTitle>{t("activityOverTime")}</CardTitle>
+          <CardDescription>{t("activityDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           {activityData.every((d) => d.connections === 0 && d.messages === 0) ? (
-            <EmptyChart message="No activity data yet" />
+            <EmptyChart message={t("noActivityData")} />
           ) : (
             <ChartContainer config={activityChartConfig} className="h-64 w-full">
               <LineChart data={activityData} accessibilityLayer>
@@ -225,12 +227,12 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Top Industries</CardTitle>
-            <CardDescription>Most popular career fields</CardDescription>
+            <CardTitle>{t("topIndustries")}</CardTitle>
+            <CardDescription>{t("topIndustriesDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             {data.topIndustries.length === 0 ? (
-              <EmptyChart message="No industry data yet" />
+              <EmptyChart message={t("noIndustryData")} />
             ) : (
               <ChartContainer config={industryChartConfig} className="h-72 w-full">
                 <BarChart
@@ -260,12 +262,12 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Top Locations</CardTitle>
-            <CardDescription>Where alumni are based</CardDescription>
+            <CardTitle>{t("topLocations")}</CardTitle>
+            <CardDescription>{t("topLocationsDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             {data.topLocations.length === 0 ? (
-              <EmptyChart message="No location data yet" />
+              <EmptyChart message={t("noLocationData")} />
             ) : (
               <ChartContainer config={locationChartConfig} className="h-72 w-full">
                 <BarChart

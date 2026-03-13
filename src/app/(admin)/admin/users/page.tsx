@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { UserManagementClient } from "./user-management-client";
@@ -21,12 +22,14 @@ export default async function AdminUsersPage() {
     redirect("/dashboard");
   }
 
+  const t = await getTranslations("admin.users");
+
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Admin — Users</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">
-          Search, filter, and manage all platform users.
+          {t("description")}
         </p>
       </div>
       <UserManagementClient currentAdminId={user.id} />

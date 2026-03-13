@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { useNotifications } from "./notifications-provider";
@@ -22,6 +23,7 @@ export function NotificationsPageClient({
   initialNotifications,
   initialTotalCount,
 }: NotificationsPageClientProps) {
+  const tc = useTranslations("common");
   const [notifications, setNotifications] =
     useState<Notification[]>(initialNotifications);
   const [totalCount, setTotalCount] = useState(initialTotalCount);
@@ -100,7 +102,7 @@ export function NotificationsPageClient({
             size="sm"
             onClick={() => setFilter("all")}
           >
-            All
+            {tc("all")}
           </Button>
           <Button
             variant={filter === "unread" ? "default" : "outline"}
@@ -148,10 +150,10 @@ export function NotificationsPageClient({
             disabled={page <= 1 || isPending}
             onClick={() => loadPage(page - 1)}
           >
-            Previous
+            {tc("previous")}
           </Button>
           <span className="text-sm text-muted-foreground">
-            Page {page} of {totalPages}
+            {tc("page", { page, totalPages })}
           </span>
           <Button
             variant="outline"
@@ -159,7 +161,7 @@ export function NotificationsPageClient({
             disabled={page >= totalPages || isPending}
             onClick={() => loadPage(page + 1)}
           >
-            Next
+            {tc("next")}
           </Button>
         </div>
       )}

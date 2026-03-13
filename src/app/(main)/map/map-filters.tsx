@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 import { XIcon } from "lucide-react";
 
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { IndustryWithSpecializations } from "@/lib/types";
@@ -17,6 +18,7 @@ interface MapFiltersProps {
 }
 
 export function MapFilters({ industries, onFiltersChange }: MapFiltersProps) {
+  const t = useTranslations("map");
   const [industryId, setIndustryId] = useQueryState(
     "industry",
     parseAsString.withDefault("").withOptions({ shallow: true })
@@ -56,7 +58,7 @@ export function MapFilters({ industries, onFiltersChange }: MapFiltersProps) {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Filters
+          {t("filtersLabel")}
         </p>
         {hasFilters && (
           <Button
@@ -66,14 +68,14 @@ export function MapFilters({ industries, onFiltersChange }: MapFiltersProps) {
             className="h-6 gap-1 px-2 text-xs text-muted-foreground"
           >
             <XIcon className="h-3 w-3" />
-            Clear
+            {t("clear")}
           </Button>
         )}
       </div>
 
       {/* Industry */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-muted-foreground">Industry</label>
+        <label className="text-xs text-muted-foreground">{t("industry")}</label>
         <select
           value={industryId}
           onChange={(e) => {
@@ -82,7 +84,7 @@ export function MapFilters({ industries, onFiltersChange }: MapFiltersProps) {
           }}
           className={selectClass}
         >
-          <option value="">All industries</option>
+          <option value="">{t("allIndustries")}</option>
           {industries.map((ind) => (
             <option key={ind.id} value={ind.id}>
               {ind.name}
@@ -93,7 +95,7 @@ export function MapFilters({ industries, onFiltersChange }: MapFiltersProps) {
 
       {/* Specialization */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-muted-foreground">Specialization</label>
+        <label className="text-xs text-muted-foreground">{t("specialization")}</label>
         <select
           value={specializationId}
           onChange={(e) => setSpecializationId(e.target.value || null)}
@@ -101,7 +103,7 @@ export function MapFilters({ industries, onFiltersChange }: MapFiltersProps) {
           className={selectClass}
         >
           <option value="">
-            {industryId ? "All specializations" : "Select industry first"}
+            {industryId ? t("allSpecializations") : t("selectIndustryFirst")}
           </option>
           {specializations.map((spec) => (
             <option key={spec.id} value={spec.id}>
@@ -113,11 +115,11 @@ export function MapFilters({ industries, onFiltersChange }: MapFiltersProps) {
 
       {/* Graduation year range */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-muted-foreground">Graduation year</label>
+        <label className="text-xs text-muted-foreground">{t("graduationYear")}</label>
         <div className="flex items-center gap-2">
           <Input
             type="number"
-            placeholder="From"
+            placeholder={t("from")}
             value={yearMin ?? ""}
             onChange={(e) => {
               const val = e.target.value ? parseInt(e.target.value, 10) : null;
@@ -130,7 +132,7 @@ export function MapFilters({ industries, onFiltersChange }: MapFiltersProps) {
           <span className="text-xs text-muted-foreground">&ndash;</span>
           <Input
             type="number"
-            placeholder="To"
+            placeholder={t("to")}
             value={yearMax ?? ""}
             onChange={(e) => {
               const val = e.target.value ? parseInt(e.target.value, 10) : null;

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { SearchIcon, UsersIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
 interface DirectoryEmptyStateProps {
@@ -9,6 +10,7 @@ interface DirectoryEmptyStateProps {
 }
 
 export function DirectoryEmptyState({ hasFilters }: DirectoryEmptyStateProps) {
+  const t = useTranslations("directory");
   const router = useRouter();
 
   return (
@@ -22,13 +24,13 @@ export function DirectoryEmptyState({ hasFilters }: DirectoryEmptyStateProps) {
       </div>
 
       <h3 className="mt-4 text-sm font-semibold">
-        {hasFilters ? "No alumni found" : "No alumni yet"}
+        {hasFilters ? t("noAlumniFound") : t("noAlumniYet")}
       </h3>
 
       <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
         {hasFilters
-          ? "Try adjusting your search or filters to find what you're looking for."
-          : "Be the first to create a profile and start building the alumni network."}
+          ? t("noAlumniFoundDesc")
+          : t("noAlumniYetDesc")}
       </p>
 
       {hasFilters && (
@@ -38,7 +40,7 @@ export function DirectoryEmptyState({ hasFilters }: DirectoryEmptyStateProps) {
           className="mt-4"
           onClick={() => router.push("/directory")}
         >
-          Clear all filters
+          {t("clearAllFilters")}
         </Button>
       )}
     </div>

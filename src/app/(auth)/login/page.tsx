@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import {
   Card,
   CardContent,
@@ -9,19 +10,23 @@ import {
 } from "@/components/ui/card";
 import { LoginForm } from "./login-form";
 
-export const metadata: Metadata = {
-  title: "Sign In — AlumNet",
-  description: "Sign in to your AlumNet alumni network account.",
-  robots: { index: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("auth.login");
+  return {
+    title: t("title"),
+    description: t("description"),
+    robots: { index: false },
+  };
+}
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const t = await getTranslations("auth.login");
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Sign in</CardTitle>
+        <CardTitle className="text-2xl">{t("heading")}</CardTitle>
         <CardDescription>
-          Enter your email and password to access your account.
+          {t("subheading")}
         </CardDescription>
       </CardHeader>
       <CardContent>

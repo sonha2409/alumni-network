@@ -10,6 +10,7 @@ import {
   Zap,
 } from "lucide-react";
 
+import { useTranslations } from "next-intl";
 import type { RecommendedProfile } from "@/lib/types";
 
 interface RecommendationCardProps {
@@ -18,18 +19,20 @@ interface RecommendationCardProps {
   index: number;
 }
 
-function getScoreLabel(score: number): { label: string; color: string } {
-  if (score >= 30) return { label: "Great match", color: "text-emerald-600 dark:text-emerald-400" };
-  if (score >= 20) return { label: "Strong match", color: "text-blue-600 dark:text-blue-400" };
-  if (score >= 10) return { label: "Good match", color: "text-violet-600 dark:text-violet-400" };
-  return { label: "Match", color: "text-muted-foreground" };
-}
-
 export function RecommendationCard({
   profile,
   connectionStatus,
   index,
 }: RecommendationCardProps) {
+  const t = useTranslations("dashboard");
+  const tc = useTranslations("common");
+
+  function getScoreLabel(score: number): { label: string; color: string } {
+    if (score >= 30) return { label: t("greatMatch"), color: "text-emerald-600 dark:text-emerald-400" };
+    if (score >= 20) return { label: t("strongMatch"), color: "text-blue-600 dark:text-blue-400" };
+    if (score >= 10) return { label: t("goodMatch"), color: "text-violet-600 dark:text-violet-400" };
+    return { label: t("match"), color: "text-muted-foreground" };
+  }
   const location = [profile.city, profile.state_province, profile.country]
     .filter(Boolean)
     .join(", ");
@@ -87,10 +90,10 @@ export function RecommendationCard({
               }`}
               title={
                 connectionStatus === "connected"
-                  ? "Connected"
+                  ? t("connected")
                   : connectionStatus === "pending_sent"
-                    ? "Request sent"
-                    : "Wants to connect"
+                    ? t("requestSent")
+                    : t("wantsToConnect")
               }
             >
               {connectionStatus === "connected" ? (
@@ -109,7 +112,7 @@ export function RecommendationCard({
           </h3>
           <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
             <GraduationCapIcon className="h-3 w-3 shrink-0" />
-            <span>Class of {profile.graduation_year}</span>
+            <span>{tc("classOf", { year: profile.graduation_year })}</span>
           </div>
         </div>
       </div>

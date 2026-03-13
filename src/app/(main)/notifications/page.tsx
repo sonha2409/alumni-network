@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getNotifications } from "@/lib/queries/notifications";
 import { NotificationsPageClient } from "./components/notifications-page-client";
@@ -20,9 +21,11 @@ export default async function NotificationsPage() {
     20
   );
 
+  const t = await getTranslations("notifications");
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
+      <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
       <NotificationsPageClient
         initialNotifications={notifications}
         initialTotalCount={totalCount}

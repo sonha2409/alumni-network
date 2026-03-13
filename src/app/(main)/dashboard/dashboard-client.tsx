@@ -13,6 +13,7 @@ import {
   Flame,
 } from "lucide-react";
 
+import { useTranslations } from "next-intl";
 import type { RecommendedProfile, PopularProfile } from "@/lib/types";
 import { RecommendationCard } from "./recommendation-card";
 import { RecommendationListItem } from "./recommendation-list-item";
@@ -38,6 +39,8 @@ export function DashboardClient({
   connectionStatuses,
   profileCompleteness,
 }: DashboardClientProps) {
+  const t = useTranslations("dashboard");
+  const tc = useTranslations("common");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   // Filter popular alumni that aren't already in recommendations
@@ -50,12 +53,12 @@ export function DashboardClient({
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-primary/[0.02] to-transparent border border-border p-6 sm:p-8">
         <div className="relative z-10">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl animate-in fade-in slide-in-from-bottom-2 duration-500">
-            Welcome back, {userName}
+            {t("welcomeBack", { name: userName })}
           </h1>
           <p className="mt-2 text-muted-foreground animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100">
             {hasProfile
-              ? "Here are alumni you might want to connect with."
-              : "Set up your profile to discover alumni like you."}
+              ? t("subtitle")
+              : t("subtitleNoProfile")}
           </p>
         </div>
         {/* Decorative gradient orb */}
@@ -74,10 +77,10 @@ export function DashboardClient({
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
-              Your profile is {profileCompleteness}% complete
+              {t("profileCompleteness", { percent: profileCompleteness })}
             </p>
             <p className="text-xs text-amber-700 dark:text-amber-400/70">
-              A complete profile helps you get better recommendations
+              {t("completenessHint")}
             </p>
           </div>
           <ArrowRight className="h-4 w-4 shrink-0 text-amber-600 transition-transform group-hover:translate-x-0.5 dark:text-amber-400" />
@@ -90,16 +93,15 @@ export function DashboardClient({
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 mb-4">
             <UserPlus className="h-7 w-7 text-primary" />
           </div>
-          <h2 className="text-lg font-semibold">Create your profile</h2>
+          <h2 className="text-lg font-semibold">{t("createProfile")}</h2>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            Tell us about your career, education, and interests so we can suggest
-            alumni who share your background.
+            {t("createProfileDesc")}
           </p>
           <Link
             href="/profile/create"
             className="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.98]"
           >
-            Get started
+            {t("getStarted")}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -116,11 +118,11 @@ export function DashboardClient({
               </div>
               <div>
                 <h2 className="text-lg font-semibold leading-tight">
-                  Suggested Alumni
+                  {t("suggestedAlumni")}
                 </h2>
                 {recommendations.length > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    {recommendations.length} alumni based on your profile
+                    {t("alumniCount", { count: recommendations.length })}
                   </p>
                 )}
               </div>
@@ -137,7 +139,7 @@ export function DashboardClient({
                         ? "bg-background text-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
-                    aria-label="Grid view"
+                    aria-label={t("gridView")}
                   >
                     <LayoutGrid className="h-3.5 w-3.5" />
                   </button>
@@ -148,7 +150,7 @@ export function DashboardClient({
                         ? "bg-background text-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
-                    aria-label="List view"
+                    aria-label={t("listView")}
                   >
                     <List className="h-3.5 w-3.5" />
                   </button>
@@ -161,7 +163,7 @@ export function DashboardClient({
                 className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all duration-200 hover:border-foreground/20 hover:text-foreground hover:shadow-sm"
               >
                 <Search className="h-3 w-3" />
-                Browse directory
+                {t("browseDirectory")}
               </Link>
             </div>
           </div>
@@ -199,17 +201,16 @@ export function DashboardClient({
                 <Search className="h-5 w-5 text-muted-foreground" />
               </div>
               <h3 className="text-sm font-semibold">
-                No suggestions yet
+                {t("noSuggestions")}
               </h3>
               <p className="mt-1 max-w-xs text-xs text-muted-foreground">
-                Complete your profile with your industry, location, and career
-                details to see personalized recommendations.
+                {t("noSuggestionsDesc")}
               </p>
               <Link
                 href="/directory"
                 className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 active:scale-[0.98]"
               >
-                Browse the directory
+                {t("browseTheDirectory")}
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -223,7 +224,7 @@ export function DashboardClient({
                 className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-200 hover:border-foreground/20 hover:text-foreground"
               >
                 <Search className="h-3.5 w-3.5" />
-                Browse full directory
+                {t("browseFullDirectory")}
               </Link>
             </div>
           )}
@@ -239,10 +240,10 @@ export function DashboardClient({
             </div>
             <div>
               <h2 className="text-lg font-semibold leading-tight">
-                Trending Alumni
+                {t("trendingAlumni")}
               </h2>
               <p className="text-xs text-muted-foreground">
-                Most active and well-connected members
+                {t("trendingDesc")}
               </p>
             </div>
           </div>

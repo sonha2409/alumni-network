@@ -10,17 +10,25 @@ import {
   ArrowLeftIcon,
 } from "lucide-react";
 
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getGroupBySlug, getGroupMembers } from "@/lib/queries/groups";
 import type { GroupType } from "@/lib/types";
 import { MemberList } from "./member-list";
 import { MemberFilters } from "./member-filters";
 
-const typeLabels: Record<GroupType, { label: string; icon: typeof CalendarIcon }> = {
-  year_based: { label: "Year-based", icon: CalendarIcon },
-  field_based: { label: "Field-based", icon: BriefcaseIcon },
-  location_based: { label: "Location-based", icon: MapPinIcon },
-  custom: { label: "Custom", icon: TagIcon },
+const typeIcons: Record<GroupType, typeof CalendarIcon> = {
+  year_based: CalendarIcon,
+  field_based: BriefcaseIcon,
+  location_based: MapPinIcon,
+  custom: TagIcon,
+};
+
+const typeLabelKeys: Record<GroupType, string> = {
+  year_based: "yearBased",
+  field_based: "fieldBased",
+  location_based: "locationBased",
+  custom: "custom",
 };
 
 interface GroupDetailPageProps {
@@ -81,13 +89,15 @@ export default async function GroupDetailPage({
       ? parseInt(rawParams.page, 10) || 1
       : 1;
 
+  const t = await getTranslations("groups");
+
   const membersResult = await getGroupMembers(group.id, {
     search: memberSearch,
     page: memberPage,
     pageSize: 20,
   });
 
-  const TypeIcon = typeLabels[group.type].icon;
+  const TypeIcon = typeIcons[group.type];
 
   return (
     <div className="flex flex-col gap-6">
@@ -97,7 +107,7 @@ export default async function GroupDetailPage({
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeftIcon className="h-3.5 w-3.5" />
-        All groups
+        {t("allGroups")}
       </Link>
 
       {/* Group header */}
@@ -110,7 +120,7 @@ export default async function GroupDetailPage({
               </h1>
               <span className="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-[11px] font-medium text-secondary-foreground">
                 <TypeIcon className="h-3 w-3" />
-                {typeLabels[group.type].label}
+                {t(typeLabelKeys[group.type])}
               </span>
             </div>
 
@@ -123,13 +133,10 @@ export default async function GroupDetailPage({
             <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <UsersIcon className="h-3.5 w-3.5" />
-                {group.member_count} {group.member_count === 1 ? "member" : "members"}
+                {t("membersCount", { count: group.member_count })}
               </span>
               <span>
-                Created by{" "}
-                <span className="font-medium text-foreground">
-                  {group.created_by_name}
-                </span>
+                {t("createdBy", { name: group.created_by_name })}
               </span>
             </div>
           </div>
@@ -145,17 +152,16 @@ export default async function GroupDetailPage({
       {!isVerified && (
         <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/50 px-4 py-3 text-center text-sm text-muted-foreground">
           <Link href="/verification" className="text-primary underline underline-offset-4">
-            Verify your account
-          </Link>{" "}
-          to join this group.
+            {t("verifyToJoin")}
+          </Link>
         </div>
       )}
 
       {/* Members section */}
       <div>
-        <h2 className="text-lg font-semibold">Members</h2>
+        <h2 className="text-lg font-semibold">{t("membersHeader")}</h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          {membersResult.totalCount} {membersResult.totalCount === 1 ? "member" : "members"} in this group
+          {t("membersCount", { count: membersResult.totalCount })}
         </p>
       </div>
 
@@ -174,8 +180,8 @@ export default async function GroupDetailPage({
           <UsersIcon className="h-8 w-8 text-muted-foreground/50" />
           <p className="mt-3 text-sm text-muted-foreground">
             {memberSearch
-              ? "No members match your search."
-              : "No members yet. Be the first to join!"}
+              ? t("noMembersSearch")
+              : t("noMembersYet")}
           </p>
         </div>
       )}

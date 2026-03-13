@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { getGroups } from "@/lib/queries/groups";
@@ -11,10 +12,13 @@ import { GroupsPagination } from "./groups-pagination";
 import { GroupsEmptyState } from "./groups-empty-state";
 import { CreateGroupDialog } from "./create-group-dialog";
 
-export const metadata: Metadata = {
-  title: "Groups — AlumNet",
-  description: "Browse and join alumni groups by year, field, or location.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("groups");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 interface GroupsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -67,6 +71,9 @@ export default async function GroupsPage({ searchParams }: GroupsPageProps) {
   const rawParams = await searchParams;
   const filters = parseSearchParams(rawParams);
 
+  const t = await getTranslations("groups");
+  const tc = await getTranslations("common");
+
   const result = await getGroups(filters, user.id);
 
   const hasActiveFilters = !!(filters.search || filters.type);
@@ -76,9 +83,9 @@ export default async function GroupsPage({ searchParams }: GroupsPageProps) {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Groups</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Browse alumni groups by graduation year, career field, location, and more.
+            {t("description")}
           </p>
         </div>
         {isAdmin && <CreateGroupDialog />}
@@ -88,9 +95,8 @@ export default async function GroupsPage({ searchParams }: GroupsPageProps) {
       {!isVerified && (
         <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/50 px-4 py-3 text-center text-sm text-muted-foreground">
           <Link href="/verification" className="text-primary underline underline-offset-4">
-            Verify your account
-          </Link>{" "}
-          to join groups and connect with fellow alumni.
+            {t("verifyBanner")}
+          </Link>
         </div>
       )}
 
@@ -100,17 +106,11 @@ export default async function GroupsPage({ searchParams }: GroupsPageProps) {
       {/* Results count */}
       {result.totalCount > 0 && (
         <p className="text-sm text-muted-foreground">
-          Showing{" "}
-          <span className="font-medium text-foreground">
-            {(result.page - 1) * result.pageSize + 1}
-            &ndash;
-            {Math.min(result.page * result.pageSize, result.totalCount)}
-          </span>{" "}
-          of{" "}
-          <span className="font-medium text-foreground">
-            {result.totalCount}
-          </span>{" "}
-          groups
+          {tc("showing", {
+            start: (result.page - 1) * result.pageSize + 1,
+            end: Math.min(result.page * result.pageSize, result.totalCount),
+            total: result.totalCount,
+          })}
         </p>
       )}
 

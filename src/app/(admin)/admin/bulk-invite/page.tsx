@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { BulkInviteClient } from "./bulk-invite-client";
@@ -21,12 +22,14 @@ export default async function AdminBulkInvitePage() {
     redirect("/dashboard");
   }
 
+  const t = await getTranslations("admin.bulkInvite");
+
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Admin — Bulk Invite</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">
-          Upload a CSV file to invite alumni to the platform.
+          {t("description")}
         </p>
       </div>
       <BulkInviteClient />

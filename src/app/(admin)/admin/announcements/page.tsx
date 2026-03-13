@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { AnnouncementsClient } from "./announcements-client";
@@ -21,12 +22,14 @@ export default async function AdminAnnouncementsPage() {
     redirect("/dashboard");
   }
 
+  const t = await getTranslations("admin.announcements");
+
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Admin — Announcements</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">
-          Create and manage platform-wide notices for all users.
+          {t("description")}
         </p>
       </div>
       <AnnouncementsClient />

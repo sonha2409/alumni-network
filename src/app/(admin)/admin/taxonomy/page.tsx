@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { TaxonomyClient } from "./taxonomy-client";
@@ -21,12 +22,14 @@ export default async function AdminTaxonomyPage() {
     redirect("/dashboard");
   }
 
+  const t = await getTranslations("admin.taxonomy");
+
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Admin — Taxonomy</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">
-          Manage industry categories and specializations.
+          {t("description")}
         </p>
       </div>
       <TaxonomyClient />

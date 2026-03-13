@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { ReportsClient } from "./components/reports-client";
@@ -21,12 +22,14 @@ export default async function ModerationReportsPage() {
     redirect("/dashboard");
   }
 
+  const t = await getTranslations("moderation");
+
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Moderation — Reports</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">
-          Review reported messages and take action.
+          {t("description")}
         </p>
       </div>
       <ReportsClient role={userData.role as "moderator" | "admin"} />

@@ -2,16 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
-const NAV_ITEMS = [
-  { href: "/settings/notifications", label: "Notifications" },
-  { href: "/settings/account", label: "Account" },
-] as const;
-
 export function SettingsNav() {
   const pathname = usePathname();
+  const t = useTranslations("settings");
+
+  const NAV_ITEMS = [
+    { href: "/settings/notifications", label: t("tabNotifications") },
+    { href: "/settings/language", label: t("tabLanguage") },
+    { href: "/settings/account", label: t("tabAccount") },
+  ] as const;
 
   return (
     <nav className="mb-6 flex gap-1 border-b border-border" aria-label="Settings navigation">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import {
   Card,
   CardContent,
@@ -8,19 +9,23 @@ import {
 } from "@/components/ui/card";
 import { SignupForm } from "./signup-form";
 
-export const metadata: Metadata = {
-  title: "Sign Up — AlumNet",
-  description: "Create your AlumNet alumni network account.",
-  robots: { index: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("auth.signup");
+  return {
+    title: t("title"),
+    description: t("description"),
+    robots: { index: false },
+  };
+}
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  const t = await getTranslations("auth.signup");
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Create an account</CardTitle>
+        <CardTitle className="text-2xl">{t("heading")}</CardTitle>
         <CardDescription>
-          Join your alumni network. Enter your details below.
+          {t("subheading")}
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,8 @@ import { resetPassword } from "@/app/(auth)/actions";
 import type { ActionResult } from "@/lib/types";
 
 export function ForgotPasswordForm() {
+  const t = useTranslations("auth.forgotPassword");
+  const tc = useTranslations("common");
   const [state, formAction, isPending] = useActionState<
     ActionResult | null,
     FormData
@@ -19,14 +22,13 @@ export function ForgotPasswordForm() {
     return (
       <div className="flex flex-col gap-4 text-center">
         <p className="text-sm text-muted-foreground">
-          If an account exists with that email, we&apos;ve sent a password reset
-          link. Check your inbox.
+          {t("successMessage")}
         </p>
         <Link
           href="/login"
           className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
         >
-          Back to sign in
+          {tc("backToSignIn")}
         </Link>
       </div>
     );
@@ -44,12 +46,12 @@ export function ForgotPasswordForm() {
       )}
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{tc("email")}</Label>
         <Input
           id="email"
           name="email"
           type="email"
-          placeholder="you@example.com"
+          placeholder={tc("emailPlaceholder")}
           autoComplete="email"
           required
           aria-invalid={
@@ -71,16 +73,16 @@ export function ForgotPasswordForm() {
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? "Sending…" : "Send reset link"}
+        {isPending ? t("sending") : t("sendResetLink")}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
-        Remember your password?{" "}
+        {t("rememberPassword")}{" "}
         <Link
           href="/login"
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
-          Sign in
+          {tc("backToSignIn")}
         </Link>
       </p>
     </form>

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,8 @@ import { updatePassword } from "@/app/(auth)/actions";
 import type { ActionResult } from "@/lib/types";
 
 export function ResetPasswordForm() {
+  const t = useTranslations("auth.resetPassword");
+  const tc = useTranslations("common");
   const [state, formAction, isPending] = useActionState<
     ActionResult | null,
     FormData
@@ -19,13 +22,13 @@ export function ResetPasswordForm() {
     return (
       <div className="flex flex-col gap-4 text-center">
         <p className="text-sm text-muted-foreground">
-          Your password has been updated successfully.
+          {t("successMessage")}
         </p>
         <Link
           href="/dashboard"
           className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
         >
-          Go to dashboard
+          {t("goToDashboard")}
         </Link>
       </div>
     );
@@ -43,7 +46,7 @@ export function ResetPasswordForm() {
       )}
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password">New password</Label>
+        <Label htmlFor="password">{t("newPassword")}</Label>
         <Input
           id="password"
           name="password"
@@ -69,7 +72,7 @@ export function ResetPasswordForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="confirmPassword">Confirm new password</Label>
+        <Label htmlFor="confirmPassword">{t("confirmNewPassword")}</Label>
         <Input
           id="confirmPassword"
           name="confirmPassword"
@@ -95,7 +98,7 @@ export function ResetPasswordForm() {
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? "Updating…" : "Update password"}
+        {isPending ? t("updating") : t("updatePassword")}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
@@ -103,7 +106,7 @@ export function ResetPasswordForm() {
           href="/login"
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
-          Back to sign in
+          {tc("backToSignIn")}
         </Link>
       </p>
     </form>

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -32,12 +33,14 @@ export default async function AdminMapPage() {
     getIndustriesWithSpecializations(),
   ]);
 
+  const t = await getTranslations("map");
+
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Alumni Map</h1>
+        <h1 className="text-2xl font-bold">{t("adminTitle")}</h1>
         <p className="text-muted-foreground">
-          Geographic distribution of alumni across the platform.
+          {t("adminDesc")}
         </p>
       </div>
 

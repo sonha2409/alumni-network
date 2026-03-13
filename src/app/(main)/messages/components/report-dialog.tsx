@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,8 @@ interface ReportDialogProps {
 }
 
 export function ReportDialog({ messageId, open, onClose }: ReportDialogProps) {
+  const t = useTranslations("messages");
+  const tc = useTranslations("common");
   const [reason, setReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +49,7 @@ export function ReportDialog({ messageId, open, onClose }: ReportDialogProps) {
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="Report message"
+      aria-label={t("reportMessage")}
     >
       <div className="mx-4 w-full max-w-md rounded-lg bg-background p-6 shadow-lg">
         {success ? (
@@ -65,28 +68,27 @@ export function ReportDialog({ messageId, open, onClose }: ReportDialogProps) {
                 d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
               />
             </svg>
-            <p className="text-sm font-medium">Report submitted</p>
+            <p className="text-sm font-medium">{t("reportSubmitted")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              A moderator will review this message.
+              {t("reportSubmittedDesc")}
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <h3 className="text-lg font-semibold">Report Message</h3>
+            <h3 className="text-lg font-semibold">{t("reportTitle")}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Your report is anonymous. A moderator will review the message and
-              take appropriate action.
+              {t("reportDesc")}
             </p>
 
             <div className="mt-4">
               <Label htmlFor="report-reason">
-                Reason for reporting
+                {t("reportReason")}
               </Label>
               <Textarea
                 id="report-reason"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="Describe why this message should be reviewed..."
+                placeholder={t("reportPlaceholder")}
                 className="mt-1.5"
                 rows={3}
                 maxLength={1000}
@@ -95,7 +97,7 @@ export function ReportDialog({ messageId, open, onClose }: ReportDialogProps) {
                 aria-describedby={error ? "report-error" : undefined}
               />
               <p className="mt-1 text-xs text-muted-foreground">
-                {reason.length}/1000 characters (minimum 10)
+                {t("reportCharCount", { count: reason.length })}
               </p>
             </div>
 
@@ -117,14 +119,14 @@ export function ReportDialog({ messageId, open, onClose }: ReportDialogProps) {
                 onClick={onClose}
                 disabled={isSubmitting}
               >
-                Cancel
+                {tc("cancel")}
               </Button>
               <Button
                 type="submit"
                 size="sm"
                 disabled={isSubmitting || reason.length < 10}
               >
-                {isSubmitting ? "Submitting..." : "Submit Report"}
+                {isSubmitting ? t("submitting") : t("submitReport")}
               </Button>
             </div>
           </form>

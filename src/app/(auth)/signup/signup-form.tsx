@@ -4,6 +4,7 @@ import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,8 @@ import { signup } from "@/app/(auth)/actions";
 import type { ActionResult } from "@/lib/types";
 
 export function SignupForm() {
+  const t = useTranslations("auth.signup");
+  const tc = useTranslations("common");
   const router = useRouter();
   const [state, formAction, isPending] = useActionState<
     ActionResult<{ userId: string }> | null,
@@ -21,18 +24,16 @@ export function SignupForm() {
   useEffect(() => {
     if (state?.success) {
       if (state.data?.userId) {
-        toast.success("Account created! Let's set up your profile.");
+        toast.success(t("successWithProfile"));
         router.push("/onboarding");
       } else {
         // Email confirmation required, or duplicate email (Fix 8: prevent enumeration).
         // Both cases show the same message to avoid leaking account existence.
-        toast.success(
-          "Account created! Please check your email to verify your account, then log in."
-        );
+        toast.success(t("successWithEmail"));
         router.push("/login");
       }
     }
-  }, [state, router]);
+  }, [state, router, t]);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -46,12 +47,12 @@ export function SignupForm() {
       )}
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{tc("email")}</Label>
         <Input
           id="email"
           name="email"
           type="email"
-          placeholder="you@example.com"
+          placeholder={tc("emailPlaceholder")}
           autoComplete="email"
           required
           aria-invalid={
@@ -73,12 +74,12 @@ export function SignupForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{tc("password")}</Label>
         <Input
           id="password"
           name="password"
           type="password"
-          placeholder="••••••••"
+          placeholder={tc("passwordPlaceholder")}
           autoComplete="new-password"
           required
           minLength={8}
@@ -101,12 +102,12 @@ export function SignupForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="confirmPassword">Confirm password</Label>
+        <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
         <Input
           id="confirmPassword"
           name="confirmPassword"
           type="password"
-          placeholder="••••••••"
+          placeholder={tc("passwordPlaceholder")}
           autoComplete="new-password"
           required
           minLength={8}
@@ -129,16 +130,16 @@ export function SignupForm() {
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? "Creating account…" : "Create account"}
+        {isPending ? t("creatingAccount") : t("createAccount")}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
+        {t("hasAccount")}{" "}
         <Link
           href="/login"
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
-          Sign in
+          {t("signIn")}
         </Link>
       </p>
     </form>

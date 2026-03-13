@@ -15,6 +15,7 @@ import {
   Search,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import type { ConnectionWithProfile, Block } from "@/lib/types";
@@ -40,20 +41,22 @@ interface ConnectionsTabsProps {
 
 type TabKey = "connected" | "received" | "sent" | "blocked";
 
-const tabs: { key: TabKey; label: string; icon: typeof Users }[] = [
-  { key: "connected", label: "Connected", icon: Users },
-  { key: "received", label: "Received", icon: Inbox },
-  { key: "sent", label: "Sent", icon: Send },
-  { key: "blocked", label: "Blocked", icon: Ban },
-];
-
 export function ConnectionsTabs({
   connected,
   pendingReceived,
   pendingSent,
   blocked,
 }: ConnectionsTabsProps) {
+  const t = useTranslations("connections");
+  const tc = useTranslations("common");
   const [activeTab, setActiveTab] = useState<TabKey>("connected");
+
+  const tabs: { key: TabKey; label: string; icon: typeof Users }[] = [
+    { key: "connected", label: t("tabConnected"), icon: Users },
+    { key: "received", label: t("tabReceived"), icon: Inbox },
+    { key: "sent", label: t("tabSent"), icon: Send },
+    { key: "blocked", label: t("tabBlocked"), icon: Ban },
+  ];
 
   const counts: Record<TabKey, number> = {
     connected: connected.length,
@@ -125,13 +128,15 @@ function ConnectedList({
 }: {
   connections: ConnectionWithProfile[];
 }) {
+  const t = useTranslations("connections");
+
   if (connections.length === 0) {
     return (
       <EmptyState
         icon={Users}
-        title="No connections yet"
-        description="Browse the directory to find and connect with alumni."
-        actionLabel="Browse Directory"
+        title={t("noConnections")}
+        description={t("noConnectionsDesc")}
+        actionLabel={t("browseDirectory")}
         actionHref="/directory"
       />
     );
@@ -160,12 +165,14 @@ function ReceivedList({
 }: {
   connections: ConnectionWithProfile[];
 }) {
+  const t = useTranslations("connections");
+
   if (connections.length === 0) {
     return (
       <EmptyState
         icon={Inbox}
-        title="No pending requests"
-        description="When someone wants to connect with you, it will show up here."
+        title={t("noPending")}
+        description={t("noPendingDesc")}
       />
     );
   }
@@ -190,13 +197,16 @@ function ReceivedList({
 // =============================================================================
 
 function SentList({ connections }: { connections: ConnectionWithProfile[] }) {
+  const t = useTranslations("connections");
+  const tc = useTranslations("common");
+
   if (connections.length === 0) {
     return (
       <EmptyState
         icon={Send}
-        title="No sent requests"
-        description="Connect with alumni from the directory."
-        actionLabel="Browse Directory"
+        title={t("noSent")}
+        description={t("noSentDesc")}
+        actionLabel={t("browseDirectory")}
         actionHref="/directory"
       />
     );
@@ -216,7 +226,7 @@ function SentList({ connections }: { connections: ConnectionWithProfile[] }) {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
               </span>
-              Pending
+              {tc("pending")}
             </span>
           }
         />
@@ -240,12 +250,14 @@ function BlockedList({
     } | null;
   })[];
 }) {
+  const t = useTranslations("connections");
+
   if (blocks.length === 0) {
     return (
       <EmptyState
         icon={Ban}
-        title="No blocked users"
-        description="Users you block will appear here."
+        title={t("noBlocked")}
+        description={t("noBlockedDesc")}
       />
     );
   }
@@ -306,6 +318,7 @@ function ConnectionCard({
   showMessage?: boolean;
   statusBadge?: React.ReactNode;
 }) {
+  const tc = useTranslations("common");
   const { profile } = connection;
   const location = [profile.city, profile.state_province, profile.country]
     .filter(Boolean)
@@ -350,7 +363,7 @@ function ConnectionCard({
             {profile.full_name}
           </Link>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Class of {profile.graduation_year}
+            {tc("classOf", { year: profile.graduation_year })}
           </p>
           {statusBadge && <div className="mt-1">{statusBadge}</div>}
         </div>
@@ -435,6 +448,7 @@ function EmptyState({
 // =============================================================================
 
 function AcceptRejectButtons({ connectionId }: { connectionId: string }) {
+  const t = useTranslations("connections");
   const [isPending, startTransition] = useTransition();
   const [handled, setHandled] = useState(false);
 
@@ -448,7 +462,7 @@ function AcceptRejectButtons({ connectionId }: { connectionId: string }) {
             const result = await acceptConnectionRequest(connectionId);
             if (result.success) {
               setHandled(true);
-              toast.success("Connection accepted!");
+              toast.success(t("accepted"));
             } else {
               toast.error(result.error);
             }
@@ -463,7 +477,7 @@ function AcceptRejectButtons({ connectionId }: { connectionId: string }) {
         ) : (
           <Check className="mr-1.5 h-4 w-4" />
         )}
-        Accept
+        {t("accept")}
       </Button>
       <Button
         onClick={() => {
@@ -471,7 +485,7 @@ function AcceptRejectButtons({ connectionId }: { connectionId: string }) {
             const result = await rejectConnectionRequest(connectionId);
             if (result.success) {
               setHandled(true);
-              toast.success("Request rejected.");
+              toast.success(t("rejectedToast"));
             } else {
               toast.error(result.error);
             }
@@ -483,20 +497,21 @@ function AcceptRejectButtons({ connectionId }: { connectionId: string }) {
         className="border-red-500/30 bg-red-500/10 text-red-600 transition-colors duration-200 hover:bg-red-500/20 dark:text-red-400"
       >
         <X className="mr-1.5 h-4 w-4" />
-        Reject
+        {t("reject")}
       </Button>
     </>
   );
 }
 
 function DisconnectButton({ connectionId }: { connectionId: string }) {
+  const t = useTranslations("connections");
   const [isPending, startTransition] = useTransition();
   const [disconnected, setDisconnected] = useState(false);
 
   if (disconnected) {
     return (
       <span className="text-xs text-muted-foreground animate-in fade-in-0 duration-200">
-        Disconnected
+        {t("disconnectedToast")}
       </span>
     );
   }
@@ -508,7 +523,7 @@ function DisconnectButton({ connectionId }: { connectionId: string }) {
           const result = await disconnectUser(connectionId);
           if (result.success) {
             setDisconnected(true);
-            toast.success("Disconnected.");
+            toast.success(t("disconnectedToast"));
           } else {
             toast.error(result.error);
           }
@@ -524,19 +539,21 @@ function DisconnectButton({ connectionId }: { connectionId: string }) {
       ) : (
         <UserX className="mr-1.5 h-4 w-4" />
       )}
-      Disconnect
+      {t("disconnect")}
     </Button>
   );
 }
 
 function CancelButton({ connectionId }: { connectionId: string }) {
+  const t = useTranslations("connections");
+  const tc = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [cancelled, setCancelled] = useState(false);
 
   if (cancelled) {
     return (
       <span className="text-xs text-muted-foreground animate-in fade-in-0 duration-200">
-        Cancelled
+        {t("cancelledToast")}
       </span>
     );
   }
@@ -548,7 +565,7 @@ function CancelButton({ connectionId }: { connectionId: string }) {
           const result = await disconnectUser(connectionId);
           if (result.success) {
             setCancelled(true);
-            toast.success("Request cancelled.");
+            toast.success(t("cancelledToast"));
           } else {
             toast.error(result.error);
           }
@@ -564,19 +581,20 @@ function CancelButton({ connectionId }: { connectionId: string }) {
       ) : (
         <X className="mr-1.5 h-4 w-4" />
       )}
-      Cancel
+      {tc("cancel")}
     </Button>
   );
 }
 
 function UnblockButton({ blockId }: { blockId: string }) {
+  const t = useTranslations("connections");
   const [isPending, startTransition] = useTransition();
   const [unblocked, setUnblocked] = useState(false);
 
   if (unblocked) {
     return (
       <span className="text-xs text-muted-foreground animate-in fade-in-0 duration-200">
-        Unblocked
+        {t("unblockedToast")}
       </span>
     );
   }
@@ -588,7 +606,7 @@ function UnblockButton({ blockId }: { blockId: string }) {
           const result = await unblockUser(blockId);
           if (result.success) {
             setUnblocked(true);
-            toast.success("User unblocked.");
+            toast.success(t("unblockedToast"));
           } else {
             toast.error(result.error);
           }
@@ -604,7 +622,7 @@ function UnblockButton({ blockId }: { blockId: string }) {
       ) : (
         <Ban className="mr-1.5 h-4 w-4" />
       )}
-      Unblock
+      {t("unblock")}
     </Button>
   );
 }

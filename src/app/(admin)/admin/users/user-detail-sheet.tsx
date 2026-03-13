@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import {
   Sheet,
@@ -75,6 +76,7 @@ export function UserDetailSheet({
   onActionComplete,
   currentAdminId,
 }: UserDetailSheetProps) {
+  const t = useTranslations("admin.users");
   const [auditLog, setAuditLog] = useState<AdminAuditLogEntry[]>([]);
   const [isLoadingAudit, setIsLoadingAudit] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -164,9 +166,9 @@ export function UserDetailSheet({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="sm:max-w-lg overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>User Details</SheetTitle>
+            <SheetTitle>{t("detailTitle")}</SheetTitle>
             <SheetDescription>
-              Manage this user&apos;s role, status, and account.
+              {t("detailDesc")}
             </SheetDescription>
           </SheetHeader>
 
@@ -186,7 +188,7 @@ export function UserDetailSheet({
               )}
               <div>
                 <p className="font-medium text-lg">
-                  {user.full_name ?? "No profile"}
+                  {user.full_name ?? t("noProfile")}
                 </p>
                 <p className="text-sm text-muted-foreground">{user.email}</p>
               </div>
@@ -197,44 +199,44 @@ export function UserDetailSheet({
             {/* Status grid */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Role</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("role")}</p>
                 <p className="mt-0.5 text-sm capitalize">{user.role}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Verification</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("colVerification")}</p>
                 <p className="mt-0.5 text-sm capitalize">{user.verification_status}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Account Status</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("accountStatus")}</p>
                 <p className="mt-0.5 text-sm">
                   {isBanned
-                    ? "Banned"
+                    ? t("banned")
                     : isSuspended
-                      ? `Suspended until ${new Date(user.suspended_until!).toLocaleDateString()}`
-                      : "Active"}
+                      ? t("suspendedUntil", { date: new Date(user.suspended_until!).toLocaleDateString() })
+                      : t("activeOnly")}
                 </p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Joined</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("joined")}</p>
                 <p className="mt-0.5 text-sm">
                   {new Date(user.created_at).toLocaleDateString()}
                 </p>
               </div>
               {user.graduation_year && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Graduation Year</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("gradYear")}</p>
                   <p className="mt-0.5 text-sm">{user.graduation_year}</p>
                 </div>
               )}
               {user.primary_industry_name && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Industry</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("industryLabel")}</p>
                   <p className="mt-0.5 text-sm">{user.primary_industry_name}</p>
                 </div>
               )}
               {user.ban_reason && (
                 <div className="col-span-2">
-                  <p className="text-sm font-medium text-muted-foreground">Ban Reason</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("banReason")}</p>
                   <p className="mt-0.5 text-sm">{user.ban_reason}</p>
                 </div>
               )}
@@ -245,15 +247,15 @@ export function UserDetailSheet({
             {/* Actions */}
             {isSelf ? (
               <p className="text-sm text-muted-foreground italic">
-                You cannot modify your own account.
+                {t("cannotModifySelf")}
               </p>
             ) : isTargetAdmin ? (
               <p className="text-sm text-muted-foreground italic">
-                Cannot modify another admin&apos;s account.
+                {t("cannotModifyAdmin")}
               </p>
             ) : (
               <div className="space-y-3">
-                <p className="text-sm font-medium">Actions</p>
+                <p className="text-sm font-medium">{t("actions")}</p>
                 <div className="flex flex-wrap gap-2">
                   {/* Verification */}
                   {user.verification_status !== "verified" && (
@@ -267,7 +269,7 @@ export function UserDetailSheet({
                       }
                       disabled={isProcessing}
                     >
-                      Verify
+                      {t("verify")}
                     </Button>
                   )}
 
@@ -284,7 +286,7 @@ export function UserDetailSheet({
                       }
                       disabled={isProcessing}
                     >
-                      Promote to Moderator
+                      {t("promoteToMod")}
                     </Button>
                   )}
                   {user.role === "moderator" && (
@@ -299,7 +301,7 @@ export function UserDetailSheet({
                       }
                       disabled={isProcessing}
                     >
-                      Demote to User
+                      {t("demoteToUser")}
                     </Button>
                   )}
 
@@ -316,7 +318,7 @@ export function UserDetailSheet({
                       }
                       disabled={isProcessing}
                     >
-                      Unsuspend
+                      {t("unsuspend")}
                     </Button>
                   ) : (
                     !isBanned && (
@@ -326,7 +328,7 @@ export function UserDetailSheet({
                         onClick={() => setDialogAction("suspend")}
                         disabled={isProcessing}
                       >
-                        Suspend
+                        {t("suspend")}
                       </Button>
                     )
                   )}
@@ -344,7 +346,7 @@ export function UserDetailSheet({
                       }
                       disabled={isProcessing}
                     >
-                      Unban
+                      {t("unban")}
                     </Button>
                   ) : (
                     <Button
@@ -353,7 +355,7 @@ export function UserDetailSheet({
                       onClick={() => setDialogAction("ban")}
                       disabled={isProcessing}
                     >
-                      Ban
+                      {t("ban")}
                     </Button>
                   )}
 
@@ -365,7 +367,7 @@ export function UserDetailSheet({
                       onClick={() => setDialogAction("delete")}
                       disabled={isProcessing}
                     >
-                      Delete Account
+                      {t("deleteAccount")}
                     </Button>
                   )}
                 </div>
@@ -376,7 +378,7 @@ export function UserDetailSheet({
 
             {/* Audit log */}
             <div className="space-y-3">
-              <p className="text-sm font-medium">Action History</p>
+              <p className="text-sm font-medium">{t("actionHistory")}</p>
               {isLoadingAudit ? (
                 <div className="space-y-2">
                   {Array.from({ length: 3 }).map((_, i) => (
@@ -384,7 +386,7 @@ export function UserDetailSheet({
                   ))}
                 </div>
               ) : auditLog.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No actions recorded.</p>
+                <p className="text-sm text-muted-foreground">{t("noActions")}</p>
               ) : (
                 <div className="space-y-2">
                   {auditLog.map((entry) => (

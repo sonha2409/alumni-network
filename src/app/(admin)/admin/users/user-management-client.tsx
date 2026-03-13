@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,27 +15,6 @@ import { UserDetailSheet } from "./user-detail-sheet";
 interface UserManagementClientProps {
   currentAdminId: string;
 }
-
-const ROLE_OPTIONS = [
-  { value: "", label: "All roles" },
-  { value: "user", label: "User" },
-  { value: "moderator", label: "Moderator" },
-  { value: "admin", label: "Admin" },
-] as const;
-
-const STATUS_OPTIONS = [
-  { value: "", label: "All statuses" },
-  { value: "unverified", label: "Unverified" },
-  { value: "pending", label: "Pending" },
-  { value: "verified", label: "Verified" },
-  { value: "rejected", label: "Rejected" },
-] as const;
-
-const ACTIVE_OPTIONS = [
-  { value: "", label: "All" },
-  { value: "true", label: "Active" },
-  { value: "false", label: "Inactive/Banned" },
-] as const;
 
 function RoleBadge({ role }: { role: AdminUserRow["role"] }) {
   const styles: Record<string, string> = {
@@ -66,11 +46,13 @@ function StatusBadge({ status }: { status: AdminUserRow["verification_status"] }
 }
 
 function ActiveIndicator({ isActive, suspendedUntil }: { isActive: boolean; suspendedUntil: string | null }) {
+  const t = useTranslations("admin.users");
+  const tCommon = useTranslations("common");
   if (!isActive) {
     return (
       <span className="inline-flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
         <span className="h-2 w-2 rounded-full bg-red-500" />
-        Banned
+        {t("banned")}
       </span>
     );
   }
@@ -79,7 +61,7 @@ function ActiveIndicator({ isActive, suspendedUntil }: { isActive: boolean; susp
     return (
       <span className="inline-flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400">
         <span className="h-2 w-2 rounded-full bg-yellow-500" />
-        Suspended
+        {t("suspended")}
       </span>
     );
   }
@@ -87,12 +69,36 @@ function ActiveIndicator({ isActive, suspendedUntil }: { isActive: boolean; susp
   return (
     <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
       <span className="h-2 w-2 rounded-full bg-green-500" />
-      Active
+      {tCommon("active")}
     </span>
   );
 }
 
 export function UserManagementClient({ currentAdminId }: UserManagementClientProps) {
+  const t = useTranslations("admin.users");
+  const tCommon = useTranslations("common");
+
+  const ROLE_OPTIONS = [
+    { value: "", label: t("allRoles") },
+    { value: "user", label: t("roleUser") },
+    { value: "moderator", label: t("roleModerator") },
+    { value: "admin", label: t("roleAdmin") },
+  ] as const;
+
+  const STATUS_OPTIONS = [
+    { value: "", label: t("allStatuses") },
+    { value: "unverified", label: tCommon("unverified") },
+    { value: "pending", label: tCommon("pending") },
+    { value: "verified", label: tCommon("verified") },
+    { value: "rejected", label: tCommon("rejected") },
+  ] as const;
+
+  const ACTIVE_OPTIONS = [
+    { value: "", label: t("allActive") },
+    { value: "true", label: t("activeOnly") },
+    { value: "false", label: t("inactiveOnly") },
+  ] as const;
+
   const [users, setUsers] = useState<AdminUserRow[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -160,9 +166,9 @@ export function UserManagementClient({ currentAdminId }: UserManagementClientPro
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Users</span>
+            <span>{t("usersHeader")}</span>
             <span className="text-sm font-normal text-muted-foreground">
-              {totalCount} total
+              {t("total", { count: totalCount })}
             </span>
           </CardTitle>
 
@@ -170,18 +176,18 @@ export function UserManagementClient({ currentAdminId }: UserManagementClientPro
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Input
               type="search"
-              placeholder="Search by name or email..."
+              placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="sm:max-w-xs"
-              aria-label="Search users"
+              aria-label={t("searchAriaLabel")}
             />
             <div className="flex flex-wrap gap-2">
               <select
                 value={roleFilter}
                 onChange={handleFilterChange(setRoleFilter)}
                 className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
-                aria-label="Filter by role"
+                aria-label={t("filterRole")}
               >
                 {ROLE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -193,7 +199,7 @@ export function UserManagementClient({ currentAdminId }: UserManagementClientPro
                 value={statusFilter}
                 onChange={handleFilterChange(setStatusFilter)}
                 className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
-                aria-label="Filter by verification status"
+                aria-label={t("filterStatus")}
               >
                 {STATUS_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -205,7 +211,7 @@ export function UserManagementClient({ currentAdminId }: UserManagementClientPro
                 value={activeFilter}
                 onChange={handleFilterChange(setActiveFilter)}
                 className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
-                aria-label="Filter by active status"
+                aria-label={t("filterActive")}
               >
                 {ACTIVE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -226,19 +232,19 @@ export function UserManagementClient({ currentAdminId }: UserManagementClientPro
             </div>
           ) : users.length === 0 ? (
             <p className="py-8 text-center text-muted-foreground">
-              No users found matching your criteria.
+              {t("noUsersFound")}
             </p>
           ) : (
             <>
               {/* Table header */}
               <div className="hidden lg:grid lg:grid-cols-[1fr_1fr_auto_auto_auto_auto_auto] lg:gap-4 lg:border-b lg:pb-3 lg:text-sm lg:font-medium lg:text-muted-foreground">
-                <div>User</div>
-                <div>Email</div>
-                <div>Role</div>
-                <div>Verification</div>
-                <div>Status</div>
-                <div>Joined</div>
-                <div>Action</div>
+                <div>{t("colUser")}</div>
+                <div>{t("colEmail")}</div>
+                <div>{t("colRole")}</div>
+                <div>{t("colVerification")}</div>
+                <div>{t("colStatus")}</div>
+                <div>{t("colJoined")}</div>
+                <div>{t("colAction")}</div>
               </div>
 
               {/* Table rows */}
@@ -263,11 +269,11 @@ export function UserManagementClient({ currentAdminId }: UserManagementClientPro
                       )}
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">
-                          {user.full_name ?? "No profile"}
+                          {user.full_name ?? t("noProfile")}
                         </p>
                         {user.graduation_year && (
                           <p className="text-xs text-muted-foreground">
-                            Class of {user.graduation_year}
+                            {tCommon("classOf", { year: user.graduation_year })}
                           </p>
                         )}
                       </div>
@@ -317,7 +323,7 @@ export function UserManagementClient({ currentAdminId }: UserManagementClientPro
                           setSheetOpen(true);
                         }}
                       >
-                        Manage
+                        {t("manage")}
                       </Button>
                     </div>
                   </div>
@@ -328,7 +334,7 @@ export function UserManagementClient({ currentAdminId }: UserManagementClientPro
               {totalPages > 1 && (
                 <div className="mt-4 flex items-center justify-between border-t pt-4">
                   <p className="text-sm text-muted-foreground">
-                    Page {page} of {totalPages}
+                    {tCommon("page", { page, totalPages })}
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -337,7 +343,7 @@ export function UserManagementClient({ currentAdminId }: UserManagementClientPro
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={page <= 1}
                     >
-                      Previous
+                      {tCommon("previous")}
                     </Button>
                     <Button
                       variant="outline"
@@ -345,7 +351,7 @@ export function UserManagementClient({ currentAdminId }: UserManagementClientPro
                       onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                       disabled={page >= totalPages}
                     >
-                      Next
+                      {tCommon("next")}
                     </Button>
                   </div>
                 </div>

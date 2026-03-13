@@ -74,7 +74,7 @@
 | 35c-8 | Security: signup email enumeration                 | `DONE` | 2026-03-11. Return generic success on duplicate email signup instead of revealing account exists. |
 | 36  | Deployment: Vercel + Supabase                        | `DONE` | 2026-03-13. Email confirmation redirect fixed. Password reset flow works (code exchange + session). Reset password page complete. |
 | 36a | Reset password page                                  | `DONE` | 2026-03-13. `/reset-password` page with new password form. `updatePassword` server action. Proxy excludes `/reset-password` from profile check. |
-| 37  | i18n: user-selectable display language               | `TODO` | Phase 2. Vietnamese/English toggle. Labels currently English with Vietnamese in parentheses for school-specific terms.           |
+| 37  | i18n: user-selectable display language               | `DONE` | 2026-03-13. `next-intl` (non-routing, cookie-based). 20 namespaces, 230+ strings in en.json + vi.json. `preferred_language` column on users. `/settings/language` page. Synced on login. DB taxonomy data (industries, tags) not yet translated. |
 | 38  | Multi-school support                                 | `TODO` | Phase 4. School-scoped RLS, school-scoped routing (`/schools/:slug/...`), school admin roles, `school_id` on `users`.           |
 | 39  | Admin: school management UI                          | `TODO` | Phase 4. CRUD for schools table. Currently seed-only.                                                                           |
 
@@ -96,6 +96,7 @@ users
 ├── deleted_at (timestamp, nullable)
 ├── deletion_requested_at (timestamp, nullable — self-service deletion tracking)
 ├── deletion_reason (text, nullable — user-provided reason for leaving)
+├── preferred_language (text, default 'en' — CHECK: 'en' or 'vi')
 ├── created_at
 └── updated_at
 

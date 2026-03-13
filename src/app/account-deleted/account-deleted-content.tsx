@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,8 @@ export function AccountDeletedContent({
   isExpired,
   deletedAt,
 }: AccountDeletedContentProps) {
+  const t = useTranslations("accountDeleted");
+  const tc = useTranslations("common");
   const [isReactivating, setIsReactivating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,36 +62,28 @@ export function AccountDeletedContent({
         <CardHeader>
           <CardTitle className="text-xl">
             {isExpired
-              ? "Account Permanently Deleted"
-              : "Account Scheduled for Deletion"}
+              ? t("titleExpired")
+              : t("titleScheduled")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {isExpired ? (
             <>
               <p className="text-muted-foreground">
-                Your account was deleted on {deletedDate} and the 30-day grace
-                period has expired. All your data has been permanently removed.
+                {t("expiredMessage", { date: deletedDate })}
               </p>
               <p className="text-sm text-muted-foreground">
-                You can create a new account with the same email address if you
-                wish to rejoin.
+                {t("canRejoin")}
               </p>
             </>
           ) : (
             <>
               <p className="text-muted-foreground">
-                Your account was deleted on {deletedDate}. Your profile is
-                hidden and your connections have been removed.
+                {t("scheduledMessage", { date: deletedDate })}
               </p>
               <div className="rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950">
                 <p className="text-sm text-amber-800 dark:text-amber-200">
-                  You have{" "}
-                  <strong>
-                    {daysRemaining} day{daysRemaining !== 1 ? "s" : ""}
-                  </strong>{" "}
-                  remaining to reactivate your account before all data is
-                  permanently deleted.
+                  {t("daysRemaining", { days: daysRemaining })}
                 </p>
               </div>
 
@@ -102,22 +97,21 @@ export function AccountDeletedContent({
                 {isReactivating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Reactivating...
+                    {t("reactivating")}
                   </>
                 ) : (
-                  "Reactivate My Account"
+                  t("reactivate")
                 )}
               </Button>
 
               <p className="text-xs text-muted-foreground">
-                Note: Your previous connections will need to be re-established
-                after reactivation.
+                {t("reactivateNote")}
               </p>
             </>
           )}
 
           <Button variant="outline" onClick={handleLogout} className="w-full">
-            Log Out
+            {tc("logOut")}
           </Button>
         </CardContent>
       </Card>

@@ -6,6 +6,7 @@ import {
   UserCheck,
   Clock,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import type { DirectoryProfile } from "@/lib/types";
 
@@ -41,6 +42,8 @@ function ProfileCard({
   profile: DirectoryProfile;
   connectionStatus?: "connected" | "pending_sent" | "pending_received";
 }) {
+  const t = useTranslations("common");
+  const tDash = useTranslations("dashboard");
   const location = [profile.city, profile.state_province, profile.country]
     .filter(Boolean)
     .join(", ");
@@ -82,10 +85,10 @@ function ProfileCard({
               }`}
               title={
                 connectionStatus === "connected"
-                  ? "Connected"
+                  ? tDash("connected")
                   : connectionStatus === "pending_sent"
-                    ? "Request sent"
-                    : "Wants to connect"
+                    ? tDash("requestSent")
+                    : tDash("wantsToConnect")
               }
             >
               {connectionStatus === "connected" ? (
@@ -104,7 +107,7 @@ function ProfileCard({
           </h3>
           <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
             <GraduationCapIcon className="h-3 w-3 shrink-0" />
-            <span>Class of {profile.graduation_year}</span>
+            <span>{t("classOf", { year: profile.graduation_year })}</span>
           </div>
         </div>
       </div>

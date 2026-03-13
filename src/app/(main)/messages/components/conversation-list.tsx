@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useMessages } from "./messages-provider";
 import { formatRelativeTime } from "@/lib/utils";
 
 export function ConversationList() {
+  const t = useTranslations("messages");
   const { conversations, activeConversationId } = useMessages();
   const pathname = usePathname();
 
@@ -27,10 +29,10 @@ export function ConversationList() {
           />
         </svg>
         <p className="text-sm font-medium text-muted-foreground">
-          No conversations yet
+          {t("noConversations")}
         </p>
         <p className="mt-1 text-xs text-muted-foreground/70">
-          Start a conversation from a connection&apos;s profile
+          {t("noConversationsDesc")}
         </p>
       </div>
     );
@@ -98,7 +100,7 @@ export function ConversationList() {
                       : "text-muted-foreground"
                   }`}
                 >
-                  {conv.last_message_preview ?? "No messages yet"}
+                  {conv.last_message_preview ?? t("noMessagesYet")}
                 </p>
                 {hasUnread && (
                   <span className="flex h-5 min-w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-500 px-1.5 text-[10px] font-bold text-white">

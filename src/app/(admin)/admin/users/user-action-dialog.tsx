@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   Dialog,
@@ -24,13 +25,6 @@ interface UserActionDialogProps {
   isProcessing: boolean;
 }
 
-const SUSPEND_DURATIONS = [
-  { value: 1, label: "1 day" },
-  { value: 7, label: "7 days" },
-  { value: 30, label: "30 days" },
-  { value: 90, label: "90 days" },
-] as const;
-
 export function UserActionDialog({
   action,
   userName,
@@ -39,9 +33,18 @@ export function UserActionDialog({
   onCancel,
   isProcessing,
 }: UserActionDialogProps) {
+  const t = useTranslations("admin.userAction");
+  const tCommon = useTranslations("common");
   const [reason, setReason] = useState("");
   const [days, setDays] = useState(7);
   const [confirmEmail, setConfirmEmail] = useState("");
+
+  const SUSPEND_DURATIONS = [
+    { value: 1, label: t("day1") },
+    { value: 7, label: t("day7") },
+    { value: 30, label: t("day30") },
+    { value: 90, label: t("day90") },
+  ] as const;
 
   function handleClose() {
     setReason("");
@@ -58,15 +61,15 @@ export function UserActionDialog({
   const isDeleteConfirmed = action !== "delete" || confirmEmail === userEmail;
 
   const titles: Record<string, string> = {
-    ban: `Ban ${userName}`,
-    suspend: `Suspend ${userName}`,
-    delete: `Delete ${userName}'s Account`,
+    ban: t("banTitle", { name: userName }),
+    suspend: t("suspendTitle", { name: userName }),
+    delete: t("deleteTitle", { name: userName }),
   };
 
   const descriptions: Record<string, string> = {
-    ban: "This will permanently ban the user. They will not be able to access the platform.",
-    suspend: "This will temporarily suspend the user for a specified duration.",
-    delete: "This will soft-delete the user's account. This action can be reversed within 30 days.",
+    ban: t("banDesc"),
+    suspend: t("suspendDesc"),
+    delete: t("deleteDesc"),
   };
 
   if (!action) return null;
@@ -83,7 +86,7 @@ export function UserActionDialog({
           {/* Suspend: duration picker */}
           {action === "suspend" && (
             <div className="space-y-2">
-              <Label htmlFor="suspend_duration">Duration</Label>
+              <Label htmlFor="suspend_duration">{t("duration")}</Label>
               <select
                 id="suspend_duration"
                 value={days}
@@ -102,12 +105,12 @@ export function UserActionDialog({
           {/* Ban/Suspend: reason */}
           {(action === "ban" || action === "suspend") && (
             <div className="space-y-2">
-              <Label htmlFor="action_reason">Reason</Label>
+              <Label htmlFor="action_reason">{t("reason")}</Label>
               <Textarea
                 id="action_reason"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="Provide a reason for this action..."
+                placeholder={t("reasonPlaceholder")}
                 rows={3}
                 maxLength={500}
               />
@@ -118,7 +121,7 @@ export function UserActionDialog({
           {action === "delete" && (
             <div className="space-y-2">
               <Label htmlFor="confirm_email">
-                Type <span className="font-mono font-bold">{userEmail}</span> to confirm
+                {t("typeToConfirm", { email: userEmail })}
               </Label>
               <Input
                 id="confirm_email"
@@ -133,7 +136,7 @@ export function UserActionDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={isProcessing}>
-            Cancel
+            {tCommon("cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -141,12 +144,12 @@ export function UserActionDialog({
             disabled={isProcessing || !isDeleteConfirmed}
           >
             {isProcessing
-              ? "Processing..."
+              ? tCommon("processing")
               : action === "ban"
-                ? "Ban User"
+                ? t("banUser")
                 : action === "suspend"
-                  ? `Suspend for ${days} day${days !== 1 ? "s" : ""}`
-                  : "Delete Account"}
+                  ? t("suspendFor", { days })
+                  : t("deleteAccountBtn")}
           </Button>
         </DialogFooter>
       </DialogContent>

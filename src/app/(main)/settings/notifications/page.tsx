@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getNotificationPreferences } from "@/lib/queries/notification-preferences";
 import type { NotificationType } from "@/lib/types";
@@ -12,32 +13,12 @@ interface PreferenceConfig {
   description: string;
 }
 
-const NOTIFICATION_TYPES: PreferenceConfig[] = [
-  {
-    type: "connection_request",
-    label: "Connection requests",
-    description: "When someone sends you a connection request",
-  },
-  {
-    type: "connection_accepted",
-    label: "Connection accepted",
-    description: "When someone accepts your connection request",
-  },
-  {
-    type: "new_message",
-    label: "New messages",
-    description: "When you receive a new message",
-  },
-  {
-    type: "verification_update",
-    label: "Verification updates",
-    description: "When your verification status changes",
-  },
-  {
-    type: "profile_staleness",
-    label: "Profile update reminders",
-    description: "Periodic reminders to keep your profile up to date",
-  },
+const NOTIFICATION_TYPE_KEYS: { type: NotificationType; labelKey: string; descKey: string }[] = [
+  { type: "connection_request", labelKey: "notifConnectionRequest", descKey: "notifConnectionRequestDesc" },
+  { type: "connection_accepted", labelKey: "notifConnectionAccepted", descKey: "notifConnectionAcceptedDesc" },
+  { type: "new_message", labelKey: "notifNewMessage", descKey: "notifNewMessageDesc" },
+  { type: "verification_update", labelKey: "notifVerification", descKey: "notifVerificationDesc" },
+  { type: "profile_staleness", labelKey: "notifStaleness", descKey: "notifStalenessDesc" },
 ];
 
 export default async function NotificationSettingsPage() {
@@ -48,7 +29,14 @@ export default async function NotificationSettingsPage() {
 
   if (!user) redirect("/login");
 
+  const t = await getTranslations("settings");
   const preferences = await getNotificationPreferences(user.id);
+
+  const NOTIFICATION_TYPES: PreferenceConfig[] = NOTIFICATION_TYPE_KEYS.map((k) => ({
+    type: k.type,
+    label: t(k.labelKey),
+    description: t(k.descKey),
+  }));
 
   // Build a map of type -> email_enabled (default true if no row)
   const preferencesMap: Record<NotificationType, boolean> = {} as Record<
@@ -62,10 +50,9 @@ export default async function NotificationSettingsPage() {
 
   return (
     <div>
-      <h2 className="mb-1 text-lg font-semibold">Email Notifications</h2>
+      <h2 className="mb-1 text-lg font-semibold">{t("emailNotifications")}</h2>
       <p className="mb-6 text-sm text-muted-foreground">
-        Choose which notifications you&apos;d like to receive by email.
-        In-app notifications are always enabled.
+        {t("emailNotificationsDesc")}
       </p>
       <NotificationPreferencesForm
         types={NOTIFICATION_TYPES}

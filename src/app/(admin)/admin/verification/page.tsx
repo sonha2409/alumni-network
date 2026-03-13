@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { getPendingVerificationRequests } from "@/lib/queries/verification";
@@ -24,13 +25,14 @@ export default async function AdminVerificationPage() {
   }
 
   const requests = await getPendingVerificationRequests();
+  const t = await getTranslations("admin.verification");
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Admin — Verification</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">
-          Review and approve alumni verification requests.
+          {t("description")}
         </p>
       </div>
       <VerificationQueue requests={requests} />

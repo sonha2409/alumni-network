@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import {
   Card,
@@ -14,11 +15,14 @@ import { getIndustriesWithSpecializations } from "@/lib/queries/taxonomy";
 import { getSchool } from "@/lib/school";
 import { OnboardingForm } from "./onboarding-form";
 
-export const metadata: Metadata = {
-  title: "Complete Your Profile — AlumNet",
-  description: "Set up your alumni profile to connect with your network.",
-  robots: { index: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("onboarding");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    robots: { index: false },
+  };
+}
 
 export default async function OnboardingPage() {
   const supabase = await createClient();
@@ -41,16 +45,16 @@ export default async function OnboardingPage() {
     getSchool(),
   ]);
 
+  const t = await getTranslations("onboarding");
   const currentYear = new Date().getFullYear();
 
   return (
     <div className="mx-auto max-w-lg">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Welcome to AlumNet</CardTitle>
+          <CardTitle className="text-2xl">{t("title")}</CardTitle>
           <CardDescription>
-            Let&apos;s set up your profile. You can always add more details
-            later.
+            {t("subtitle")}
           </CardDescription>
         </CardHeader>
         <CardContent>

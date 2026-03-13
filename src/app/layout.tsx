@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import { NuqsAdapter } from "nuqs/adapters/next";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -20,18 +22,23 @@ export const metadata: Metadata = {
     "Connect with fellow alumni by career field, education, location, and shared interests.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <NuqsAdapter>{children}</NuqsAdapter>
-        <Toaster />
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <NuqsAdapter>{children}</NuqsAdapter>
+          <Toaster />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

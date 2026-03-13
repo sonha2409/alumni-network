@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { getMapCountryData } from "@/lib/queries/map";
 import { getIndustriesWithSpecializations } from "@/lib/queries/taxonomy";
 import { MapClient } from "./map-client";
 
-export const metadata: Metadata = {
-  title: "Alumni Map — AlumNet",
-  description: "Explore where fellow alumni are located around the world.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("map");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 export default async function MapPage() {
   const supabase = await createClient();

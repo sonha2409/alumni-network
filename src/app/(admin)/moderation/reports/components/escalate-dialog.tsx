@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   Dialog,
@@ -22,6 +23,8 @@ interface EscalateDialogProps {
 }
 
 export function EscalateDialog({ open, onClose, onConfirm, isPending }: EscalateDialogProps) {
+  const t = useTranslations("moderation.escalateDialog");
+  const tCommon = useTranslations("common");
   const [notes, setNotes] = useState("");
 
   const handleConfirm = () => {
@@ -40,33 +43,33 @@ export function EscalateDialog({ open, onClose, onConfirm, isPending }: Escalate
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Escalate to Admin</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
-            Flag this report for admin review. Provide context for why it needs escalation.
+            {t("description")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
-          <Label htmlFor="escalate-notes">Notes for admin</Label>
+          <Label htmlFor="escalate-notes">{t("notesLabel")}</Label>
           <Textarea
             id="escalate-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Why does this need admin attention? (e.g., potential ban-worthy offense, repeat offender...)"
+            placeholder={t("placeholder")}
             rows={3}
             maxLength={1000}
           />
-          <p className="text-xs text-muted-foreground">{notes.length}/1000</p>
+          <p className="text-xs text-muted-foreground">{t("charCount", { count: notes.length })}</p>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isPending}>
-            Cancel
+            {tCommon("cancel")}
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={isPending || notes.trim().length === 0}
             className="bg-orange-600 hover:bg-orange-700"
           >
-            {isPending ? "Escalating..." : "Escalate"}
+            {isPending ? t("escalating") : t("escalateBtn")}
           </Button>
         </DialogFooter>
       </DialogContent>

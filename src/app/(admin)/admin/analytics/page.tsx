@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { getAnalyticsData } from "./actions";
@@ -23,13 +24,14 @@ export default async function AnalyticsPage() {
   }
 
   const data = await getAnalyticsData();
+  const t = await getTranslations("admin.analytics");
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Platform Analytics</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">
-          Usage statistics and trends across the platform.
+          {t("description")}
         </p>
       </div>
 

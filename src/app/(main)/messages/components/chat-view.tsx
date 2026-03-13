@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useMessages } from "./messages-provider";
 import { MessageBubble } from "./message-bubble";
 import { MessageInput } from "./message-input";
@@ -27,6 +28,7 @@ export function ChatView({
   mutedUntil,
   isOtherUserDeleted,
 }: ChatViewProps) {
+  const t = useTranslations("messages");
   const {
     activeMessages,
     setActiveConversation,
@@ -102,7 +104,7 @@ export function ChatView({
           <Link
             href="/messages"
             className="flex-shrink-0 rounded-md p-1 hover:bg-muted md:hidden"
-            aria-label="Back to conversations"
+            aria-label={t("backToConversations")}
           >
             <svg
               className="h-5 w-5"
@@ -128,7 +130,7 @@ export function ChatView({
               </div>
               <div>
                 <p className="text-sm font-semibold text-muted-foreground">
-                  Deleted User
+                  {t("deletedUser")}
                 </p>
               </div>
             </div>
@@ -169,7 +171,7 @@ export function ChatView({
                 ? "bg-primary/10 text-primary"
                 : "hover:bg-muted text-muted-foreground"
             }`}
-            aria-label={mediaPanelOpen ? "Close media panel" : "Open media panel"}
+            aria-label={mediaPanelOpen ? t("closeMediaPanel") : t("openMediaPanel")}
           >
             <svg
               className="h-5 w-5"
@@ -203,7 +205,7 @@ export function ChatView({
           {activeMessages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
               <p className="text-sm text-muted-foreground">
-                Start the conversation with {otherUser.full_name}
+                {t("startConversation", { name: otherUser.full_name })}
               </p>
             </div>
           ) : (

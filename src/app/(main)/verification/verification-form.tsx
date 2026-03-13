@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,8 @@ function formatFileSize(bytes: number): string {
 }
 
 export function VerificationForm({ defaultGraduationYear, minGraduationYear, maxGraduationYear, schoolType }: VerificationFormProps) {
+  const t = useTranslations("verification");
+  const tc = useTranslations("common");
   const [state, formAction, isPending] = useActionState<ActionResult | null, FormData>(
     submitVerificationRequest,
     null
@@ -54,17 +57,17 @@ export function VerificationForm({ defaultGraduationYear, minGraduationYear, max
     const combined = [...selectedFiles, ...newFiles];
 
     if (combined.length > MAX_FILES) {
-      setFileError(`You can upload up to ${MAX_FILES} files.`);
+      setFileError(t("maxFilesError", { max: MAX_FILES }));
       return;
     }
 
     for (const file of newFiles) {
       if (!ACCEPTED_TYPES.includes(file.type)) {
-        setFileError(`"${file.name}" is not supported. Use PDF, JPEG, PNG, or WebP.`);
+        setFileError(t("fileNotSupported", { name: file.name }));
         return;
       }
       if (file.size > MAX_FILE_SIZE) {
-        setFileError(`"${file.name}" is too large. Maximum is 2 MB per file.`);
+        setFileError(t("fileTooLarge", { name: file.name }));
         return;
       }
     }
@@ -96,10 +99,9 @@ export function VerificationForm({ defaultGraduationYear, minGraduationYear, max
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Request Submitted</CardTitle>
+          <CardTitle>{t("requestSubmittedTitle")}</CardTitle>
           <CardDescription>
-            Your verification request has been submitted and is under review.
-            You&apos;ll be notified once an admin has reviewed it.
+            {t("requestSubmittedDesc")}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -112,16 +114,15 @@ export function VerificationForm({ defaultGraduationYear, minGraduationYear, max
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Verify Your Alumni Status</CardTitle>
+        <CardTitle>{t("formTitle")}</CardTitle>
         <CardDescription>
-          Submit your details so we can confirm you&apos;re an alumnus. An admin
-          will review your request.
+          {t("formDesc")}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form action={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="graduation_year">Graduation Year *</Label>
+            <Label htmlFor="graduation_year">{t("gradYear")}</Label>
             <Input
               id="graduation_year"
               name="graduation_year"
@@ -145,15 +146,15 @@ export function VerificationForm({ defaultGraduationYear, minGraduationYear, max
 
           <div className="space-y-2">
             <Label htmlFor="specialization_name">
-              {schoolType === "high_school" ? "Specialization (Chuyên ngành) *" : "Degree Program *"}
+              {schoolType === "high_school" ? t("specialization") : t("degreeProgram")}
             </Label>
             <Input
               id="specialization_name"
               name="specialization_name"
               placeholder={
                 schoolType === "high_school"
-                  ? "e.g., Chuyên Toán, Chuyên Lý, Chuyên Tin"
-                  : "e.g., Bachelor of Science in Computer Science"
+                  ? t("specPlaceholderHS")
+                  : t("specPlaceholderUni")
               }
               required
               maxLength={200}
@@ -171,11 +172,11 @@ export function VerificationForm({ defaultGraduationYear, minGraduationYear, max
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="student_id">Student ID (optional)</Label>
+            <Label htmlFor="student_id">{t("studentId")}</Label>
             <Input
               id="student_id"
               name="student_id"
-              placeholder="Your student ID number"
+              placeholder={t("studentIdPlaceholder")}
               maxLength={50}
               aria-describedby={
                 state && !state.success && state.fieldErrors?.student_id
@@ -192,12 +193,12 @@ export function VerificationForm({ defaultGraduationYear, minGraduationYear, max
 
           <div className="space-y-2">
             <Label htmlFor="supporting_info">
-              Additional Information (optional)
+              {t("additionalInfo")}
             </Label>
             <Textarea
               id="supporting_info"
               name="supporting_info"
-              placeholder="Any additional details that can help verify your alumni status (e.g., clubs, activities, faculty you worked with)"
+              placeholder={t("additionalInfoPlaceholder")}
               maxLength={1000}
               rows={4}
               aria-describedby={
@@ -216,10 +217,10 @@ export function VerificationForm({ defaultGraduationYear, minGraduationYear, max
           {/* Document upload */}
           <div className="space-y-2">
             <Label htmlFor="documents">
-              Supporting Documents (optional)
+              {t("supportingDocs")}
             </Label>
             <p className="text-sm text-muted-foreground">
-              Upload transcripts, diplomas, or other proof. Up to {MAX_FILES} files, 2 MB each. PDF, JPEG, PNG, or WebP.
+              {t("docsHint", { max: MAX_FILES })}
             </p>
 
             {selectedFiles.length < MAX_FILES && (
@@ -259,7 +260,7 @@ export function VerificationForm({ defaultGraduationYear, minGraduationYear, max
                       className="ml-2 h-auto px-2 py-1 text-muted-foreground hover:text-destructive"
                       aria-label={`Remove ${file.name}`}
                     >
-                      Remove
+                      {tc("remove")}
                     </Button>
                   </li>
                 ))}
@@ -278,7 +279,7 @@ export function VerificationForm({ defaultGraduationYear, minGraduationYear, max
           )}
 
           <Button type="submit" disabled={isPending} className="w-full">
-            {isPending ? "Submitting..." : "Submit Verification Request"}
+            {isPending ? t("submittingRequest") : t("submitRequest")}
           </Button>
         </form>
       </CardContent>

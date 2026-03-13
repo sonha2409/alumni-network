@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { getConversationAttachments } from "../actions";
 import { createClient } from "@/lib/supabase/client";
@@ -20,6 +21,7 @@ interface MediaPanelProps {
 }
 
 export function MediaPanel({ conversationId, onClose }: MediaPanelProps) {
+  const t = useTranslations("messages");
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
   const [attachments, setAttachments] = useState<AttachmentWithSender[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,20 +75,20 @@ export function MediaPanel({ conversationId, onClose }: MediaPanelProps) {
   }
 
   const tabs: { key: FilterTab; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "media", label: "Media" },
-    { key: "files", label: "Files" },
+    { key: "all", label: t("mediaPanel.all") },
+    { key: "media", label: t("mediaPanel.media") },
+    { key: "files", label: t("mediaPanel.files") },
   ];
 
   return (
     <div className="flex h-full w-full flex-shrink-0 flex-col border-l bg-background md:w-80">
       {/* Header */}
       <div className="flex items-center justify-between border-b px-4 py-3">
-        <h2 className="text-sm font-semibold">Shared Media & Files</h2>
+        <h2 className="text-sm font-semibold">{t("mediaPanel.title")}</h2>
         <button
           onClick={onClose}
           className="rounded-md p-1 hover:bg-muted"
-          aria-label="Close media panel"
+          aria-label={t("closeMediaPanel")}
         >
           <svg
             className="h-4 w-4"

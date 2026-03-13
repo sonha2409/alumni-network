@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ModerationReportRow } from "@/lib/types";
 
 interface ReportTableProps {
@@ -52,6 +53,9 @@ export function ReportTable({
   onPageChange,
   onSelectReport,
 }: ReportTableProps) {
+  const t = useTranslations("moderation");
+  const tCommon = useTranslations("common");
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -65,7 +69,7 @@ export function ReportTable({
   if (reports.length === 0) {
     return (
       <div className="rounded-lg border bg-muted/20 py-12 text-center">
-        <p className="text-muted-foreground">No reports found.</p>
+        <p className="text-muted-foreground">{t("noReports")}</p>
       </div>
     );
   }
@@ -107,7 +111,7 @@ export function ReportTable({
             </div>
             <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">
               {report.message_is_deleted ? (
-                <span className="italic">[Deleted]</span>
+                <span className="italic">{t("deletedMessage")}</span>
               ) : (
                 report.message_content.slice(0, 120) +
                 (report.message_content.length > 120 ? "..." : "")
@@ -115,13 +119,13 @@ export function ReportTable({
             </p>
             <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
               <span>{timeAgo(report.created_at)}</span>
-              <span>{report.report_count} reports</span>
+              <span>{t("reports", { count: report.report_count })}</span>
               {report.warning_count > 0 && (
-                <span className="text-yellow-600">{report.warning_count} warnings</span>
+                <span className="text-yellow-600">{t("warnings", { count: report.warning_count })}</span>
               )}
               {report.reported_user_muted_until &&
                 new Date(report.reported_user_muted_until) > new Date() && (
-                  <span className="text-red-600">Muted</span>
+                  <span className="text-red-600">{t("muted")}</span>
                 )}
             </div>
           </button>
@@ -133,12 +137,12 @@ export function ReportTable({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50">
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Reported User</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Message</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Reason</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">History</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Reported</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t("colReportedUser")}</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t("colMessage")}</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t("colReason")}</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t("colStatus")}</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t("colHistory")}</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t("colReported")}</th>
             </tr>
           </thead>
           <tbody>
@@ -173,7 +177,7 @@ export function ReportTable({
                 </td>
                 <td className="max-w-[200px] truncate px-4 py-3 text-muted-foreground">
                   {report.message_is_deleted ? (
-                    <span className="italic">[Deleted]</span>
+                    <span className="italic">{t("deletedMessage")}</span>
                   ) : (
                     report.message_content.slice(0, 80) +
                     (report.message_content.length > 80 ? "..." : "")
@@ -188,10 +192,10 @@ export function ReportTable({
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2 text-xs text-muted-foreground">
-                    <span title="Total reports">{report.report_count} reports</span>
+                    <span title="Total reports">{t("reports", { count: report.report_count })}</span>
                     {report.warning_count > 0 && (
                       <span className="text-yellow-600" title="Prior warnings">
-                        {report.warning_count} warnings
+                        {t("warnings", { count: report.warning_count })}
                       </span>
                     )}
                     {report.reported_user_muted_until &&
@@ -219,17 +223,17 @@ export function ReportTable({
             disabled={page <= 1}
             className="rounded-md border px-3 py-1.5 text-sm disabled:opacity-50"
           >
-            Previous
+            {tCommon("previous")}
           </button>
           <span className="text-sm text-muted-foreground">
-            Page {page} of {totalPages}
+            {tCommon("page", { page, totalPages })}
           </span>
           <button
             onClick={() => onPageChange(page + 1)}
             disabled={page >= totalPages}
             className="rounded-md border px-3 py-1.5 text-sm disabled:opacity-50"
           >
-            Next
+            {tCommon("next")}
           </button>
         </div>
       )}

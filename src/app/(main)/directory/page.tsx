@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { searchDirectory } from "@/lib/queries/directory";
@@ -14,10 +15,13 @@ import { DirectoryGrid } from "./directory-grid";
 import { DirectoryPagination } from "./directory-pagination";
 import { DirectoryEmptyState } from "./directory-empty-state";
 
-export const metadata: Metadata = {
-  title: "Alumni Directory — AlumNet",
-  description: "Discover and connect with fellow alumni.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("directory");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 interface DirectoryPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -111,6 +115,9 @@ export default async function DirectoryPage({
   const connectionStatuses: Record<string, "connected" | "pending_sent" | "pending_received"> =
     Object.fromEntries(connectionStatusMap);
 
+  const t = await getTranslations("directory");
+  const tc = await getTranslations("common");
+
   const hasActiveFilters = !!(
     filters.query ||
     filters.industryId ||
@@ -128,10 +135,10 @@ export default async function DirectoryPage({
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight">
-          Alumni Directory
+          {t("title")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Discover alumni by name, industry, graduation year, and more.
+          {t("description")}
         </p>
       </div>
 
@@ -139,9 +146,8 @@ export default async function DirectoryPage({
       {viewerTier === "tier1_unverified" && (
         <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/50 px-4 py-3 text-center text-sm text-muted-foreground">
           <Link href="/verification" className="text-primary underline underline-offset-4">
-            Verify your account
-          </Link>{" "}
-          to see full alumni profiles.
+            {t("verifyBanner")}
+          </Link>
         </div>
       )}
 
@@ -155,17 +161,11 @@ export default async function DirectoryPage({
       {/* Results count */}
       {result.totalCount > 0 && (
         <p className="text-sm text-muted-foreground">
-          Showing{" "}
-          <span className="font-medium text-foreground">
-            {(result.page - 1) * result.pageSize + 1}
-            &ndash;
-            {Math.min(result.page * result.pageSize, result.totalCount)}
-          </span>{" "}
-          of{" "}
-          <span className="font-medium text-foreground">
-            {result.totalCount}
-          </span>{" "}
-          alumni
+          {tc("showing", {
+            start: (result.page - 1) * result.pageSize + 1,
+            end: Math.min(result.page * result.pageSize, result.totalCount),
+            total: result.totalCount,
+          })}
         </p>
       )}
 

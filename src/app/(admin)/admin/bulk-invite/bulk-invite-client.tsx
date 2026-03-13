@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,23 +15,25 @@ import { processBulkInviteCSV, getInviteHistory, resendInvite } from "./actions"
 // =============================================================================
 
 function InviteStatusBadge({ status }: { status: BulkInviteRow["status"] }) {
+  const t = useTranslations("admin.bulkInvite");
+  const tCommon = useTranslations("common");
   switch (status) {
     case "invited":
       return (
         <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
-          Invited
+          {t("invited")}
         </span>
       );
     case "signed_up":
       return (
         <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-          Signed Up
+          {t("signedUp")}
         </span>
       );
     case "verified":
       return (
         <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
-          Verified
+          {tCommon("verified")}
         </span>
       );
   }
@@ -52,6 +55,8 @@ interface PreviewRow {
 // =============================================================================
 
 export function BulkInviteClient() {
+  const t = useTranslations("admin.bulkInvite");
+  const tCommon = useTranslations("common");
   // Upload state
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<PreviewRow[]>([]);
@@ -140,12 +145,12 @@ export function BulkInviteClient() {
     }
 
     if (!selectedFile.name.toLowerCase().endsWith(".csv")) {
-      toast.error("Please select a .csv file.");
+      toast.error(t("invalidFile"));
       return;
     }
 
     if (selectedFile.size > 2 * 1024 * 1024) {
-      toast.error("File must be under 2MB.");
+      toast.error(t("fileTooLarge"));
       return;
     }
 
@@ -157,7 +162,7 @@ export function BulkInviteClient() {
       const text = e.target?.result as string;
       const rows = parseCSVPreview(text);
       if (rows.length === 0) {
-        toast.error("Could not parse CSV. Ensure it has an 'email' column header.");
+        toast.error(t("parseFailed"));
         setFile(null);
         setPreview([]);
         return;
@@ -198,10 +203,10 @@ export function BulkInviteClient() {
     if (result.success) {
       const { sent, skipped, errors } = result.data;
       if (sent > 0) {
-        toast.success(`${sent} invite${sent !== 1 ? "s" : ""} sent successfully.`);
+        toast.success(t("sentToast", { count: sent }));
       }
       if (skipped > 0) {
-        toast.info(`${skipped} email${skipped !== 1 ? "s" : ""} skipped (already invited or registered).`);
+        toast.info(t("skippedToast", { count: skipped }));
       }
       if (errors.length > 0) {
         errors.slice(0, 5).forEach((err) => toast.warning(err));
@@ -229,7 +234,7 @@ export function BulkInviteClient() {
     setResendingId(inviteId);
     const result = await resendInvite(inviteId);
     if (result.success) {
-      toast.success("Invite email resent.");
+      toast.success(t("resentToast"));
     } else {
       toast.error(result.error);
     }
@@ -251,7 +256,7 @@ export function BulkInviteClient() {
       {/* Upload Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Upload CSV</CardTitle>
+          <CardTitle>{t("uploadCSV")}</CardTitle>
         </CardHeader>
         <CardContent>
           {/* Format hint */}
@@ -302,10 +307,10 @@ export function BulkInviteClient() {
                 />
               </svg>
               <p className="text-sm font-medium">
-                Drop your CSV file here, or click to browse
+                {t("dropZone")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                .csv files up to 2MB
+                {t("dropZoneHint")}
               </p>
             </div>
           )}
@@ -331,18 +336,18 @@ export function BulkInviteClient() {
                   </span>
                 </div>
                 <Button variant="ghost" size="sm" onClick={handleClear} className="h-7 text-xs">
-                  Clear
+                  {t("clear")}
                 </Button>
               </div>
 
               {/* Summary */}
               <div className="mb-3 flex gap-4 text-sm">
                 <span className="text-green-600 dark:text-green-400">
-                  {validPreviewCount} valid
+                  {t("valid", { count: validPreviewCount })}
                 </span>
                 {errorPreviewCount > 0 && (
                   <span className="text-red-600 dark:text-red-400">
-                    {errorPreviewCount} with errors
+                    {t("withErrors", { count: errorPreviewCount })}
                   </span>
                 )}
               </div>
@@ -416,12 +421,12 @@ export function BulkInviteClient() {
                   disabled={isUploading || validPreviewCount === 0}
                 >
                   {isUploading
-                    ? "Sending Invites..."
-                    : `Send ${validPreviewCount} Invite${validPreviewCount !== 1 ? "s" : ""}`}
+                    ? t("sendingInvites")
+                    : t("sendInvites", { count: validPreviewCount })}
                 </Button>
                 {errorPreviewCount > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    Rows with errors will be skipped.
+                    {t("rowsWithErrors")}
                   </p>
                 )}
               </div>
@@ -434,10 +439,10 @@ export function BulkInviteClient() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Invite History</span>
+            <span>{t("inviteHistory")}</span>
             {totalCount > 0 && (
               <span className="text-sm font-normal text-muted-foreground">
-                {totalCount} invite{totalCount !== 1 ? "s" : ""}
+                {t("inviteCount", { count: totalCount })}
               </span>
             )}
           </CardTitle>
@@ -451,7 +456,7 @@ export function BulkInviteClient() {
             </div>
           ) : invites.length === 0 ? (
             <p className="py-8 text-center text-muted-foreground">
-              No invites sent yet. Upload a CSV above to get started.
+              {t("noInvites")}
             </p>
           ) : (
             <>
@@ -490,7 +495,7 @@ export function BulkInviteClient() {
                             disabled={resendingId === invite.id}
                             onClick={() => handleResend(invite.id)}
                           >
-                            {resendingId === invite.id ? "Sending..." : "Resend"}
+                            {resendingId === invite.id ? t("sending") : t("resend")}
                           </Button>
                         )}
                       </div>
@@ -516,7 +521,7 @@ export function BulkInviteClient() {
                             disabled={resendingId === invite.id}
                             onClick={() => handleResend(invite.id)}
                           >
-                            {resendingId === invite.id ? "Sending..." : "Resend"}
+                            {resendingId === invite.id ? t("sending") : t("resend")}
                           </Button>
                         )}
                       </span>
@@ -534,10 +539,10 @@ export function BulkInviteClient() {
                     disabled={historyPage <= 1}
                     onClick={() => fetchHistory(historyPage - 1)}
                   >
-                    Previous
+                    {tCommon("previous")}
                   </Button>
                   <span className="text-sm text-muted-foreground">
-                    Page {historyPage} of {totalPages}
+                    {tCommon("page", { page: historyPage, totalPages })}
                   </span>
                   <Button
                     variant="outline"
@@ -545,7 +550,7 @@ export function BulkInviteClient() {
                     disabled={historyPage >= totalPages}
                     onClick={() => fetchHistory(historyPage + 1)}
                   >
-                    Next
+                    {tCommon("next")}
                   </Button>
                 </div>
               )}

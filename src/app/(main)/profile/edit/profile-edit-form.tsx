@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,8 @@ export function ProfileEditForm({
   minGraduationYear,
   maxGraduationYear,
 }: ProfileEditFormProps) {
+  const t = useTranslations("profile");
+  const tc = useTranslations("common");
   const [state, formAction, isPending] = useActionState<
     ActionResult | null,
     FormData
@@ -64,7 +67,7 @@ export function ProfileEditForm({
 
   useEffect(() => {
     if (state?.success) {
-      toast.success("Profile updated successfully.");
+      toast.success(t("profileUpdated"));
     }
   }, [state]);
 
@@ -95,7 +98,7 @@ export function ProfileEditForm({
       {/* Profile Completeness */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Profile completeness</span>
+          <span className="text-muted-foreground">{t("profileCompleteness")}</span>
           <span className="font-medium">{profile.profile_completeness}%</span>
         </div>
         <Progress value={profile.profile_completeness} />
@@ -105,7 +108,7 @@ export function ProfileEditForm({
 
       {/* Photo */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="photo">Profile photo</Label>
+        <Label htmlFor="photo">{t("profilePhoto")}</Label>
         <div className="flex items-center gap-4">
           {photoPreview && (
             <img
@@ -125,7 +128,7 @@ export function ProfileEditForm({
               className="max-w-xs"
             />
             <p className="text-xs text-muted-foreground">
-              JPEG, PNG, or WebP. Max 5 MB.
+              {t("photoHint")}
             </p>
           </div>
         </div>
@@ -138,10 +141,10 @@ export function ProfileEditForm({
 
       {/* Basic Info */}
       <section className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold">Basic information</h3>
+        <h3 className="text-lg font-semibold">{t("basicInfo")}</h3>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="full_name">Full name *</Label>
+          <Label htmlFor="full_name">{t("fullName")}</Label>
           <Input
             id="full_name"
             name="full_name"
@@ -161,7 +164,7 @@ export function ProfileEditForm({
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="graduation_year">Graduation year *</Label>
+          <Label htmlFor="graduation_year">{t("graduationYear")}</Label>
           <Input
             id="graduation_year"
             name="graduation_year"
@@ -181,12 +184,12 @@ export function ProfileEditForm({
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="bio">Bio</Label>
+          <Label htmlFor="bio">{t("bio")}</Label>
           <Textarea
             id="bio"
             name="bio"
             defaultValue={profile.bio ?? ""}
-            placeholder="Tell other alumni about yourself…"
+            placeholder={t("bioPlaceholder")}
             maxLength={1000}
             rows={4}
           />
@@ -200,10 +203,10 @@ export function ProfileEditForm({
 
       {/* Industry */}
       <section className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold">Career field</h3>
+        <h3 className="text-lg font-semibold">{t("careerField")}</h3>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="primary_industry_id">Primary career field *</Label>
+          <Label htmlFor="primary_industry_id">{t("primaryField")}</Label>
           <select
             id="primary_industry_id"
             name="primary_industry_id"
@@ -217,7 +220,7 @@ export function ProfileEditForm({
             aria-describedby={fieldError("primary_industry_id") ? "primary_industry_id-error" : undefined}
             className={selectClass}
           >
-            <option value="">Select your career field</option>
+            <option value="">{t("selectCareerField")}</option>
             {industries.map((industry) => (
               <option key={industry.id} value={industry.id}>
                 {industry.name}
@@ -234,7 +237,7 @@ export function ProfileEditForm({
         {primarySpecs.length > 0 && (
           <div className="flex flex-col gap-2">
             <Label htmlFor="primary_specialization_id">
-              Primary specialization
+              {t("primarySpec")}
             </Label>
             <select
               id="primary_specialization_id"
@@ -243,7 +246,7 @@ export function ProfileEditForm({
               onChange={(e) => setPrimarySpecId(e.target.value)}
               className={selectClass}
             >
-              <option value="">None</option>
+              <option value="">{t("none")}</option>
               {primarySpecs.map((spec) => (
                 <option key={spec.id} value={spec.id}>
                   {spec.name}
@@ -260,7 +263,7 @@ export function ProfileEditForm({
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="secondary_industry_id">
-            Secondary career field (optional)
+            {t("secondaryField")}
           </Label>
           <select
             id="secondary_industry_id"
@@ -284,7 +287,7 @@ export function ProfileEditForm({
         {secondaryIndustryId && secondarySpecs.length > 0 && (
           <div className="flex flex-col gap-2">
             <Label htmlFor="secondary_specialization_id">
-              Secondary specialization
+              {t("secondarySpec")}
             </Label>
             <select
               id="secondary_specialization_id"
@@ -293,7 +296,7 @@ export function ProfileEditForm({
               onChange={(e) => setSecondarySpecId(e.target.value)}
               className={selectClass}
             >
-              <option value="">None</option>
+              <option value="">{t("none")}</option>
               {secondarySpecs.map((spec) => (
                 <option key={spec.id} value={spec.id}>
                   {spec.name}
@@ -308,39 +311,39 @@ export function ProfileEditForm({
 
       {/* Location */}
       <section className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold">Location</h3>
+        <h3 className="text-lg font-semibold">{t("location")}</h3>
 
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="country">Country</Label>
+            <Label htmlFor="country">{t("countryLabel")}</Label>
             <Input
               id="country"
               name="country"
               type="text"
               defaultValue={profile.country ?? ""}
-              placeholder="e.g. United States"
+              placeholder={t("countryPlaceholder")}
               maxLength={100}
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="state_province">State / Province</Label>
+            <Label htmlFor="state_province">{t("stateLabel")}</Label>
             <Input
               id="state_province"
               name="state_province"
               type="text"
               defaultValue={profile.state_province ?? ""}
-              placeholder="e.g. California"
+              placeholder={t("statePlaceholder")}
               maxLength={100}
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="city">City</Label>
+            <Label htmlFor="city">{t("cityLabel")}</Label>
             <Input
               id="city"
               name="city"
               type="text"
               defaultValue={profile.city ?? ""}
-              placeholder="e.g. San Francisco"
+              placeholder={t("cityPlaceholder")}
               maxLength={100}
             />
           </div>
@@ -350,7 +353,7 @@ export function ProfileEditForm({
       <Separator />
 
       <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
-        {isPending ? "Saving…" : "Save changes"}
+        {isPending ? tc("saving") : t("saveChanges")}
       </Button>
     </form>
   );

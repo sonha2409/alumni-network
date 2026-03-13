@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import {
   Sheet,
@@ -45,6 +46,7 @@ export function ReportDetailSheet({
   onActionComplete,
   role,
 }: ReportDetailSheetProps) {
+  const t = useTranslations("moderation");
   const [messages, setMessages] = useState<ModerationContextMessage[]>([]);
   const [warnings, setWarnings] = useState<UserWarning[]>([]);
   const [loading, setLoading] = useState(false);
@@ -77,7 +79,7 @@ export function ReportDetailSheet({
     startTransition(async () => {
       const result = await dismissReport(report.id);
       if (result.success) {
-        toast.success("Report dismissed");
+        toast.success(t("dismissedToast"));
         onActionComplete();
       } else {
         toast.error(result.error);
@@ -89,7 +91,7 @@ export function ReportDetailSheet({
     startTransition(async () => {
       const result = await warnUser(report.id, reason);
       if (result.success) {
-        toast.success("Warning issued");
+        toast.success(t("warningIssuedToast"));
         setWarnOpen(false);
         onActionComplete();
       } else {
@@ -107,7 +109,7 @@ export function ReportDetailSheet({
         reason
       );
       if (result.success) {
-        toast.success("User muted");
+        toast.success(t("mutedToast"));
         setMuteOpen(false);
         onActionComplete();
       } else {
@@ -120,7 +122,7 @@ export function ReportDetailSheet({
     startTransition(async () => {
       const result = await unmuteUser(report.reported_user_id);
       if (result.success) {
-        toast.success("User unmuted");
+        toast.success(t("unmutedToast"));
         onActionComplete();
       } else {
         toast.error(result.error);
@@ -132,7 +134,7 @@ export function ReportDetailSheet({
     startTransition(async () => {
       const result = await escalateReport(report.id, notes);
       if (result.success) {
-        toast.success("Report escalated to admin");
+        toast.success(t("escalatedToast"));
         setEscalateOpen(false);
         onActionComplete();
       } else {
@@ -146,9 +148,9 @@ export function ReportDetailSheet({
       <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
           <SheetHeader>
-            <SheetTitle>Report Detail</SheetTitle>
+            <SheetTitle>{t("detailTitle")}</SheetTitle>
             <SheetDescription>
-              Review the reported message and conversation context.
+              {t("detailDesc")}
             </SheetDescription>
           </SheetHeader>
 
@@ -156,7 +158,7 @@ export function ReportDetailSheet({
             {/* Report Info */}
             <section className="space-y-3">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Report
+                {t("reportSection")}
               </h3>
               <div className="rounded-xl border bg-card p-5 shadow-sm space-y-4">
                 {/* User info */}
@@ -196,11 +198,11 @@ export function ReportDetailSheet({
 
                 {/* Reported message */}
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Reported message</p>
+                  <p className="text-xs font-medium text-muted-foreground">{t("reportedMessage")}</p>
                   <div className="rounded-lg border-l-4 border-red-400 bg-red-50/50 p-3 dark:bg-red-950/10">
                     <p className="text-sm">
                       {report.message_is_deleted ? (
-                        <span className="italic text-muted-foreground">[Message deleted]</span>
+                        <span className="italic text-muted-foreground">{t("messageDeleted")}</span>
                       ) : (
                         report.message_content
                       )}
@@ -210,14 +212,14 @@ export function ReportDetailSheet({
 
                 {/* Reason */}
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Reason for report</p>
+                  <p className="text-xs font-medium text-muted-foreground">{t("reasonLabel")}</p>
                   <p className="text-sm leading-relaxed">{report.reason}</p>
                 </div>
 
                 {/* Reviewer notes */}
                 {report.reviewer_notes && (
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-muted-foreground">Reviewer notes</p>
+                    <p className="text-xs font-medium text-muted-foreground">{t("reviewerNotes")}</p>
                     <p className="text-sm leading-relaxed italic">{report.reviewer_notes}</p>
                   </div>
                 )}
@@ -239,7 +241,7 @@ export function ReportDetailSheet({
             {/* Conversation Context */}
             <section className="space-y-3">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Conversation Context
+                {t("conversationContext")}
               </h3>
               {loading ? (
                 <div className="space-y-2">
@@ -249,7 +251,7 @@ export function ReportDetailSheet({
                 </div>
               ) : messages.length === 0 ? (
                 <div className="rounded-xl border bg-muted/10 py-8 text-center">
-                  <p className="text-sm text-muted-foreground">No messages found.</p>
+                  <p className="text-sm text-muted-foreground">{t("noMessagesFound")}</p>
                 </div>
               ) : (
                 <div className="max-h-72 space-y-2 overflow-y-auto rounded-xl border bg-card p-4 shadow-sm">
@@ -276,12 +278,12 @@ export function ReportDetailSheet({
                         </span>
                         {msg.is_reported && (
                           <span className="ml-auto inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-600 dark:bg-red-900/30 dark:text-red-400">
-                            Reported
+                            {t("reported")}
                           </span>
                         )}
                       </div>
                       <p className={`mt-1 leading-relaxed ${msg.is_deleted ? "italic text-muted-foreground" : ""}`}>
-                        {msg.is_deleted ? "[Deleted]" : msg.content}
+                        {msg.is_deleted ? t("deletedMessage") : msg.content}
                       </p>
                     </div>
                   ))}
@@ -293,7 +295,7 @@ export function ReportDetailSheet({
             {warnings.length > 0 && (
               <section className="space-y-3">
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Prior Warnings ({warnings.length})
+                  {t("priorWarningsCount", { count: warnings.length })}
                 </h3>
                 <div className="space-y-2">
                   {warnings.map((w) => (
@@ -316,7 +318,7 @@ export function ReportDetailSheet({
             {/* Actions */}
             <section className="space-y-3 pb-2">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Actions
+                {t("actionsSection")}
               </h3>
               <div className="rounded-xl border bg-card p-4 shadow-sm space-y-3">
                 {/* Unmute button — always visible when user is muted */}
@@ -324,7 +326,7 @@ export function ReportDetailSheet({
                   new Date(report.reported_user_muted_until) > new Date() && (
                     <div className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50/50 p-3 dark:border-green-800/50 dark:bg-green-950/10">
                       <div>
-                        <p className="text-sm font-medium text-green-800 dark:text-green-300">User is currently muted</p>
+                        <p className="text-sm font-medium text-green-800 dark:text-green-300">{t("userMuted")}</p>
                         <p className="text-xs text-green-600 dark:text-green-400">
                           Until{" "}
                           {new Date(report.reported_user_muted_until).toLocaleDateString("en-US", {
@@ -341,16 +343,16 @@ export function ReportDetailSheet({
                         onClick={handleUnmute}
                         disabled={isPending}
                       >
-                        {isPending ? "Unmuting..." : "Unmute"}
+                        {isPending ? t("unmuting") : t("unmute")}
                       </Button>
                     </div>
                   )}
 
                 {!canTakeAction ? (
                   <p className="text-sm text-muted-foreground py-1">
-                    This report has been resolved.
+                    {t("resolved")}
                     {report.status === "escalated" && role === "moderator" && (
-                      <> It has been escalated to an admin.</>
+                      <> {t("escalatedToAdmin")}</>
                     )}
                   </p>
                 ) : (
@@ -361,7 +363,7 @@ export function ReportDetailSheet({
                       onClick={handleDismiss}
                       disabled={isPending}
                     >
-                      Dismiss
+                      {t("dismiss")}
                     </Button>
                     <Button
                       variant="outline"
@@ -370,7 +372,7 @@ export function ReportDetailSheet({
                       onClick={() => setWarnOpen(true)}
                       disabled={isPending}
                     >
-                      Warn User
+                      {t("warnUser")}
                     </Button>
                     <Button
                       variant="outline"
@@ -379,7 +381,7 @@ export function ReportDetailSheet({
                       onClick={() => setMuteOpen(true)}
                       disabled={isPending}
                     >
-                      Mute User
+                      {t("muteUser")}
                     </Button>
                     {report.status === "pending" && (
                       <Button
@@ -389,7 +391,7 @@ export function ReportDetailSheet({
                         onClick={() => setEscalateOpen(true)}
                         disabled={isPending}
                       >
-                        Escalate to Admin
+                        {t("escalateToAdmin")}
                       </Button>
                     )}
                   </div>

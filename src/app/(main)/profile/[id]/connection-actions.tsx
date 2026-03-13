@@ -15,6 +15,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -46,6 +47,8 @@ export function ConnectionActions({
   relationship,
   isVerified,
 }: ConnectionActionsProps) {
+  const t = useTranslations("profile");
+  const tc = useTranslations("connections");
   const router = useRouter();
   const [status, setStatus] = useState(relationship.status);
   const [connId, setConnId] = useState(relationship.connectionId);
@@ -63,7 +66,7 @@ export function ConnectionActions({
         className="cursor-not-allowed opacity-60"
       >
         <UserPlus className="mr-1.5 h-4 w-4" />
-        Verify to Connect
+        {t("verifyToConnect")}
       </Button>
     );
   }
@@ -80,7 +83,7 @@ export function ConnectionActions({
           setStatus("pending_sent");
           setShowMessageInput(false);
           setMessage("");
-          toast.success("Connection request sent!");
+          toast.success(t("requestSentToast"));
         } else {
           toast.error(result.error);
         }
@@ -108,7 +111,7 @@ export function ConnectionActions({
       const result = await acceptConnectionRequest(connId);
       if (result.success) {
         setStatus("connected");
-        toast.success("Connection accepted!");
+        toast.success(tc("accepted"));
       } else {
         toast.error(result.error);
       }
@@ -122,7 +125,7 @@ export function ConnectionActions({
       if (result.success) {
         setStatus("none");
         setConnId(null);
-        toast.success("Request rejected.");
+        toast.success(tc("rejectedToast"));
       } else {
         toast.error(result.error);
       }
@@ -136,7 +139,7 @@ export function ConnectionActions({
       if (result.success) {
         setStatus("none");
         setConnId(null);
-        toast.success("Disconnected.");
+        toast.success(tc("disconnectedToast"));
       } else {
         toast.error(result.error);
       }
@@ -150,7 +153,7 @@ export function ConnectionActions({
       if (result.success) {
         setStatus("none");
         setConnId(null);
-        toast.success("Request cancelled.");
+        toast.success(tc("cancelledToast"));
       } else {
         toast.error(result.error);
       }
@@ -164,7 +167,7 @@ export function ConnectionActions({
         setStatus("blocked_by_me");
         setConnId(null);
         setBlkId(result.data as unknown as string);
-        toast.success("User blocked.");
+        toast.success(tc("blockedToast"));
       } else {
         toast.error(result.error);
       }
@@ -178,7 +181,7 @@ export function ConnectionActions({
       if (result.success) {
         setStatus("none");
         setBlkId(null);
-        toast.success("User unblocked.");
+        toast.success(tc("unblockedToast"));
       } else {
         toast.error(result.error);
       }
@@ -203,7 +206,7 @@ export function ConnectionActions({
                 ) : (
                   <UserPlus className="mr-1.5 h-4 w-4" />
                 )}
-                Send Request
+                {t("sendRequest")}
               </Button>
             ) : (
               <Button
@@ -217,7 +220,7 @@ export function ConnectionActions({
                 ) : (
                   <UserPlus className="mr-1.5 h-4 w-4" />
                 )}
-                Connect
+                {t("connect")}
               </Button>
             )}
             {!showMessageInput && (
@@ -253,7 +256,7 @@ export function ConnectionActions({
                 </span>
               </>
             )}
-            Request Sent
+            {t("requestSentStatus")}
           </Button>
         )}
 
@@ -270,7 +273,7 @@ export function ConnectionActions({
               ) : (
                 <Check className="mr-1.5 h-4 w-4" />
               )}
-              Accept
+              {tc("accept")}
             </Button>
             <Button
               onClick={handleReject}
@@ -280,7 +283,7 @@ export function ConnectionActions({
               className="border-red-500/30 bg-red-500/10 text-red-600 transition-colors duration-200 hover:bg-red-500/20 dark:text-red-400"
             >
               <X className="mr-1.5 h-4 w-4" />
-              Reject
+              {tc("reject")}
             </Button>
           </>
         )}
@@ -289,7 +292,7 @@ export function ConnectionActions({
           <>
             <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-600 transition-all duration-300 dark:text-emerald-400">
               <UserCheck className="h-4 w-4" />
-              Connected
+              {t("connectedStatus")}
             </div>
             <Button
               onClick={() => {
@@ -312,7 +315,7 @@ export function ConnectionActions({
               ) : (
                 <MessageSquare className="mr-1.5 h-4 w-4" />
               )}
-              Message
+              {t("message")}
             </Button>
           </>
         )}
@@ -330,7 +333,7 @@ export function ConnectionActions({
             ) : (
               <Ban className="mr-1.5 h-4 w-4" />
             )}
-            Unblock
+            {tc("unblock")}
           </Button>
         )}
 
@@ -351,7 +354,7 @@ export function ConnectionActions({
                     className="text-red-600 focus:text-red-600 dark:text-red-400"
                   >
                     <UserX className="mr-2 h-4 w-4" />
-                    Disconnect
+                    {tc("disconnect")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>
@@ -361,7 +364,7 @@ export function ConnectionActions({
                 className="text-red-600 focus:text-red-600 dark:text-red-400"
               >
                 <Ban className="mr-2 h-4 w-4" />
-                Block user
+                {t("blockUser")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -375,7 +378,7 @@ export function ConnectionActions({
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Add a note (optional)..."
+            placeholder={t("notePlaceholder")}
             maxLength={500}
             className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />

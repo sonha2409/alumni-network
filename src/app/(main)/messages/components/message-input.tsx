@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { sendMessage, checkStorageQuota } from "../actions";
 import { useMessages } from "./messages-provider";
@@ -25,6 +26,7 @@ export function MessageInput({
   conversationId,
   currentUserId,
 }: MessageInputProps) {
+  const t = useTranslations("messages");
   const [content, setContent] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +54,7 @@ export function MessageInput({
     // Check total count
     const totalCount = selectedFiles.length + files.length;
     if (totalCount > MAX_FILES_PER_MESSAGE) {
-      setError(`Maximum ${MAX_FILES_PER_MESSAGE} files per message.`);
+      setError(t("maxFiles", { max: MAX_FILES_PER_MESSAGE }));
       return;
     }
 
@@ -60,12 +62,12 @@ export function MessageInput({
     for (const file of files) {
       // Validate type
       if (!ALLOWED_TYPES.includes(file.type)) {
-        setError(`File type not supported: ${file.name}`);
+        setError(t("fileNotSupported", { name: file.name }));
         continue;
       }
       // Validate size
       if (file.size > MAX_FILE_SIZE) {
-        setError(`File too large: ${file.name} (max 5MB, got ${formatFileSize(file.size)})`);
+        setError(t("fileTooLarge", { name: file.name, size: formatFileSize(file.size) }));
         continue;
       }
 
@@ -165,7 +167,7 @@ export function MessageInput({
       const totalNewSize = selectedFiles.reduce((sum, f) => sum + f.file.size, 0);
       if (totalNewSize > quotaResult.data.remainingBytes) {
         setError(
-          `Not enough storage. ${formatFileSize(quotaResult.data.remainingBytes)} remaining.`
+          t("notEnoughStorage", { remaining: formatFileSize(quotaResult.data.remainingBytes) })
         );
         setIsSending(false);
         return;
@@ -190,7 +192,7 @@ export function MessageInput({
       // Check if any failed
       const failed = uploadResults.filter((f) => f.status === "error");
       if (failed.length > 0) {
-        setError(`Failed to upload ${failed.length} file(s). Retry or remove them.`);
+        setError(t("uploadFailed", { count: failed.length }));
         setIsSending(false);
         return;
       }
@@ -298,10 +300,10 @@ export function MessageInput({
       const { rateLimitInfo } = result.data;
       if (rateLimitInfo.remaining <= 5 && rateLimitInfo.remaining > 0) {
         setRateLimitWarning(
-          `${rateLimitInfo.remaining} messages remaining today`
+          t("remainingMessages", { count: rateLimitInfo.remaining })
         );
       } else if (rateLimitInfo.remaining === 0) {
-        setRateLimitWarning("Daily message limit reached");
+        setRateLimitWarning(t("dailyLimitReached"));
       } else {
         setRateLimitWarning(null);
       }
@@ -359,7 +361,7 @@ export function MessageInput({
       {/* Drag overlay */}
       {isDragging && (
         <div className="flex items-center justify-center border-2 border-dashed border-primary bg-primary/5 px-4 py-6">
-          <p className="text-sm text-primary">Drop files here</p>
+          <p className="text-sm text-primary">{t("dropFilesHere")}</p>
         </div>
       )}
 
@@ -393,7 +395,7 @@ export function MessageInput({
             className="h-10 w-10 flex-shrink-0 rounded-full"
             onClick={() => fileInputRef.current?.click()}
             disabled={selectedFiles.length >= MAX_FILES_PER_MESSAGE}
-            aria-label="Attach files"
+            aria-label={t("attachFiles")}
           >
             <svg
               className="h-5 w-5"
@@ -428,7 +430,7 @@ export function MessageInput({
             value={content}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
+            placeholder={t("typeMessage")}
             className="max-h-40 min-h-[40px] flex-1 resize-none rounded-xl border bg-muted/50 px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-2 focus:ring-ring"
             rows={1}
             maxLength={5000}
@@ -440,7 +442,7 @@ export function MessageInput({
             disabled={!canSend}
             size="icon"
             className="h-10 w-10 flex-shrink-0 rounded-full"
-            aria-label="Send message"
+            aria-label={t("sendMessage")}
           >
             <svg
               className="h-5 w-5"
@@ -459,7 +461,7 @@ export function MessageInput({
           </Button>
         </div>
         <p className="mt-1 text-[10px] text-muted-foreground">
-          Press Enter to send, Shift+Enter for new line
+          {t("enterToSend")}
         </p>
       </div>
     </div>

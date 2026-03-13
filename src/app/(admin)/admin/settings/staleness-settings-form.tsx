@@ -2,6 +2,7 @@
 
 import { useState, useActionState, useEffect } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,8 @@ interface StalenessSettingsFormProps {
 export function StalenessSettingsForm({
   currentMonths,
 }: StalenessSettingsFormProps) {
+  const t = useTranslations("admin.settings");
+  const tCommon = useTranslations("common");
   const [value, setValue] = useState(String(currentMonths));
   const [state, formAction, isPending] = useActionState<
     ActionResult | null,
@@ -31,18 +34,16 @@ export function StalenessSettingsForm({
 
   useEffect(() => {
     if (state?.success) {
-      toast.success("Staleness threshold updated.");
+      toast.success(t("stalenessUpdated"));
     }
   }, [state]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Profile Staleness</CardTitle>
+        <CardTitle>{t("stalenessTitle")}</CardTitle>
         <CardDescription>
-          How long before a profile is considered stale. Users will see an
-          in-app banner and receive an email nudge after this period of
-          inactivity. Set to 0 to disable.
+          {t("stalenessDesc")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -57,7 +58,7 @@ export function StalenessSettingsForm({
           )}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="staleness_months">Threshold (months)</Label>
+            <Label htmlFor="staleness_months">{t("thresholdLabel")}</Label>
             <Input
               id="staleness_months"
               name="staleness_months"
@@ -69,12 +70,12 @@ export function StalenessSettingsForm({
               className="max-w-[120px]"
             />
             <p className="text-xs text-muted-foreground">
-              0 = disabled. Recommended: 6 months.
+              {t("thresholdHint")}
             </p>
           </div>
 
           <Button type="submit" disabled={isPending} className="w-fit">
-            {isPending ? "Saving…" : "Save"}
+            {isPending ? tCommon("saving") : tCommon("save")}
           </Button>
         </form>
       </CardContent>

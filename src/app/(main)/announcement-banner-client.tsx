@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Megaphone, X, ExternalLink } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { dismissAnnouncement } from "./announcements/actions";
 
@@ -18,6 +19,7 @@ export function AnnouncementBannerClient({
   body,
   link,
 }: AnnouncementBannerClientProps) {
+  const t = useTranslations("banners");
   const [dismissed, setDismissed] = useState(false);
   const [, startTransition] = useTransition();
 
@@ -56,7 +58,7 @@ export function AnnouncementBannerClient({
               rel="noopener noreferrer"
               className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-blue-700 underline hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100"
             >
-              Learn more
+              {t("learnMore")}
               <ExternalLink className="h-3 w-3" />
             </a>
           )}
@@ -64,7 +66,7 @@ export function AnnouncementBannerClient({
         <button
           onClick={handleDismiss}
           className="shrink-0 rounded p-1 text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900"
-          aria-label="Dismiss announcement"
+          aria-label={t("dismissAnnouncement")}
         >
           <X className="h-4 w-4" />
         </button>

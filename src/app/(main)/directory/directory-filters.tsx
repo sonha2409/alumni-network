@@ -4,6 +4,7 @@ import { useCallback, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 import { SearchIcon, SlidersHorizontalIcon, XIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,8 @@ export function DirectoryFiltersBar({
   availabilityTags,
   filters,
 }: DirectoryFiltersBarProps) {
+  const t = useTranslations("directory");
+  const tc = useTranslations("common");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showFilters, setShowFilters] = useState(false);
@@ -105,14 +108,14 @@ export function DirectoryFiltersBar({
         <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Search by name, bio..."
+          placeholder={t("searchPlaceholder")}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value || null);
             setPage(null);
           }}
           className="h-10 rounded-xl pl-9 pr-4 text-sm"
-          aria-label="Search alumni"
+          aria-label={t("searchAriaLabel")}
         />
         {query && (
           <button
@@ -122,7 +125,7 @@ export function DirectoryFiltersBar({
               setPage(null);
             }}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label="Clear search"
+            aria-label={t("clearSearch")}
           >
             <XIcon className="h-4 w-4" />
           </button>
@@ -138,7 +141,7 @@ export function DirectoryFiltersBar({
           className="gap-1.5"
         >
           <SlidersHorizontalIcon className="h-3.5 w-3.5" />
-          Filters
+          {tc("filters")}
           {activeFilterCount > 0 && (
             <span className="ml-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
               {activeFilterCount}
@@ -154,7 +157,7 @@ export function DirectoryFiltersBar({
             className="gap-1 text-muted-foreground"
           >
             <XIcon className="h-3.5 w-3.5" />
-            Clear all
+            {tc("clearAll")}
           </Button>
         )}
 
@@ -166,11 +169,11 @@ export function DirectoryFiltersBar({
               setPage(null);
             }}
             className={selectClass + " min-w-[120px] sm:min-w-[140px]"}
-            aria-label="Sort by"
+            aria-label={tc("sortBy")}
           >
-            <option value="name">Name (A-Z)</option>
-            <option value="graduation_year">Graduation year</option>
-            <option value="recently_active">Recently active</option>
+            <option value="name">{t("nameAZ")}</option>
+            <option value="graduation_year">{t("graduationYear")}</option>
+            <option value="recently_active">{t("recentlyActive")}</option>
           </select>
         </div>
       </div>
@@ -181,7 +184,7 @@ export function DirectoryFiltersBar({
           {/* Industry */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-muted-foreground">
-              Industry
+              {t("industry")}
             </label>
             <select
               value={industryId}
@@ -192,7 +195,7 @@ export function DirectoryFiltersBar({
               }}
               className={selectClass}
             >
-              <option value="">All industries</option>
+              <option value="">{t("allIndustries")}</option>
               {industries.map((ind) => (
                 <option key={ind.id} value={ind.id}>
                   {ind.name}
@@ -204,7 +207,7 @@ export function DirectoryFiltersBar({
           {/* Specialization */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-muted-foreground">
-              Specialization
+              {t("specialization")}
             </label>
             <select
               value={specializationId}
@@ -216,7 +219,7 @@ export function DirectoryFiltersBar({
               className={selectClass}
             >
               <option value="">
-                {industryId ? "All specializations" : "Select industry first"}
+                {industryId ? t("allSpecializations") : t("selectIndustryFirst")}
               </option>
               {specializations.map((spec) => (
                 <option key={spec.id} value={spec.id}>
@@ -229,12 +232,12 @@ export function DirectoryFiltersBar({
           {/* Graduation year range */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-muted-foreground">
-              Graduation year
+              {t("graduationYear")}
             </label>
             <div className="flex items-center gap-2">
               <Input
                 type="number"
-                placeholder="From"
+                placeholder={t("from")}
                 value={yearMin ?? ""}
                 onChange={(e) => {
                   const val = e.target.value
@@ -250,7 +253,7 @@ export function DirectoryFiltersBar({
               <span className="text-xs text-muted-foreground">&ndash;</span>
               <Input
                 type="number"
-                placeholder="To"
+                placeholder={t("to")}
                 value={yearMax ?? ""}
                 onChange={(e) => {
                   const val = e.target.value
@@ -269,11 +272,11 @@ export function DirectoryFiltersBar({
           {/* Country */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-muted-foreground">
-              Country
+              {t("country")}
             </label>
             <Input
               type="text"
-              placeholder="e.g. Vietnam"
+              placeholder={t("countryPlaceholder")}
               value={country}
               onChange={(e) => {
                 setCountry(e.target.value || null);
@@ -286,11 +289,11 @@ export function DirectoryFiltersBar({
           {/* City */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-muted-foreground">
-              City
+              {t("city")}
             </label>
             <Input
               type="text"
-              placeholder="e.g. Ho Chi Minh City"
+              placeholder={t("cityPlaceholder")}
               value={city}
               onChange={(e) => {
                 setCity(e.target.value || null);

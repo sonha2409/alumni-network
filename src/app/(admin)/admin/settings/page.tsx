@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { getAppSetting } from "@/lib/queries/app-settings";
@@ -29,12 +30,14 @@ export default async function AdminSettingsPage() {
     6
   );
 
+  const t = await getTranslations("admin.settings");
+
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Platform Settings</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">
-          Configure global platform behavior.
+          {t("description")}
         </p>
       </div>
 

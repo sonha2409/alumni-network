@@ -12,6 +12,7 @@ import {
   Eye,
 } from "lucide-react";
 
+import { useTranslations } from "next-intl";
 import type { PopularProfile } from "@/lib/types";
 
 interface PopularCardProps {
@@ -25,6 +26,8 @@ export function PopularCard({
   connectionStatus,
   index,
 }: PopularCardProps) {
+  const t = useTranslations("dashboard");
+  const tc = useTranslations("common");
   const location = [profile.city, profile.state_province, profile.country]
     .filter(Boolean)
     .join(", ");
@@ -48,7 +51,7 @@ export function PopularCard({
       <div className="absolute -top-2.5 right-3 flex items-center gap-1 rounded-full bg-background border border-border px-2 py-0.5 shadow-sm">
         <TrendingUp className="h-3 w-3 text-orange-500 dark:text-orange-400" />
         <span className="text-[10px] font-semibold text-orange-600 dark:text-orange-400">
-          Trending
+          {t("trending")}
         </span>
       </div>
 
@@ -75,10 +78,10 @@ export function PopularCard({
               }`}
               title={
                 connectionStatus === "connected"
-                  ? "Connected"
+                  ? t("connected")
                   : connectionStatus === "pending_sent"
-                    ? "Request sent"
-                    : "Wants to connect"
+                    ? t("requestSent")
+                    : t("wantsToConnect")
               }
             >
               {connectionStatus === "connected" ? (
@@ -96,7 +99,7 @@ export function PopularCard({
           </h3>
           <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
             <GraduationCapIcon className="h-3 w-3 shrink-0" />
-            <span>Class of {profile.graduation_year}</span>
+            <span>{tc("classOf", { year: profile.graduation_year })}</span>
           </div>
         </div>
       </div>
@@ -137,13 +140,13 @@ export function PopularCard({
         {profile.connection_count > 0 && (
           <div className="flex items-center gap-1">
             <Users className="h-3 w-3" />
-            <span>{profile.connection_count} connections</span>
+            <span>{tc("connections", { count: profile.connection_count })}</span>
           </div>
         )}
         {profile.view_count > 0 && (
           <div className="flex items-center gap-1">
             <Eye className="h-3 w-3" />
-            <span>{profile.view_count} views</span>
+            <span>{tc("views", { count: profile.view_count })}</span>
           </div>
         )}
       </div>

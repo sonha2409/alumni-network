@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import {
   Card,
@@ -25,11 +26,14 @@ import { EducationHistorySection } from "./education-history-section";
 import { AvailabilityTagsSection } from "./availability-tags-section";
 import { ContactDetailsSection } from "./contact-details-section";
 
-export const metadata: Metadata = {
-  title: "Edit Profile — AlumNet",
-  description: "Update your alumni profile.",
-  robots: { index: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("profile");
+  return {
+    title: t("editTitle"),
+    description: t("editDescription"),
+    robots: { index: false },
+  };
+}
 
 export default async function ProfileEditPage() {
   const supabase = await createClient();
@@ -57,15 +61,16 @@ export default async function ProfileEditPage() {
       getContactDetailsByProfileId(profile.id),
     ]);
 
+  const t = await getTranslations("profile");
   const currentYear = new Date().getFullYear();
 
   return (
     <div className="mx-auto max-w-2xl flex flex-col gap-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Edit profile</CardTitle>
+          <CardTitle className="text-2xl">{t("editProfile")}</CardTitle>
           <CardDescription>
-            Keep your profile up to date so alumni can find and connect with you.
+            {t("editSubtitle")}
           </CardDescription>
         </CardHeader>
         <CardContent>

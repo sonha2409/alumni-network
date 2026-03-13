@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { getLatestVerificationRequest, getUserVerificationStatus } from "@/lib/queries/verification";
@@ -22,6 +23,7 @@ export default async function VerificationPage() {
     getSchool(),
   ]);
 
+  const t = await getTranslations("verification");
   const currentYear = new Date().getFullYear();
 
   // Already verified
@@ -30,9 +32,9 @@ export default async function VerificationPage() {
       <div className="mx-auto max-w-lg">
         <Card>
           <CardHeader>
-            <CardTitle>Already Verified</CardTitle>
+            <CardTitle>{t("alreadyVerified")}</CardTitle>
             <CardDescription>
-              Your alumni status has been verified. You have full access to the platform.
+              {t("alreadyVerifiedDesc")}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -46,11 +48,9 @@ export default async function VerificationPage() {
       <div className="mx-auto max-w-lg">
         <Card>
           <CardHeader>
-            <CardTitle>Verification Under Review</CardTitle>
+            <CardTitle>{t("underReview")}</CardTitle>
             <CardDescription>
-              Your verification request was submitted on{" "}
-              {new Date(latestRequest.created_at).toISOString().slice(0, 10)}. An admin
-              will review it shortly.
+              {t("underReviewDesc", { date: new Date(latestRequest.created_at).toISOString().slice(0, 10) })}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -67,12 +67,12 @@ export default async function VerificationPage() {
         <Card className="mb-4 border-destructive">
           <CardHeader>
             <CardTitle className="text-destructive">
-              Previous Request Rejected
+              {t("previousRejected")}
             </CardTitle>
             <CardDescription>
               {latestRequest.review_message
-                ? `Reason: ${latestRequest.review_message}`
-                : "Your previous verification request was not approved. You can submit a new request with updated information."}
+                ? t("rejectedReason", { reason: latestRequest.review_message })
+                : t("rejectedDefault")}
             </CardDescription>
           </CardHeader>
         </Card>

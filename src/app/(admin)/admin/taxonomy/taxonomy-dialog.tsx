@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,8 @@ export function TaxonomyDialog({
   isLoading,
   onSubmit,
 }: TaxonomyDialogProps) {
+  const t = useTranslations("admin.taxonomy");
+  const tCommon = useTranslations("common");
   const [name, setName] = useState(initialName);
 
   useEffect(() => {
@@ -41,13 +44,13 @@ export function TaxonomyDialog({
 
   const title =
     mode === "create"
-      ? `Add ${target === "industry" ? "Industry" : "Specialization"}`
-      : `Edit ${target === "industry" ? "Industry" : "Specialization"}`;
+      ? (target === "industry" ? t("addIndustryDialog") : t("addSpecDialog"))
+      : (target === "industry" ? t("editIndustryDialog") : t("editSpecDialog"));
 
   const description =
     mode === "create"
-      ? `Create a new ${target === "industry" ? "industry category" : "specialization"}.`
-      : `Rename this ${target === "industry" ? "industry category" : "specialization"}.`;
+      ? (target === "industry" ? t("createIndustryDesc") : t("createSpecDesc"))
+      : (target === "industry" ? t("editIndustryDesc") : t("editSpecDesc"));
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -65,19 +68,19 @@ export function TaxonomyDialog({
           </DialogHeader>
 
           <div className="my-4">
-            <Label htmlFor="taxonomy-name">Name</Label>
+            <Label htmlFor="taxonomy-name">{t("nameLabel")}</Label>
             <Input
               id="taxonomy-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={`e.g. ${target === "industry" ? "Technology" : "Software Engineering"}`}
+              placeholder={target === "industry" ? t("namePlaceholderIndustry") : t("namePlaceholderSpec")}
               maxLength={100}
               autoFocus
               disabled={isLoading}
             />
             {name.trim().length > 0 && name.trim().length < 2 && (
               <p className="mt-1 text-sm text-destructive">
-                Name must be at least 2 characters.
+                {t("nameMinError")}
               </p>
             )}
           </div>
@@ -89,7 +92,7 @@ export function TaxonomyDialog({
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
             >
-              Cancel
+              {tCommon("cancel")}
             </Button>
             <Button
               type="submit"
@@ -97,11 +100,11 @@ export function TaxonomyDialog({
             >
               {isLoading
                 ? mode === "create"
-                  ? "Creating..."
-                  : "Saving..."
+                  ? tCommon("creating")
+                  : tCommon("saving")
                 : mode === "create"
-                  ? "Create"
-                  : "Save"}
+                  ? tCommon("create")
+                  : tCommon("save")}
             </Button>
           </DialogFooter>
         </form>

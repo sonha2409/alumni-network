@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   Dialog,
@@ -14,11 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-const DURATIONS = [
-  { value: "1d" as const, label: "1 day" },
-  { value: "7d" as const, label: "7 days" },
-  { value: "30d" as const, label: "30 days" },
-];
+// DURATIONS moved inside component for i18n
 
 interface MuteDialogProps {
   open: boolean;
@@ -29,8 +26,16 @@ interface MuteDialogProps {
 }
 
 export function MuteDialog({ open, onClose, onConfirm, isPending, userName }: MuteDialogProps) {
+  const t = useTranslations("moderation.muteDialog");
+  const tCommon = useTranslations("common");
   const [duration, setDuration] = useState<"1d" | "7d" | "30d">("1d");
   const [reason, setReason] = useState("");
+
+  const DURATIONS = [
+    { value: "1d" as const, label: t("day1") },
+    { value: "7d" as const, label: t("day7") },
+    { value: "30d" as const, label: t("day30") },
+  ];
 
   const handleConfirm = () => {
     if (reason.trim().length === 0) return;
@@ -49,14 +54,14 @@ export function MuteDialog({ open, onClose, onConfirm, isPending, userName }: Mu
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Mute User</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
-            Restrict <strong>{userName}</strong> from sending messages for a set period.
+            {t("description", { name: userName })}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Duration</Label>
+            <Label>{t("duration")}</Label>
             <div className="flex gap-2">
               {DURATIONS.map((d) => (
                 <button
@@ -74,28 +79,28 @@ export function MuteDialog({ open, onClose, onConfirm, isPending, userName }: Mu
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="mute-reason">Reason</Label>
+            <Label htmlFor="mute-reason">{t("reason")}</Label>
             <Textarea
               id="mute-reason"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Explain the reason for muting this user..."
+              placeholder={t("placeholder")}
               rows={3}
               maxLength={1000}
             />
-            <p className="text-xs text-muted-foreground">{reason.length}/1000</p>
+            <p className="text-xs text-muted-foreground">{t("charCount", { count: reason.length })}</p>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isPending}>
-            Cancel
+            {tCommon("cancel")}
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={isPending || reason.trim().length === 0}
             variant="destructive"
           >
-            {isPending ? "Muting..." : "Mute User"}
+            {isPending ? t("muting") : t("muteBtn")}
           </Button>
         </DialogFooter>
       </DialogContent>

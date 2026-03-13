@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getConversations, getTotalUnreadCount } from "@/lib/queries/messages";
 import { MessagesProvider } from "./components/messages-provider";
@@ -29,6 +30,8 @@ export default async function MessagesPage() {
     publicUser.muted_until !== null &&
     new Date(publicUser.muted_until) > new Date();
 
+  const t = await getTranslations("messages");
+
   const [{ conversations }, unreadCount] = await Promise.all([
     getConversations(user.id),
     getTotalUnreadCount(user.id),
@@ -45,12 +48,11 @@ export default async function MessagesPage() {
           className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300"
           role="alert"
         >
-          <p className="font-medium">Your messaging is temporarily restricted</p>
+          <p className="font-medium">{t("restrictedTitle")}</p>
           <p className="mt-1 text-red-700 dark:text-red-400">
-            {publicUser.muted_reason ? `Reason: ${publicUser.muted_reason}. ` : ""}
-            Restriction ends on{" "}
-            {new Date(publicUser.muted_until!).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}.
-            You can still browse conversations but cannot send new messages.
+            {publicUser.muted_reason ? t("restrictedReason", { reason: publicUser.muted_reason }) : ""}
+            {t("restrictedEnds", { date: new Date(publicUser.muted_until!).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) })}
+            {" "}{t("restrictedNote")}
           </p>
         </div>
       )}
@@ -58,7 +60,7 @@ export default async function MessagesPage() {
         {/* Conversation list — full width on mobile, sidebar on desktop */}
         <div className="flex w-full flex-col border-r md:w-80 lg:w-96">
           <div className="border-b px-4 py-3">
-            <h1 className="text-lg font-semibold">Messages</h1>
+            <h1 className="text-lg font-semibold">{t("title")}</h1>
           </div>
           <ConversationList />
         </div>
@@ -81,7 +83,7 @@ export default async function MessagesPage() {
               />
             </svg>
             <p className="text-sm text-muted-foreground">
-              Select a conversation to start chatting
+              {t("selectConversation")}
             </p>
           </div>
         </div>

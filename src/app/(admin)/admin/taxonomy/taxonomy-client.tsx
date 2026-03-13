@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,14 +36,17 @@ function StatusBadge({ isArchived }: { isArchived: boolean }) {
 }
 
 function UserCountBadge({ count }: { count: number }) {
+  const tCommon = useTranslations("common");
   return (
     <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
-      {count} {count === 1 ? "user" : "users"}
+      {tCommon("users", { count })}
     </span>
   );
 }
 
 export function TaxonomyClient() {
+  const t = useTranslations("admin.taxonomy");
+  const tCommon = useTranslations("common");
   const [industries, setIndustries] = useState<AdminIndustryRow[]>([]);
   const [totalIndustries, setTotalIndustries] = useState(0);
   const [totalSpecializations, setTotalSpecializations] = useState(0);
@@ -164,7 +168,7 @@ export function TaxonomyClient() {
 
     if (result.success) {
       toast.success(
-        `${dialogTarget === "industry" ? "Industry" : "Specialization"} ${dialogMode === "create" ? "created" : "updated"} successfully.`
+        t("createdToast", { type: dialogTarget === "industry" ? t("industries") : t("specializations") })
       );
       setDialogOpen(false);
       fetchData();
@@ -176,7 +180,7 @@ export function TaxonomyClient() {
   async function handleArchiveIndustry(id: string, archive: boolean, name: string) {
     const result = await toggleIndustryArchive(id, archive);
     if (result.success) {
-      toast.success(`"${name}" ${archive ? "archived" : "restored"}.${archive ? " Child specializations also archived." : ""}`);
+      toast.success(archive ? t("archivedToast", { name }) : t("restoredToast", { name }));
       fetchData();
     } else {
       toast.error(result.error);
@@ -186,7 +190,7 @@ export function TaxonomyClient() {
   async function handleArchiveSpecialization(id: string, archive: boolean, name: string) {
     const result = await toggleSpecializationArchive(id, archive);
     if (result.success) {
-      toast.success(`"${name}" ${archive ? "archived" : "restored"}.`);
+      toast.success(archive ? t("archivedSpecToast", { name }) : t("restoredSpecToast", { name }));
       fetchData();
     } else {
       toast.error(result.error);
@@ -209,25 +213,25 @@ export function TaxonomyClient() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-2xl font-bold">{totalIndustries}</p>
-            <p className="text-sm text-muted-foreground">Industries</p>
+            <p className="text-sm text-muted-foreground">{t("industries")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <p className="text-2xl font-bold">{totalSpecializations}</p>
-            <p className="text-sm text-muted-foreground">Specializations</p>
+            <p className="text-sm text-muted-foreground">{t("specializations")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <p className="text-2xl font-bold">{totalArchivedIndustries}</p>
-            <p className="text-sm text-muted-foreground">Archived Industries</p>
+            <p className="text-sm text-muted-foreground">{t("archivedIndustries")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <p className="text-2xl font-bold">{totalArchivedSpecializations}</p>
-            <p className="text-sm text-muted-foreground">Archived Specs</p>
+            <p className="text-sm text-muted-foreground">{t("archivedSpecs")}</p>
           </CardContent>
         </Card>
       </div>
@@ -236,20 +240,20 @@ export function TaxonomyClient() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Industries &amp; Specializations</span>
+            <span>{t("industriesAndSpecs")}</span>
             <Button size="sm" onClick={openCreateIndustry}>
-              + Add Industry
+              {t("addIndustry")}
             </Button>
           </CardTitle>
 
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Input
               type="search"
-              placeholder="Search industries or specializations..."
+              placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="sm:max-w-xs"
-              aria-label="Search taxonomy"
+              aria-label={t("searchAriaLabel")}
             />
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -258,7 +262,7 @@ export function TaxonomyClient() {
                 onChange={(e) => setShowArchived(e.target.checked)}
                 className="rounded border-input"
               />
-              Show archived
+              {t("showArchived")}
             </label>
           </div>
         </CardHeader>
@@ -273,8 +277,8 @@ export function TaxonomyClient() {
           ) : filteredIndustries.length === 0 ? (
             <p className="py-8 text-center text-muted-foreground">
               {search.trim()
-                ? "No industries or specializations match your search."
-                : "No industries found."}
+                ? t("noMatch")
+                : t("noIndustries")}
             </p>
           ) : (
             <div className="divide-y">
@@ -295,7 +299,7 @@ export function TaxonomyClient() {
                       <button
                         onClick={() => toggleExpand(industry.id)}
                         className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted"
-                        aria-label={isExpanded ? "Collapse specializations" : "Expand specializations"}
+                        aria-label={isExpanded ? t("collapseSpecs") : t("expandSpecs")}
                       >
                         <svg
                           className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-90" : ""}`}
@@ -314,7 +318,7 @@ export function TaxonomyClient() {
                           {industry.name}
                         </span>
                         <span className="ml-2 text-xs text-muted-foreground">
-                          {totalSpecs} specialization{totalSpecs !== 1 ? "s" : ""}
+                          {t("specsCount", { count: totalSpecs })}
                         </span>
                       </div>
 
@@ -330,7 +334,7 @@ export function TaxonomyClient() {
                           onClick={() => openEditIndustry(industry)}
                           className="h-8 px-2 text-xs"
                         >
-                          Edit
+                          {tCommon("edit")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -344,7 +348,7 @@ export function TaxonomyClient() {
                           }
                           className="h-8 px-2 text-xs"
                         >
-                          {industry.is_archived ? "Restore" : "Archive"}
+                          {industry.is_archived ? t("restore") : t("archive")}
                         </Button>
                       </div>
                     </div>
@@ -354,7 +358,7 @@ export function TaxonomyClient() {
                       <div className="mb-3 ml-9 border-l-2 border-muted pl-4">
                         {visibleSpecs.length === 0 ? (
                           <p className="py-2 text-sm text-muted-foreground">
-                            No specializations{showArchived ? "" : " (active)"} found.
+                            {t("noActiveSpecs")}
                           </p>
                         ) : (
                           <div className="divide-y divide-dashed">
@@ -377,7 +381,7 @@ export function TaxonomyClient() {
                                     onClick={() => openEditSpecialization(spec)}
                                     className="h-7 px-2 text-xs"
                                   >
-                                    Edit
+                                    {tCommon("edit")}
                                   </Button>
                                   <Button
                                     variant="ghost"
@@ -391,7 +395,7 @@ export function TaxonomyClient() {
                                     }
                                     className="h-7 px-2 text-xs"
                                   >
-                                    {spec.is_archived ? "Restore" : "Archive"}
+                                    {spec.is_archived ? t("restore") : t("archive")}
                                   </Button>
                                 </div>
                               </div>
@@ -407,7 +411,7 @@ export function TaxonomyClient() {
                             onClick={() => openCreateSpecialization(industry.id)}
                             className="mt-2 h-7 text-xs"
                           >
-                            + Add Specialization
+                            {t("addSpec")}
                           </Button>
                         )}
                       </div>
