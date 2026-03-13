@@ -96,6 +96,12 @@
       "successMessage": "Your password has been updated successfully.",
       "goToDashboard": "Go to dashboard"
     },
+    "oauth": {
+      "continueWithGoogle": "Continue with Google",
+      "signingIn": "Signing in…",
+      "orContinueWith": "or continue with email",
+      "error": "Could not sign in with Google. Please try again."
+    },
     "errors": {
       "invalidEmail": "Please enter a valid email address",
       "passwordMin": "Password must be at least 8 characters",

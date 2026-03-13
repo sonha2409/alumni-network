@@ -162,6 +162,17 @@ Build one complete feature at a time: schema + RLS + backend logic + UI together
 - CI/CD pipeline
 - Configure Supabase Auth SMTP for production (enable email confirmations, customize email templates, set site URL)
 
+### Phase F2: OAuth
+
+#### 17. Google OAuth (Feature #41)
+- Enable Google provider in `supabase/config.toml` with env var substitution
+- Add `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` to `.env.example`
+- Create `GoogleSignInButton` client component (`src/app/(auth)/google-sign-in-button.tsx`)
+- Add button + "or" divider to login and signup forms
+- Add i18n translations (`auth.oauth` namespace in en.json + vi.json)
+- Production: configure Google Cloud Console OAuth app + Supabase dashboard provider + auto-linking
+- No migrations, no proxy/callback changes — existing PKCE flow handles OAuth
+
 ---
 
 ### Phase G: Multi-School (Phase 4 in roadmap)

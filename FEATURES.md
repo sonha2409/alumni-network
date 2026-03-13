@@ -67,7 +67,7 @@ A web platform where verified alumni of a single school can discover and connect
 ### F1. Authentication
 - **Signup**: email + password via Supabase Auth
 - **Login**: email + password, with "forgot password" flow
-- **OAuth** (future): Google, LinkedIn
+- **OAuth**: Google (Sign in with Google). LinkedIn deferred.
 - **Session management**: JWT-based via Supabase, auto-refresh
 - After signup, user lands on onboarding flow (not the main app)
 
@@ -77,13 +77,7 @@ A web platform where verified alumni of a single school can discover and connect
 - **`updated_at` trigger**: A Postgres trigger (`on_users_updated`) automatically sets `updated_at = now()` on every `public.users` update. This pattern is reused for all tables with `updated_at`.
 - **Email confirmation**: Disabled in development (Supabase default for local dev). In production, Supabase's email confirmation can be enabled via the dashboard — the signup flow already handles the case where `data.user` may not have a confirmed session.
 - **Password reset flow**: Uses Supabase's `resetPasswordForEmail()` which sends a magic link. The link redirects to `/auth/callback?next=/reset-password` where a route handler exchanges the code for a session. The reset password response always returns success to prevent email enumeration.
-- **Reset password page** (`/reset-password`): **TODO** — Dedicated page where users land after clicking the password reset email link. Must be an authenticated page (user has a session from the code exchange). Requirements:
-  - Form with "New password" + "Confirm new password" fields
-  - Validation: min 8 chars, passwords must match (Zod)
-  - Uses `supabase.auth.updateUser({ password })` to set the new password
-  - Success: toast + redirect to `/dashboard`
-  - Error: inline error message
-  - If no session (user navigates directly): redirect to `/forgot-password`
+- **Reset password page** (`/reset-password`): Dedicated page where users land after clicking the password reset email link. Authenticated page (user has a session from the code exchange).
 - **Auth callback route** (`/auth/callback`): Handles code exchange for all Supabase email flows (password reset, email verification). Redirects to the `next` query param on success, or `/login` on failure.
 - **Middleware session refresh**: The Next.js middleware calls `supabase.auth.getUser()` on every request. This is mandatory — it refreshes the JWT token and ensures Server Components receive a valid session.
 - **RLS dependency**: All RLS policies on `public.users` (and future tables) use `auth.uid()` to identify the current user. The middleware's session refresh ensures `auth.uid()` is always current.
@@ -104,6 +98,15 @@ A web platform where verified alumni of a single school can discover and connect
   - Signup page should show "Check your email" message after submission
 - **Password reset flow** (already implemented):
   - User enters email on forgot-password page → Supabase sends reset link → user clicks link → `/auth/callback?next=/reset-password` → user sets new password
+
+#### Google OAuth Details
+- **Flow**: Client-side initiation via `supabase.auth.signInWithOAuth({ provider: 'google' })`. Uses Supabase's PKCE flow — redirects to Google consent screen, then back to `/auth/callback?code=...` for code exchange. Same callback route and proxy code exchange logic as email flows.
+- **Account linking**: Supabase "Automatic user linking" enabled — if Google email matches an existing email/password account, identities are merged. No duplicate `public.users` rows.
+- **New user flow**: `handle_new_user()` trigger fires on OAuth signup, creating `public.users` row with defaults (`role: 'user'`, `verification_status: 'unverified'`). User redirected to `/onboarding` (proxy enforces profile requirement).
+- **UI**: "Continue with Google" button on both `/login` and `/signup` pages, above the email/password form with an "or" divider.
+- **No backend changes**: No new migrations, no server action, no proxy/callback changes. Existing PKCE infrastructure handles OAuth identically to email flows.
+- **Configuration**: Google OAuth credentials (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) configured in Supabase dashboard (production) and `supabase/config.toml` via env vars (local dev).
+- **Edge cases**: Cancelled consent → user stays on login page. Banned/suspended → proxy redirects to `/banned`. Self-deleted → proxy redirects to `/account-deleted`.
 
 ### F2. Alumni Verification
 - **Trigger**: user submits verification request with supporting info (graduation year, student ID, degree program)
@@ -475,7 +478,7 @@ These features are designed into the architecture but not built in Phase 1:
 | Granular per-field privacy controls | 2 | Connected-only details working |
 | Embedding-based recommendations (pgvector) | 2 | Rule-based engine, sufficient user data |
 | Full community groups (user-created, discussion boards) | 2 | Basic groups working |
-| OAuth login (Google, LinkedIn) | 2 | Email auth working |
+| OAuth login (Google — done, LinkedIn — deferred) | 2 | Email auth working |
 | LinkedIn profile import | 2 | Career history data model |
 | Native mobile apps (React Native) | 3 | Responsive web stable |
 | Push notifications | 3 | Email + in-app notifications working |
