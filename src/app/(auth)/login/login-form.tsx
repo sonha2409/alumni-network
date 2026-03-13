@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,9 @@ import { login } from "@/app/(auth)/actions";
 import type { ActionResult } from "@/lib/types";
 
 export function LoginForm() {
+  const searchParams = useSearchParams();
+  const emailConfirmed = searchParams.get("email_confirmed") === "true";
+
   const [state, formAction, isPending] = useActionState<
     ActionResult | null,
     FormData
@@ -17,6 +21,15 @@ export function LoginForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
+      {emailConfirmed && (
+        <div
+          role="status"
+          className="rounded-lg border border-green-500/50 bg-green-500/10 px-4 py-3 text-sm text-green-700 dark:text-green-400"
+        >
+          Email confirmed! Please sign in to continue.
+        </div>
+      )}
+
       {state?.success === false && !state.fieldErrors && (
         <div
           role="alert"

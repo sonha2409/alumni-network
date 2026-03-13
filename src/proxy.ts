@@ -49,6 +49,17 @@ export default async function proxy(request: NextRequest) {
       return NextResponse.redirect(url);
     }
     console.error("[Proxy] Code exchange failed", { error: error.message });
+
+    // PKCE exchange failed (likely missing code_verifier cookie — user opened
+    // the confirmation link in a different browser context). The email IS
+    // confirmed server-side by Supabase before it redirects here, so redirect
+    // to /login with a flag so the login page can show a success message.
+    const url = request.nextUrl.clone();
+    url.searchParams.delete("code");
+    url.searchParams.delete("next");
+    url.pathname = "/login";
+    url.searchParams.set("email_confirmed", "true");
+    return NextResponse.redirect(url);
   }
 
   // IMPORTANT: Do not remove this getUser() call.
