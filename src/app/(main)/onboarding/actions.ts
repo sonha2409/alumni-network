@@ -10,6 +10,17 @@ import type { ActionResult } from "@/lib/types";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const GOOGLE_AVATAR_DOMAINS = ["lh3.googleusercontent.com", "googleusercontent.com"];
+
+function isGoogleAvatarUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" &&
+      GOOGLE_AVATAR_DOMAINS.some((domain) => parsed.hostname.endsWith(domain));
+  } catch {
+    return false;
+  }
+}
 
 export async function createProfile(
   _prevState: ActionResult<{ profileId: string }> | null,
@@ -137,6 +148,12 @@ export async function createProfile(
         data: { publicUrl },
       } = supabase.storage.from("avatars").getPublicUrl(filePath);
       photoUrl = publicUrl;
+    }
+  } else {
+    // Fallback: use Google avatar URL if no file uploaded
+    const googleAvatarUrl = formData.get("google_avatar_url") as string | null;
+    if (googleAvatarUrl && isGoogleAvatarUrl(googleAvatarUrl)) {
+      photoUrl = googleAvatarUrl;
     }
   }
 

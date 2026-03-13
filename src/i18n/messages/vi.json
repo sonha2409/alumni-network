@@ -409,6 +409,8 @@
     "selectSpec": "Chọn chuyên ngành",
     "profilePhoto": "Ảnh hồ sơ (tùy chọn)",
     "photoHint": "JPEG, PNG hoặc WebP. Tối đa 5 MB.",
+    "googlePhotoHint": "Được nhập từ tài khoản Google. Bạn có thể tải ảnh khác hoặc xóa.",
+    "removePhoto": "Xóa",
     "creatingProfile": "Đang tạo hồ sơ…",
     "createProfile": "Tạo hồ sơ",
     "profileCreated": "Tạo hồ sơ thành công! Hãy thiết lập thêm."

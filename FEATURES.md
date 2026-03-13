@@ -108,6 +108,30 @@ A web platform where verified alumni of a single school can discover and connect
 - **Configuration**: Google OAuth credentials (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) configured in Supabase dashboard (production) and `supabase/config.toml` via env vars (local dev).
 - **Edge cases**: Cancelled consent → user stays on login page. Banned/suspended → proxy redirects to `/banned`. Self-deleted → proxy redirects to `/account-deleted`.
 
+#### Google Profile Import (Onboarding)
+
+When a user signs up via Google OAuth, Supabase stores their Google profile metadata in `auth.users.raw_user_meta_data` (fields: `full_name`, `avatar_url`, `picture`, `name`). This data should be used to pre-populate the onboarding form for a smoother experience.
+
+**Behavior**:
+- **Name pre-fill**: The `full_name` field on the onboarding form is pre-populated with the Google display name (from `user_metadata.full_name` or `user_metadata.name`). The field remains editable — user can change it.
+- **Avatar pre-fill**: The Google profile picture URL (from `user_metadata.avatar_url` or `user_metadata.picture`) is shown as the photo preview on the onboarding form. If the user does not upload a custom photo, this URL is used as `profiles.photo_url`.
+- **Custom photo takes priority**: If the user uploads a photo via the file input, it is uploaded to the `avatars` storage bucket as usual, and the Google avatar URL is ignored.
+- **Remove option**: User can remove the pre-filled Google avatar (clear the preview), in which case no photo is set unless they upload one.
+- **Email-password users**: No change — name field is blank, no photo preview. The feature only activates when Google metadata is present.
+
+**Implementation approach**:
+1. **`onboarding/page.tsx`** (Server Component): Read `user.user_metadata.full_name` and `user.user_metadata.avatar_url` from the authenticated Supabase user. Pass as `defaultName` and `googleAvatarUrl` props to `OnboardingForm`.
+2. **`onboarding-form.tsx`** (Client Component): Accept new props. Set `defaultValue` on name input. Initialize photo preview with Google avatar URL. Include a hidden input `google_avatar_url` so the server action knows the fallback.
+3. **`onboarding/actions.ts`** (Server Action): If no photo file is uploaded but `google_avatar_url` is present in form data, validate it's a Google-hosted URL (`lh3.googleusercontent.com` or similar) and use it as `photo_url`. No storage upload needed — Google URLs are publicly accessible.
+
+**No schema changes**: `profiles.photo_url` already accepts any URL string. Google avatar URLs are stable, publicly accessible CDN links.
+
+**Edge cases**:
+- Google account without profile picture → no avatar pre-fill, behaves like email signup
+- Google display name is empty or whitespace → no name pre-fill
+- Google avatar URL is invalid/expired → profile created without photo (graceful degradation)
+- User changes Google avatar after signup → `photo_url` still points to old URL (acceptable — user can update via profile edit)
+
 ### F2. Alumni Verification
 - **Trigger**: user submits verification request with supporting info (graduation year, student ID, degree program)
 - **Queue**: admins see pending requests in dashboard, can approve/reject with optional message

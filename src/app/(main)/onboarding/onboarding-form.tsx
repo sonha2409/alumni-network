@@ -15,9 +15,11 @@ interface OnboardingFormProps {
   industries: IndustryWithSpecializations[];
   minGraduationYear: number;
   maxGraduationYear: number;
+  defaultName?: string;
+  googleAvatarUrl?: string;
 }
 
-export function OnboardingForm({ industries, minGraduationYear, maxGraduationYear }: OnboardingFormProps) {
+export function OnboardingForm({ industries, minGraduationYear, maxGraduationYear, defaultName, googleAvatarUrl }: OnboardingFormProps) {
   const t = useTranslations("onboarding");
   const router = useRouter();
   const [state, formAction, isPending] = useActionState<
@@ -26,7 +28,8 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
   >(createProfile, null);
 
   const [selectedIndustryId, setSelectedIndustryId] = useState("");
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(googleAvatarUrl ?? null);
+  const [usingGoogleAvatar, setUsingGoogleAvatar] = useState(!!googleAvatarUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedIndustry = industries.find((i) => i.id === selectedIndustryId);
@@ -42,11 +45,20 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) {
-      setPhotoPreview(null);
+      setPhotoPreview(usingGoogleAvatar ? googleAvatarUrl ?? null : null);
       return;
     }
+    setUsingGoogleAvatar(false);
     const url = URL.createObjectURL(file);
     setPhotoPreview(url);
+  }
+
+  function handleRemovePhoto() {
+    setPhotoPreview(null);
+    setUsingGoogleAvatar(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   }
 
   return (
@@ -67,6 +79,7 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
           id="full_name"
           name="full_name"
           type="text"
+          defaultValue={defaultName}
           placeholder={t("fullNamePlaceholder")}
           autoComplete="name"
           required
@@ -191,11 +204,21 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
         <Label htmlFor="photo">{t("profilePhoto")}</Label>
         <div className="flex items-center gap-4">
           {photoPreview && (
-            <img
-              src={photoPreview}
-              alt="Photo preview"
-              className="h-16 w-16 rounded-full object-cover"
-            />
+            <div className="relative">
+              <img
+                src={photoPreview}
+                alt="Photo preview"
+                className="h-16 w-16 rounded-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={handleRemovePhoto}
+                className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] text-destructive-foreground hover:bg-destructive/90"
+                aria-label={t("removePhoto")}
+              >
+                &times;
+              </button>
+            </div>
           )}
           <Input
             ref={fileInputRef}
@@ -208,8 +231,11 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
           />
         </div>
         <p className="text-xs text-muted-foreground">
-          {t("photoHint")}
+          {usingGoogleAvatar ? t("googlePhotoHint") : t("photoHint")}
         </p>
+        {usingGoogleAvatar && googleAvatarUrl && (
+          <input type="hidden" name="google_avatar_url" value={googleAvatarUrl} />
+        )}
         {state?.success === false && state.fieldErrors?.photo && (
           <p id="photo-error" className="text-sm text-destructive">
             {state.fieldErrors.photo[0]}

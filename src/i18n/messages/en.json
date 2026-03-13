@@ -409,6 +409,8 @@
     "selectSpec": "Select a specialization",
     "profilePhoto": "Profile photo (optional)",
     "photoHint": "JPEG, PNG, or WebP. Max 5 MB.",
+    "googlePhotoHint": "Imported from your Google account. You can upload a different photo or remove it.",
+    "removePhoto": "Remove",
     "creatingProfile": "Creating profile…",
     "createProfile": "Create profile",
     "profileCreated": "Profile created! Let's set up a few more things."

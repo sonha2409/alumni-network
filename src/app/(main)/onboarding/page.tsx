@@ -48,6 +48,11 @@ export default async function OnboardingPage() {
   const t = await getTranslations("onboarding");
   const currentYear = new Date().getFullYear();
 
+  // Extract Google OAuth metadata for pre-filling the form
+  const metadata = user.user_metadata ?? {};
+  const defaultName = (metadata.full_name || metadata.name || "").trim() || undefined;
+  const googleAvatarUrl = (metadata.avatar_url || metadata.picture || "").trim() || undefined;
+
   return (
     <div className="mx-auto max-w-lg">
       <Card>
@@ -62,6 +67,8 @@ export default async function OnboardingPage() {
             industries={industries}
             minGraduationYear={school.first_graduating_year}
             maxGraduationYear={currentYear + 3}
+            defaultName={defaultName}
+            googleAvatarUrl={googleAvatarUrl}
           />
         </CardContent>
       </Card>
