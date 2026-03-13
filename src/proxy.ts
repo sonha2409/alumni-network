@@ -46,7 +46,14 @@ export default async function proxy(request: NextRequest) {
       url.searchParams.delete("code");
       url.searchParams.delete("next");
       url.pathname = next ?? "/dashboard";
-      return NextResponse.redirect(url);
+      const redirectResponse = NextResponse.redirect(url);
+      // Copy session cookies from supabaseResponse onto the redirect —
+      // without this, the cookies set by exchangeCodeForSession are lost
+      // because NextResponse.redirect() creates a new response object.
+      for (const cookie of supabaseResponse.cookies.getAll()) {
+        redirectResponse.cookies.set(cookie);
+      }
+      return redirectResponse;
     }
     console.error("[Proxy] Code exchange failed", { error: error.message });
 
@@ -59,7 +66,11 @@ export default async function proxy(request: NextRequest) {
     url.searchParams.delete("next");
     url.pathname = "/login";
     url.searchParams.set("email_confirmed", "true");
-    return NextResponse.redirect(url);
+    const failRedirect = NextResponse.redirect(url);
+    for (const cookie of supabaseResponse.cookies.getAll()) {
+      failRedirect.cookies.set(cookie);
+    }
+    return failRedirect;
   }
 
   // IMPORTANT: Do not remove this getUser() call.
