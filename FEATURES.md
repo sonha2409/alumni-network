@@ -456,7 +456,7 @@ Identified during pre-deploy architecture audit ([ADR-019](docs/adrs/019-pre-dep
 - **Redis-based rate limiting**: Replace DB-query rate limiting in messaging with atomic Redis counters. Current approach has a race condition window where two rapid requests can both pass the check.
 - **Security headers**: Add CSP, X-Frame-Options, X-Content-Type-Options, and Referrer-Policy via `next.config.ts` `headers()`. Important for XSS protection with user-generated content.
 - **Storage cleanup job**: Soft-deleted message attachments remain in Supabase Storage indefinitely. Add a scheduled function to purge files where `is_deleted = true` and `deleted_at` is older than 30 days.
-- **Missing database indexes**: `notifications(user_id, is_read)` for bulk mark-all-read, `message_reports(reporter_id)`, `dismissed_announcements(user_id)`, `user_warnings(moderator_id)`.
+- ~~**Missing database indexes**: `notifications(user_id, is_read)` for bulk mark-all-read, `message_reports(reporter_id)`, `dismissed_announcements(user_id)`, `user_warnings(moderator_id)`.~~ **Done** (2026-03-14, migration `00033`).
 - **Message soft-delete at RLS level**: Currently `messages.is_deleted` is filtered by app code only. Add RLS policy `WHERE is_deleted = false` so direct API queries also respect deletion.
 - **Mute enforcement at RLS level**: Currently checked in `sendMessage()` server action only. Add a trigger or RLS check on `messages` INSERT to enforce at DB level.
 - **Unit test fixes**: 10 failing tests (4 in profile-completeness scoring, 6 in onboarding actions). Mocks need updating after schema changes.

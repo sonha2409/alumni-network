@@ -19,7 +19,7 @@
 | P6 | Cache taxonomy data | Medium | 2h | Approved |
 | P7 | Profile page parallelization | Low-Med | 1h | Planned |
 | P8 | Supabase client singleton | Low | 15min | **Done** (2026-03-14) |
-| P9 | Missing DB indexes | Low | 30min | Approved |
+| P9 | Missing DB indexes | Low | 30min | **Done** (2026-03-14) |
 | P10 | Conversations RPC | Medium | 4h | Approved |
 
 **Recommended implementation order:** P5 → P8 → P9 → P4 → P6 → P3 → P2 → P0+P10 → P7 → P1
@@ -478,7 +478,7 @@ Reduces WebSocket connections from 3-4 to 1. Minor memory savings.
 
 ## P9 — Missing Database Indexes (LOW)
 
-**Status:** Approved (Quick Win)
+**Status:** Done (2026-03-14)
 
 ### Problem
 
