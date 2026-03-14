@@ -139,6 +139,7 @@ erDiagram
 
 ## Edge Cases and Error Handling
 
+- **Mobile document download**: `DocumentRow` uses a native `<a>` tag with a pre-fetched signed URL instead of programmatic `window.open()` or `link.click()`. iOS Safari blocks `window.open()` / programmatic clicks when called after an `await` (cross-origin Supabase storage URLs). Pre-fetching the signed URL on mount and using a native `<a target="_blank">` avoids this restriction.
 - **Expired signed URLs**: `onError` handler on `<img>` elements re-fetches a fresh signed URL (1-hour expiry).
 - **Partial upload failure**: Per-file error states in the file picker strip with retry button. Send is blocked until all files succeed or are removed.
 - **Storage quota exceeded**: Checked before upload begins and again server-side before insert. Clear error message with remaining space shown.

@@ -216,21 +216,20 @@ export async function getTotalUnreadCount(userId: string): Promise<number> {
     return 0;
   }
 
-  let totalUnread = 0;
+  // Count unread messages across all conversations in parallel
+  const counts = await Promise.all(
+    participations.map(async (p) => {
+      const { count } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .eq("conversation_id", p.conversation_id)
+        .gt("created_at", p.last_read_at)
+        .neq("sender_id", userId);
+      return count ?? 0;
+    })
+  );
 
-  // Count unread messages across all conversations
-  for (const p of participations) {
-    const { count } = await supabase
-      .from("messages")
-      .select("id", { count: "exact", head: true })
-      .eq("conversation_id", p.conversation_id)
-      .gt("created_at", p.last_read_at)
-      .neq("sender_id", userId);
-
-    totalUnread += count ?? 0;
-  }
-
-  return totalUnread;
+  return counts.reduce((sum, c) => sum + c, 0);
 }
 
 /**

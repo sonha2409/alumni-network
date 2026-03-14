@@ -15,6 +15,7 @@ import {
 import { logout } from "@/app/(auth)/actions";
 import { NotificationBell } from "./notification-bell";
 import { useNotifications } from "@/app/(main)/notifications/components/notifications-provider";
+import { useUnreadMessages } from "@/app/(main)/messages/components/unread-messages-provider";
 import type { NavbarUserData } from "./main-navbar";
 
 interface MainNavbarClientProps {
@@ -67,6 +68,16 @@ function MobileNotificationsLink({ onClick }: { onClick: () => void }) {
   );
 }
 
+function MessageBadge({ className }: { className?: string }) {
+  const { unreadCount } = useUnreadMessages();
+  if (unreadCount <= 0) return null;
+  return (
+    <span className={className}>
+      {unreadCount > 99 ? "99+" : unreadCount}
+    </span>
+  );
+}
+
 export function MainNavbarClient({ user }: MainNavbarClientProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = useTranslations("nav");
@@ -114,13 +125,8 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
                     {user.pendingConnectionCount}
                   </span>
                 )}
-              {link.href === "/messages" &&
-                user.unreadMessageCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-bold text-white animate-in zoom-in-50 duration-300">
-                    {user.unreadMessageCount > 99
-                      ? "99+"
-                      : user.unreadMessageCount}
-                  </span>
+              {link.href === "/messages" && (
+                  <MessageBadge className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-bold text-white animate-in zoom-in-50 duration-300" />
                 )}
             </Link>
           ))}
@@ -254,13 +260,8 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
                       {user.pendingConnectionCount}
                     </span>
                   )}
-                {link.href === "/messages" &&
-                  user.unreadMessageCount > 0 && (
-                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-500 px-1 text-[11px] font-bold text-white">
-                      {user.unreadMessageCount > 99
-                        ? "99+"
-                        : user.unreadMessageCount}
-                    </span>
+                {link.href === "/messages" && (
+                    <MessageBadge className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-500 px-1 text-[11px] font-bold text-white" />
                   )}
               </Link>
             ))}

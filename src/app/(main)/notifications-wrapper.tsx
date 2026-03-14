@@ -3,7 +3,9 @@ import {
   getUnreadNotificationCount,
   getRecentNotifications,
 } from "@/lib/queries/notifications";
+import { getTotalUnreadCount } from "@/lib/queries/messages";
 import { NotificationsProvider } from "./notifications/components/notifications-provider";
+import { UnreadMessagesProvider } from "./messages/components/unread-messages-provider";
 
 export async function NotificationsWrapper({
   children,
@@ -19,10 +21,12 @@ export async function NotificationsWrapper({
     return <>{children}</>;
   }
 
-  const [unreadCount, recentNotifications] = await Promise.all([
-    getUnreadNotificationCount(user.id),
-    getRecentNotifications(user.id),
-  ]);
+  const [unreadCount, recentNotifications, unreadMessageCount] =
+    await Promise.all([
+      getUnreadNotificationCount(user.id),
+      getRecentNotifications(user.id),
+      getTotalUnreadCount(user.id),
+    ]);
 
   return (
     <NotificationsProvider
@@ -30,7 +34,12 @@ export async function NotificationsWrapper({
       initialNotifications={recentNotifications}
       currentUserId={user.id}
     >
-      {children}
+      <UnreadMessagesProvider
+        initialUnreadCount={unreadMessageCount}
+        currentUserId={user.id}
+      >
+        {children}
+      </UnreadMessagesProvider>
     </NotificationsProvider>
   );
 }

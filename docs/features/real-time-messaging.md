@@ -21,8 +21,11 @@ graph TD
     E --> F[MessageBubble]
     E --> G[MessageInput]
     F --> H[ReportDialog]
-    I[MainNavbar] --> J[UnreadBadge]
-    K[ProfilePage / ConnectionActions] -->|getOrCreateConversation| A
+    I[MainLayout] --> J[NotificationsWrapper]
+    J --> K2[UnreadMessagesProvider]
+    K2 --> L[MainNavbarClient]
+    L --> M[MessageBadge - real-time]
+    N[ProfilePage / ConnectionActions] -->|getOrCreateConversation| A
 ```
 
 ### Data Flow
@@ -181,8 +184,10 @@ sequenceDiagram
 | `src/app/(main)/messages/components/message-input.tsx` | Compose area with persistent focus |
 | `src/app/(main)/messages/components/conversation-list.tsx` | Sidebar with unread badges |
 | `src/app/(main)/messages/components/report-dialog.tsx` | Anonymous report modal |
-| `src/components/navbar/main-navbar.tsx` | Navbar: added unreadMessageCount |
-| `src/components/navbar/main-navbar-client.tsx` | Navbar: Messages link + blue badge |
+| `src/app/(main)/messages/components/unread-messages-provider.tsx` | Real-time unread message count context (Supabase Realtime subscription) |
+| `src/app/(main)/notifications-wrapper.tsx` | Server component: fetches initial unread counts (notifications + messages) in parallel |
+| `src/components/navbar/main-navbar.tsx` | Navbar server component (no longer fetches unread messages — delegated to provider) |
+| `src/components/navbar/main-navbar-client.tsx` | Navbar: Messages link + real-time blue badge via `useUnreadMessages()` |
 | `src/app/(main)/profile/[id]/connection-actions.tsx` | "Message" button on connected profiles |
 
 ## RLS Policies
@@ -232,6 +237,7 @@ sequenceDiagram
 - **5-min timestamp grouping**: Only the first message in a <5min cluster shows a centered timestamp. Individual timestamps shown on tap. Matches Messenger/Instagram pattern.
 - **App-level rate limiting** over DB triggers: Better UX (user-friendly error messages, remaining count), easier to test and tune. RLS provides the security backstop.
 - **SECURITY DEFINER helpers** for RLS policies that subquery `public.users`: Same pattern as ADR-002 (admin RLS fix). Prevents RLS recursion when checking verification status.
+- **Real-time navbar badge via context provider**: Same pattern as `NotificationsProvider`. `UnreadMessagesProvider` subscribes to `messages` INSERT events globally and increments the count for non-self messages. Initial count fetched server-side in parallel with notification counts (single `getUser()` call). See ADR-022.
 
 ## Future Considerations
 
