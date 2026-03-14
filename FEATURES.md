@@ -431,6 +431,9 @@ Interactive geographic visualization of where alumni are located worldwide.
 - **Core Web Vitals**: LCP < 2.5s, FID < 100ms, CLS < 0.1
 - **Bundle size**: Target < 200KB initial JavaScript bundle
 - **API response**: Server Actions < 500ms p95
+- **Recharts lazy-loading** (P5, done 2026-03-14): Analytics dashboard dynamically imported — ~130KB removed from non-admin bundles
+- **Supabase client singleton** (P8, done 2026-03-14): Browser client cached at module level — WebSocket connections reduced from 3-4 to 1
+- **Performance plan**: See `docs/PERFORMANCE_PLAN.md` for full optimization roadmap (P0–P10)
 
 ### Accessibility
 - **WCAG 2.1 AA** compliance

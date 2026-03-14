@@ -77,6 +77,8 @@
 | 37  | i18n: user-selectable display language               | `DONE` | 2026-03-13. `next-intl` (non-routing, cookie-based). 20 namespaces, 230+ strings in en.json + vi.json. `preferred_language` column on users. `/settings/language` page. Synced on login. DB taxonomy data (industries, tags) not yet translated. |
 | 41  | Auth: Google OAuth (Sign in with Google)             | `DONE` | 2026-03-13. Client-side OAuth via Supabase. Auto-links by email. Same verification flow as email users. |
 | 42  | Onboarding: Google profile import (name + avatar)    | `DONE` | 2026-03-13. Pre-populate onboarding form with Google name and avatar. User can still change both. No schema changes. |
+| P5  | Perf: lazy-load Recharts                             | `DONE` | 2026-03-14. Dynamic import of analytics dashboard via `next/dynamic`. ~130KB removed from non-admin bundles. Skeleton loading state. |
+| P8  | Perf: Supabase browser client singleton              | `DONE` | 2026-03-14. Module-level singleton in `src/lib/supabase/client.ts`. Reduces WebSocket connections from 3-4 to 1. |
 | 38  | Multi-school support                                 | `TODO` | Phase 4. School-scoped RLS, school-scoped routing (`/schools/:slug/...`), school admin roles, `school_id` on `users`.           |
 | 39  | Admin: school management UI                          | `TODO` | Phase 4. CRUD for schools table. Currently seed-only.                                                                           |
 
