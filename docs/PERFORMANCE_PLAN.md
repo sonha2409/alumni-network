@@ -14,7 +14,7 @@
 | P1 | Image optimization | High | 4h | Planned |
 | P2 | Query consolidation | High | 3h | Approved |
 | P3 | Dashboard parallelization | Medium | 1.5h | Approved |
-| P4 | Proxy query reduction | Medium | 1h | Approved |
+| P4 | Proxy query reduction | Medium | 1h | **Done** (2026-03-14) |
 | P5 | Lazy-load Recharts | Medium | 15min | **Done** (2026-03-14) |
 | P6 | Cache taxonomy data | Medium | 2h | Approved |
 | P7 | Profile page parallelization | Low-Med | 1h | Planned |
@@ -259,7 +259,7 @@ Can be combined with P2 migration (same RPCs being modified).
 
 ## P4 — Proxy Per-Request Query Overhead (MEDIUM)
 
-**Status:** Approved
+**Status:** Done (2026-03-14)
 
 ### Problem
 

@@ -80,6 +80,7 @@
 | P5  | Perf: lazy-load Recharts                             | `DONE` | 2026-03-14. Dynamic import of analytics dashboard via `next/dynamic`. ~130KB removed from non-admin bundles. Skeleton loading state. |
 | P8  | Perf: Supabase browser client singleton              | `DONE` | 2026-03-14. Module-level singleton in `src/lib/supabase/client.ts`. Reduces WebSocket connections from 3-4 to 1. |
 | P9  | Perf: missing database indexes                       | `DONE` | 2026-03-14. 4 indexes: `notifications(user_id, is_read)`, `message_reports(reporter_id)`, `dismissed_announcements(user_id)`, `user_warnings(moderator_id)`. |
+| P4  | Perf: proxy query reduction                          | `DONE` | 2026-03-14. Combined user status + profile existence into single PostgREST nested select. 2 queries → 1 per authenticated request. |
 | 38  | Multi-school support                                 | `TODO` | Phase 4. School-scoped RLS, school-scoped routing (`/schools/:slug/...`), school admin roles, `school_id` on `users`.           |
 | 39  | Admin: school management UI                          | `TODO` | Phase 4. CRUD for schools table. Currently seed-only.                                                                           |
 
