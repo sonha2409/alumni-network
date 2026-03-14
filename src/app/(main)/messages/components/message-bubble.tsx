@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { UserAvatar } from "@/components/user-avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -297,26 +298,12 @@ function Avatar({
 }: {
   sender: { full_name: string; photo_url: string | null };
 }) {
-  const initials = sender.full_name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
-  if (sender.photo_url) {
-    return (
-      <img
-        src={sender.photo_url}
-        alt={sender.full_name}
-        className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
-      />
-    );
-  }
-
   return (
-    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
-      {initials}
-    </div>
+    <UserAvatar
+      photoUrl={sender.photo_url}
+      fullName={sender.full_name}
+      size="sm"
+      className="flex-shrink-0"
+    />
   );
 }

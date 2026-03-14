@@ -9,6 +9,7 @@ import { MessageInput } from "./message-input";
 import { MediaPanel } from "./media-panel";
 import { markConversationRead } from "../actions";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UserAvatar } from "@/components/user-avatar";
 import type { ConversationWithDetails } from "@/lib/types";
 
 const FIVE_MINUTES_MS = 5 * 60 * 1000;
@@ -160,22 +161,11 @@ export function ChatView({
               href={`/profile/${otherUser.profile_id}`}
               className="flex items-center gap-3 hover:opacity-80"
             >
-              {otherUser.photo_url ? (
-                <img
-                  src={otherUser.photo_url}
-                  alt={otherUser.full_name}
-                  className="h-9 w-9 rounded-full object-cover"
-                />
-              ) : (
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
-                  {otherUser.full_name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .slice(0, 2)
-                    .toUpperCase()}
-                </div>
-              )}
+              <UserAvatar
+                photoUrl={otherUser.photo_url}
+                fullName={otherUser.full_name}
+                size="md"
+              />
               <div>
                 <p className="text-sm font-semibold">{otherUser.full_name}</p>
               </div>
@@ -282,22 +272,12 @@ export function ChatView({
               {isOtherUserTyping && (
                 <div className="pt-3">
                   <div className="flex items-end gap-2">
-                    {otherUser.photo_url ? (
-                      <img
-                        src={otherUser.photo_url}
-                        alt={otherUser.full_name}
-                        className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
-                        {otherUser.full_name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .slice(0, 2)
-                          .toUpperCase()}
-                      </div>
-                    )}
+                    <UserAvatar
+                      photoUrl={otherUser.photo_url}
+                      fullName={otherUser.full_name}
+                      size="sm"
+                      className="flex-shrink-0"
+                    />
                     <div className="rounded-2xl bg-muted px-4 py-3">
                       <div className="flex items-center gap-1" aria-label={t("typing")}>
                         <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:0ms]" />

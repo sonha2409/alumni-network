@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { UserAvatar } from "@/components/user-avatar";
 import { useMessages } from "./messages-provider";
 import { formatRelativeTime } from "@/lib/utils";
 
@@ -54,22 +55,11 @@ export function ConversationList() {
           >
             {/* Avatar */}
             <div className="relative flex-shrink-0">
-              {conv.other_participant.photo_url ? (
-                <img
-                  src={conv.other_participant.photo_url}
-                  alt={conv.other_participant.full_name}
-                  className="h-10 w-10 rounded-full object-cover"
-                />
-              ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
-                  {conv.other_participant.full_name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .slice(0, 2)
-                    .toUpperCase()}
-                </div>
-              )}
+              <UserAvatar
+                photoUrl={conv.other_participant.photo_url}
+                fullName={conv.other_participant.full_name}
+                size="lg"
+              />
               {/* Unread dot */}
               {hasUnread && (
                 <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-blue-500 ring-2 ring-background" />

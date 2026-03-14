@@ -4,6 +4,7 @@ import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
+import { UserAvatar } from "@/components/user-avatar";
 import {
   Dialog,
   DialogContent,
@@ -100,22 +101,11 @@ export function NewMessageDialog({
                 disabled={isPending}
                 className="flex w-full items-center gap-3 rounded-md px-2 py-2.5 text-left transition-colors hover:bg-muted/50 disabled:opacity-50"
               >
-                {conn.photo_url ? (
-                  <img
-                    src={conn.photo_url}
-                    alt={conn.full_name}
-                    className="h-10 w-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
-                    {conn.full_name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .slice(0, 2)
-                      .toUpperCase()}
-                  </div>
-                )}
+                <UserAvatar
+                  photoUrl={conn.photo_url}
+                  fullName={conn.full_name}
+                  size="lg"
+                />
                 <span className="text-sm font-medium">{conn.full_name}</span>
               </button>
             ))

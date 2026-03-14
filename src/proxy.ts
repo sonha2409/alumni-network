@@ -108,10 +108,11 @@ export default async function proxy(request: NextRequest) {
   }
 
   // Check if user is banned, suspended, or self-deleted — redirect appropriately
+  // P4: Combined user status + profile existence into a single query for non-status pages
   if (user && !isStatusPage && !isAuthCallback) {
     const { data: userData, error: statusError } = await supabase
       .from("users")
-      .select("is_active, suspended_until, deleted_at")
+      .select("is_active, suspended_until, deleted_at, profiles(id)")
       .eq("id", user.id)
       .single();
 
@@ -146,6 +147,20 @@ export default async function proxy(request: NextRequest) {
         const url = request.nextUrl.clone();
         url.pathname = "/banned";
         return NextResponse.redirect(url);
+      }
+
+      // Redirect authenticated users without a profile to onboarding
+      // Skip for onboarding page itself, reset-password, and public routes
+      if (!isOnboarding && !isResetPassword && !isPublicRoute && !isBannedPage) {
+        const hasProfile = Array.isArray(userData.profiles)
+          ? userData.profiles.length > 0
+          : !!userData.profiles;
+
+        if (!hasProfile) {
+          const url = request.nextUrl.clone();
+          url.pathname = "/onboarding";
+          return NextResponse.redirect(url);
+        }
       }
     }
 
@@ -182,33 +197,6 @@ export default async function proxy(request: NextRequest) {
         url.pathname = "/dashboard";
         return NextResponse.redirect(url);
       }
-    }
-  }
-
-  // Redirect authenticated users without a profile to onboarding
-  // Skip this check for onboarding page itself, auth callback, banned page, and public routes
-  if (user && !isOnboarding && !isResetPassword && !isAuthCallback && !isPublicRoute && !isBannedPage) {
-    const { count, error: profileError } = await supabase
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id);
-
-    // Fix 4: Fail-closed — if we can't check profile, sign out and redirect to login
-    if (profileError) {
-      console.error("[Proxy] Failed to check profile existence, signing out and redirecting to login", {
-        userId: user.id,
-        error: profileError.message,
-      });
-      await supabase.auth.signOut();
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      return NextResponse.redirect(url);
-    }
-
-    if (count === 0) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/onboarding";
-      return NextResponse.redirect(url);
     }
   }
 
