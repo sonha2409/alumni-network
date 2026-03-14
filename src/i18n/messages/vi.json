@@ -214,6 +214,10 @@
   },
   "messages": {
     "title": "Tin nhắn",
+    "newMessage": "Tin nhắn mới",
+    "searchConnections": "Tìm kiếm kết nối...",
+    "noConnectionsMatch": "Không tìm thấy kết nối phù hợp",
+    "noConnectionsToMessage": "Chưa có kết nối. Kết nối với cựu sinh viên để bắt đầu nhắn tin.",
     "restrictedTitle": "Tin nhắn của bạn tạm thời bị hạn chế",
     "restrictedReason": "Lý do: {reason}. ",
     "restrictedEnds": "Hạn chế kết thúc vào {date}.",

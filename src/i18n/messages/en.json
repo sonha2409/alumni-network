@@ -214,6 +214,10 @@
   },
   "messages": {
     "title": "Messages",
+    "newMessage": "New message",
+    "searchConnections": "Search connections...",
+    "noConnectionsMatch": "No connections match your search",
+    "noConnectionsToMessage": "No connections yet. Connect with alumni to start messaging.",
     "restrictedTitle": "Your messaging is temporarily restricted",
     "restrictedReason": "Reason: {reason}. ",
     "restrictedEnds": "Restriction ends on {date}.",

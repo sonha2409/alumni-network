@@ -22,6 +22,57 @@ import {
 } from "@/lib/attachments";
 
 /**
+ * Fetch accepted connections for the current user (lightweight: id, name, photo only).
+ * Used by the new-message dialog to pick a recipient.
+ */
+export async function fetchConnections(): Promise<
+  ActionResult<{ user_id: string; full_name: string; photo_url: string | null }[]>
+> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "You must be logged in." };
+  }
+
+  const { data: connections, error } = await supabase
+    .from("connections")
+    .select("requester_id, receiver_id")
+    .eq("status", "accepted")
+    .or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`);
+
+  if (error) {
+    console.error("[ServerAction:fetchConnections]", { userId: user.id, error: error.message });
+    return { success: false, error: "Failed to load connections." };
+  }
+
+  if (!connections || connections.length === 0) {
+    return { success: true, data: [] };
+  }
+
+  const otherIds = connections.map((c) =>
+    c.requester_id === user.id ? c.receiver_id : c.requester_id
+  );
+
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("user_id, full_name, photo_url")
+    .in("user_id", otherIds)
+    .order("full_name", { ascending: true });
+
+  return {
+    success: true,
+    data: (profiles ?? []).map((p) => ({
+      user_id: p.user_id,
+      full_name: p.full_name,
+      photo_url: p.photo_url,
+    })),
+  };
+}
+
+/**
  * Get or create a 1-on-1 conversation with a connected user.
  * Returns the conversation ID.
  */

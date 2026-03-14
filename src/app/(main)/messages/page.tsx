@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getConversations, getTotalUnreadCount } from "@/lib/queries/messages";
 import { MessagesProvider } from "./components/messages-provider";
 import { ConversationList } from "./components/conversation-list";
+import { NewMessageButton } from "./components/new-message-button";
 
 export const dynamic = "force-dynamic";
 
@@ -59,8 +60,9 @@ export default async function MessagesPage() {
       <div className="flex h-[calc(100vh-8rem)] flex-col rounded-lg border bg-background shadow-sm md:flex-row">
         {/* Conversation list — full width on mobile, sidebar on desktop */}
         <div className="flex w-full flex-col border-r md:w-80 lg:w-96">
-          <div className="border-b px-4 py-3">
+          <div className="flex items-center justify-between border-b px-4 py-3">
             <h1 className="text-lg font-semibold">{t("title")}</h1>
+            <NewMessageButton />
           </div>
           <ConversationList />
         </div>
