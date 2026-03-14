@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { signup } from "@/app/(auth)/actions";
 import { GoogleSignInButton } from "@/app/(auth)/google-sign-in-button";
@@ -92,10 +93,9 @@ export function SignupForm() {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="password">{tc("password")}</Label>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           placeholder={tc("passwordPlaceholder")}
           autoComplete="new-password"
           required
@@ -120,10 +120,9 @@ export function SignupForm() {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
-        <Input
+        <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          type="password"
           placeholder={tc("passwordPlaceholder")}
           autoComplete="new-password"
           required

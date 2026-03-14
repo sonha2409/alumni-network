@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { updatePassword } from "@/app/(auth)/actions";
 import type { ActionResult } from "@/lib/types";
@@ -47,10 +48,9 @@ export function ResetPasswordForm() {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="password">{t("newPassword")}</Label>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           autoComplete="new-password"
           required
           aria-invalid={
@@ -73,10 +73,9 @@ export function ResetPasswordForm() {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="confirmPassword">{t("confirmNewPassword")}</Label>
-        <Input
+        <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          type="password"
           autoComplete="new-password"
           required
           aria-invalid={
