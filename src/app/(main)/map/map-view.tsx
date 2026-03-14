@@ -88,19 +88,26 @@ function useDarkMode(): boolean {
 }
 
 function getQuantileBuckets(data: { alumniCount: number }[]): number[] {
-  if (data.length === 0) return [0, 1, 2, 5, 10];
+  if (data.length === 0) return [1, 2, 5, 10, 20];
   const counts = data.map((d) => d.alumniCount).sort((a, b) => a - b);
   const max = counts[counts.length - 1];
   if (max <= 5) return [1, 2, 3, 4, 5];
-  // Create roughly even quintile breaks
+  // Create roughly even quintile breaks, ensuring strictly ascending values
   const step = max / 5;
-  return [
+  const raw = [
     Math.ceil(step),
     Math.ceil(step * 2),
     Math.ceil(step * 3),
     Math.ceil(step * 4),
     max,
   ];
+  // Deduplicate: ensure each value is strictly greater than the previous
+  const result = [raw[0]];
+  for (let i = 1; i < raw.length; i++) {
+    const prev = result[result.length - 1];
+    result.push(raw[i] <= prev ? prev + 1 : raw[i]);
+  }
+  return result;
 }
 
 function buildCountryGeoJSON(data: CountryMapData[]) {
