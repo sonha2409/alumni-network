@@ -142,35 +142,35 @@ function DocumentRow({
 }: {
   attachment: MessageAttachment;
 }) {
-  const [downloading, setDownloading] = useState(false);
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const supabase = createClient();
 
-  async function handleDownload() {
-    setDownloading(true);
-    try {
+  // Pre-fetch signed URL on mount so the click handler stays synchronous.
+  // iOS Safari blocks window.open / link clicks if called after an await.
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchUrl() {
       const { data } = await supabase.storage
         .from("message-attachments")
-        .createSignedUrl(attachment.file_path, 60);
-
-      if (data?.signedUrl) {
-        // window.open works reliably on mobile browsers;
-        // the programmatic <a>.click() approach fails on iOS Safari
-        // for cross-origin URLs (Supabase storage).
-        window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+        .createSignedUrl(attachment.file_path, 3600);
+      if (data?.signedUrl && !cancelled) {
+        setSignedUrl(data.signedUrl);
       }
-    } catch {
-      // Silently fail
-    } finally {
-      setDownloading(false);
     }
-  }
+    fetchUrl();
+    return () => { cancelled = true; };
+  }, [attachment.file_path, supabase]);
 
   return (
-    <button
-      onClick={handleDownload}
-      disabled={downloading}
-      className="flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-2.5 text-left transition-colors hover:bg-muted/50"
-      aria-label={`Download ${attachment.file_name}`}
+    <a
+      href={signedUrl ?? "#"}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => {
+        if (!signedUrl) e.preventDefault();
+      }}
+      className="flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-2.5 text-left no-underline transition-colors hover:bg-muted/50"
+      aria-label={`Open ${attachment.file_name}`}
     >
       <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
         <span className="text-[11px] font-bold text-muted-foreground">
@@ -185,9 +185,9 @@ function DocumentRow({
           {formatFileSize(attachment.file_size)}
         </p>
       </div>
-      {downloading && (
+      {!signedUrl && (
         <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
       )}
-    </button>
+    </a>
   );
 }
