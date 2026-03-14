@@ -35,7 +35,8 @@ export function MessageInput({
   const [isDragging, setIsDragging] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { addOptimisticMessage, updateConversation } = useMessages();
+  const { addOptimisticMessage, updateConversation, broadcastTyping, broadcastStopTyping } = useMessages();
+  const typingDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hasFiles = selectedFiles.length > 0;
   const isUploading = selectedFiles.some((f) => f.status === "uploading");
@@ -256,6 +257,11 @@ export function MessageInput({
     };
 
     addOptimisticMessage(optimisticMessage);
+    broadcastStopTyping();
+    if (typingDebounceRef.current) {
+      clearTimeout(typingDebounceRef.current);
+      typingDebounceRef.current = null;
+    }
     setContent("");
     // Revoke preview URLs
     for (const f of selectedFiles) {
@@ -322,6 +328,19 @@ export function MessageInput({
   function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setContent(e.target.value);
     setError(null);
+
+    // Broadcast typing indicator (debounced — send at most every 2s)
+    if (e.target.value.trim()) {
+      if (!typingDebounceRef.current) {
+        broadcastTyping();
+      }
+      if (typingDebounceRef.current) {
+        clearTimeout(typingDebounceRef.current);
+      }
+      typingDebounceRef.current = setTimeout(() => {
+        typingDebounceRef.current = null;
+      }, 2000);
+    }
 
     // Auto-resize
     const textarea = e.target;

@@ -298,6 +298,9 @@
     "submitting": "Đang gửi...",
     "reportSubmitted": "Đã gửi báo cáo",
     "reportSubmittedDesc": "Người kiểm duyệt sẽ xem xét tin nhắn này.",
+    "delivered": "Đã gửi",
+    "read": "Đã xem",
+    "typing": "đang nhập",
     "mediaPanel": {
       "title": "Media đã chia sẻ",
       "all": "Tất cả",

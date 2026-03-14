@@ -34,6 +34,9 @@ export function ChatView({
     setActiveConversation,
     hasMoreMessages,
     loadOlderMessages,
+    isOtherUserTyping,
+    otherUserLastReadAt,
+    broadcastRead,
   } = useMessages();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -44,22 +47,40 @@ export function ChatView({
   // Set active conversation and mark as read on mount
   useEffect(() => {
     setActiveConversation(conversationId);
-    markConversationRead(conversationId);
+    markConversationRead(conversationId).then(() => {
+      const now = new Date().toISOString();
+      broadcastRead(now);
+    });
 
     return () => {
       setActiveConversation(null);
     };
-  }, [conversationId, setActiveConversation]);
+  }, [conversationId, setActiveConversation, broadcastRead]);
 
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll to bottom on new messages + mark as read
   useEffect(() => {
     const isNewMessage = activeMessages.length > prevMessageCountRef.current;
     prevMessageCountRef.current = activeMessages.length;
 
     if (isNewMessage && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+
+      // If the newest message is from the other user, mark as read
+      const lastMsg = activeMessages[activeMessages.length - 1];
+      if (lastMsg && lastMsg.sender_id !== currentUserId) {
+        markConversationRead(conversationId).then(() => {
+          broadcastRead(new Date().toISOString());
+        });
+      }
     }
-  }, [activeMessages.length]);
+  }, [activeMessages.length, conversationId, currentUserId, broadcastRead]);
+
+  // Auto-scroll when typing indicator appears
+  useEffect(() => {
+    if (isOtherUserTyping && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [isOtherUserTyping]);
 
   // Load older messages on scroll to top
   const handleScroll = useCallback(async () => {
@@ -212,10 +233,12 @@ export function ChatView({
             <div className="space-y-0.5">
               {activeMessages.map((msg, index) => {
                 const prevMsg = index > 0 ? activeMessages[index - 1] : null;
+                const nextMsg = index < activeMessages.length - 1 ? activeMessages[index + 1] : null;
                 const showAvatar =
                   !prevMsg || prevMsg.sender_id !== msg.sender_id;
                 const isNewSender =
                   prevMsg && prevMsg.sender_id !== msg.sender_id;
+                const isOwn = msg.sender_id === currentUserId;
 
                 // Show group timestamp for the first message, or when >5 min
                 // has passed since the previous message (like Messenger/Instagram)
@@ -225,6 +248,20 @@ export function ChatView({
                     new Date(prevMsg.created_at).getTime() >=
                     FIVE_MINUTES_MS;
 
+                // Read status: show only on the last own message before
+                // the other user's next message, or the very last own message
+                let readStatus: "delivered" | "read" | undefined;
+                if (isOwn && !msg.id.startsWith("optimistic-")) {
+                  const isLastOwnBeforeOther = !nextMsg || nextMsg.sender_id !== currentUserId;
+                  if (isLastOwnBeforeOther) {
+                    if (otherUserLastReadAt && new Date(msg.created_at) <= new Date(otherUserLastReadAt)) {
+                      readStatus = "read";
+                    } else {
+                      readStatus = "delivered";
+                    }
+                  }
+                }
+
                 return (
                   <div
                     key={msg.id}
@@ -232,13 +269,46 @@ export function ChatView({
                   >
                     <MessageBubble
                       message={msg}
-                      isOwn={msg.sender_id === currentUserId}
+                      isOwn={isOwn}
                       showAvatar={showAvatar}
                       showGroupTimestamp={showGroupTimestamp}
+                      readStatus={readStatus}
                     />
                   </div>
                 );
               })}
+
+              {/* Typing indicator */}
+              {isOtherUserTyping && (
+                <div className="pt-3">
+                  <div className="flex items-end gap-2">
+                    {otherUser.photo_url ? (
+                      <img
+                        src={otherUser.photo_url}
+                        alt={otherUser.full_name}
+                        className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                        {otherUser.full_name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+                    )}
+                    <div className="rounded-2xl bg-muted px-4 py-3">
+                      <div className="flex items-center gap-1" aria-label={t("typing")}>
+                        <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:0ms]" />
+                        <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:150ms]" />
+                        <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:300ms]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div ref={messagesEndRef} />
             </div>
           )}

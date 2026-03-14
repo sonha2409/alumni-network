@@ -22,6 +22,8 @@ interface MessageBubbleProps {
   showAvatar: boolean;
   /** Whether to show the group timestamp (first message in a <5min cluster) */
   showGroupTimestamp: boolean;
+  /** iMessage-style read status — only shown on the last own message in a group */
+  readStatus?: "delivered" | "read";
 }
 
 export function MessageBubble({
@@ -29,6 +31,7 @@ export function MessageBubble({
   isOwn,
   showAvatar,
   showGroupTimestamp,
+  readStatus,
 }: MessageBubbleProps) {
   const t = useTranslations("messages");
   const tc = useTranslations("common");
@@ -213,6 +216,15 @@ export function MessageBubble({
               }`}
             >
               <span className="text-[10px] text-muted-foreground">{t("edited")}</span>
+            </div>
+          )}
+
+          {/* iMessage-style read receipt */}
+          {readStatus && (
+            <div className="mt-0.5 flex justify-end">
+              <span className="text-[10px] text-muted-foreground">
+                {readStatus === "read" ? t("read") : t("delivered")}
+              </span>
             </div>
           )}
         </div>

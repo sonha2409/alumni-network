@@ -23,6 +23,11 @@ interface MessagesContextValue {
   loadOlderMessages: (messages: MessageWithSender[], hasMore: boolean) => void;
   hasMoreMessages: boolean;
   setMessages: (messages: MessageWithSender[], hasMore: boolean) => void;
+  isOtherUserTyping: boolean;
+  otherUserLastReadAt: string | null;
+  broadcastTyping: () => void;
+  broadcastStopTyping: () => void;
+  broadcastRead: (lastReadAt: string) => void;
 }
 
 const MessagesContext = createContext<MessagesContextValue | null>(null);
@@ -56,10 +61,16 @@ export function MessagesProvider({
   >(null);
   const [totalUnreadCount, setTotalUnreadCount] = useState(initialUnreadCount);
   const [hasMoreMessages, setHasMoreMessages] = useState(false);
+  const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
+  const [otherUserLastReadAt, setOtherUserLastReadAt] = useState<string | null>(null);
 
   const channelRef = useRef<ReturnType<
     ReturnType<typeof createClient>["channel"]
   > | null>(null);
+  const presenceChannelRef = useRef<ReturnType<
+    ReturnType<typeof createClient>["channel"]
+  > | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const supabaseRef = useRef(createClient());
   const activeMessagesRef = useRef(activeMessages);
   activeMessagesRef.current = activeMessages;
@@ -119,6 +130,9 @@ export function MessagesProvider({
             });
             return;
           }
+
+          // Other user sent a message — they stopped typing
+          setIsOtherUserTyping(false);
 
           // For other user's messages: add with sender info + fetch attachments
           const conv = conversations.find(
@@ -287,6 +301,123 @@ export function MessagesProvider({
     };
   }, [conversations, currentUserId, activeConversationId]);
 
+  // Subscribe to typing indicators + read receipts via Broadcast channel
+  useEffect(() => {
+    if (!activeConversationId) {
+      if (presenceChannelRef.current) {
+        supabaseRef.current.removeChannel(presenceChannelRef.current);
+        presenceChannelRef.current = null;
+      }
+      setIsOtherUserTyping(false);
+      setOtherUserLastReadAt(null);
+      return;
+    }
+
+    // Clean up previous presence channel
+    if (presenceChannelRef.current) {
+      supabaseRef.current.removeChannel(presenceChannelRef.current);
+    }
+
+    // Reset state for new conversation
+    setIsOtherUserTyping(false);
+    setOtherUserLastReadAt(null);
+
+    const presenceChannel = supabaseRef.current
+      .channel(`chat-presence:${activeConversationId}`)
+      .on("broadcast", { event: "typing" }, (payload) => {
+        const senderId = payload.payload?.user_id as string | undefined;
+        if (senderId && senderId !== currentUserId) {
+          setIsOtherUserTyping(true);
+          // Auto-clear after 3s if no new typing event
+          if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+          }
+          typingTimeoutRef.current = setTimeout(() => {
+            setIsOtherUserTyping(false);
+          }, 3000);
+        }
+      })
+      .on("broadcast", { event: "stop_typing" }, (payload) => {
+        const senderId = payload.payload?.user_id as string | undefined;
+        if (senderId && senderId !== currentUserId) {
+          setIsOtherUserTyping(false);
+          if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = null;
+          }
+        }
+      })
+      .on("broadcast", { event: "read" }, (payload) => {
+        const senderId = payload.payload?.user_id as string | undefined;
+        const lastReadAt = payload.payload?.last_read_at as string | undefined;
+        if (senderId && senderId !== currentUserId && lastReadAt) {
+          setOtherUserLastReadAt(lastReadAt);
+        }
+      })
+      .subscribe();
+
+    presenceChannelRef.current = presenceChannel;
+
+    // Fetch the other user's current last_read_at for initial state
+    const conv = conversations.find((c) => c.id === activeConversationId);
+    if (conv) {
+      supabaseRef.current
+        .from("conversation_participants")
+        .select("last_read_at")
+        .eq("conversation_id", activeConversationId)
+        .eq("user_id", conv.other_participant.user_id)
+        .single()
+        .then(({ data }) => {
+          if (data?.last_read_at) {
+            setOtherUserLastReadAt(data.last_read_at);
+          }
+        });
+    }
+
+    return () => {
+      supabaseRef.current.removeChannel(presenceChannel);
+      presenceChannelRef.current = null;
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+      }
+    };
+  }, [activeConversationId, currentUserId, conversations]);
+
+  const broadcastTyping = useCallback(() => {
+    if (presenceChannelRef.current) {
+      presenceChannelRef.current.send({
+        type: "broadcast",
+        event: "typing",
+        payload: { user_id: currentUserId },
+      });
+    }
+  }, [currentUserId]);
+
+  const broadcastStopTyping = useCallback(() => {
+    if (presenceChannelRef.current) {
+      presenceChannelRef.current.send({
+        type: "broadcast",
+        event: "stop_typing",
+        payload: { user_id: currentUserId },
+      });
+    }
+  }, [currentUserId]);
+
+  const broadcastRead = useCallback(
+    (lastReadAt: string) => {
+      setOtherUserLastReadAt(null); // Will be set via broadcast echo or initial fetch
+      if (presenceChannelRef.current) {
+        presenceChannelRef.current.send({
+          type: "broadcast",
+          event: "read",
+          payload: { user_id: currentUserId, last_read_at: lastReadAt },
+        });
+      }
+    },
+    [currentUserId]
+  );
+
   const setActiveConversation = useCallback(
     (id: string | null) => {
       setActiveConversationIdState(id);
@@ -375,6 +506,11 @@ export function MessagesProvider({
         loadOlderMessages,
         hasMoreMessages,
         setMessages,
+        isOtherUserTyping,
+        otherUserLastReadAt,
+        broadcastTyping,
+        broadcastStopTyping,
+        broadcastRead,
       }}
     >
       {children}
