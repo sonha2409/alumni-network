@@ -126,4 +126,32 @@
   html {
     @apply font-sans;
   }
+  html[lang="vi"] {
+    --font-sans: var(--font-be-vietnam-pro), sans-serif;
+  }
+}
+
+/* Landing page gradient text */
+.landing-gradient-text {
+  background: linear-gradient(
+    135deg,
+    oklch(0.65 0.2 260) 0%,
+    oklch(0.55 0.25 280) 50%,
+    oklch(0.6 0.2 310) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dark .landing-gradient-text {
+  background: linear-gradient(
+    135deg,
+    oklch(0.75 0.15 250) 0%,
+    oklch(0.7 0.18 275) 50%,
+    oklch(0.75 0.15 310) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
