@@ -153,14 +153,10 @@ function DocumentRow({
         .createSignedUrl(attachment.file_path, 60);
 
       if (data?.signedUrl) {
-        const link = document.createElement("a");
-        link.href = data.signedUrl;
-        link.download = attachment.file_name;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // window.open works reliably on mobile browsers;
+        // the programmatic <a>.click() approach fails on iOS Safari
+        // for cross-origin URLs (Supabase storage).
+        window.open(data.signedUrl, "_blank", "noopener,noreferrer");
       }
     } catch {
       // Silently fail
