@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   BriefcaseIcon,
   MapPinIcon,
@@ -59,9 +60,11 @@ export function PopularCard({
       <div className="flex items-start gap-3.5 mt-1">
         <div className="relative shrink-0">
           {profile.photo_url ? (
-            <img
+            <Image
               src={profile.photo_url}
               alt=""
+              width={48}
+              height={48}
               className="h-12 w-12 rounded-full object-cover ring-1 ring-border transition-all duration-300 group-hover:ring-primary/30 group-hover:scale-105"
             />
           ) : (

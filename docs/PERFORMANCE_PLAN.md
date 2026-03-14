@@ -10,17 +10,17 @@
 
 | Priority | Item | Impact | Effort | Status |
 |----------|------|--------|--------|--------|
-| P0 | Message unread N+1 | Critical | 2h | Planned |
-| P1 | Image optimization | High | 4h | Planned |
-| P2 | Query consolidation | High | 3h | Approved |
-| P3 | Dashboard parallelization | Medium | 1.5h | Approved |
+| P0 | Message unread N+1 | Critical | 2h | **Done** (2026-03-14) |
+| P1 | Image optimization | High | 4h | **Done** (2026-03-14) |
+| P2 | Query consolidation | High | 3h | **Done** (2026-03-14) |
+| P3 | Dashboard parallelization | Medium | 1.5h | **Done** (2026-03-14) |
 | P4 | Proxy query reduction | Medium | 1h | **Done** (2026-03-14) |
 | P5 | Lazy-load Recharts | Medium | 15min | **Done** (2026-03-14) |
-| P6 | Cache taxonomy data | Medium | 2h | Approved |
-| P7 | Profile page parallelization | Low-Med | 1h | Planned |
+| P6 | Cache taxonomy data | Medium | 2h | **Done** (2026-03-14) |
+| P7 | Profile page parallelization | Low-Med | 1h | **Done** (2026-03-14) |
 | P8 | Supabase client singleton | Low | 15min | **Done** (2026-03-14) |
 | P9 | Missing DB indexes | Low | 30min | **Done** (2026-03-14) |
-| P10 | Conversations RPC | Medium | 4h | Approved |
+| P10 | Conversations RPC | Medium | 4h | **Done** (2026-03-14) |
 
 **Recommended implementation order:** P5 → P8 → P9 → P4 → P6 → P3 → P2 → P0+P10 → P7 → P1
 
@@ -30,7 +30,7 @@ Quick wins first, then medium effort, then the two paired message optimizations,
 
 ## P0 — Message Unread Count N+1 (CRITICAL)
 
-**Status:** Planned
+**Status:** Done (2026-03-14)
 
 ### Problem
 
@@ -90,7 +90,7 @@ N queries → 1 query. Biggest single improvement.
 
 ## P1 — Image Optimization (HIGH)
 
-**Status:** Planned
+**Status:** Done (2026-03-14)
 
 ### Problem
 
@@ -151,7 +151,7 @@ All files with `<img>` across dashboard, directory, profile, messages, connectio
 
 ## P2 — Directory & Recommendations Query Consolidation (HIGH)
 
-**Status:** Approved
+**Status:** Done (2026-03-14)
 
 ### Problem
 
@@ -218,7 +218,7 @@ Dashboard: 8 queries → 4. Directory: 3 queries → 1.
 
 ## P3 — Dashboard Sequential Query Bottleneck (MEDIUM)
 
-**Status:** Approved
+**Status:** Done (2026-03-14)
 
 ### Problem
 
@@ -346,7 +346,7 @@ Ensure `analytics-dashboard.tsx` uses a named export if it doesn't already.
 
 ## P6 — Cache Shared Taxonomy Data (MEDIUM)
 
-**Status:** Approved
+**Status:** Done (2026-03-14)
 
 ### Problem
 
@@ -399,7 +399,7 @@ Eliminates repeated DB queries for taxonomy/school data across all users. Partic
 
 ## P7 — Profile Page Sequential Queries (LOW-MEDIUM)
 
-**Status:** Planned
+**Status:** Done (2026-03-14)
 
 ### Problem
 
@@ -525,7 +525,7 @@ Faster notification reads, announcement dismissals, moderation queries.
 
 ## P10 — Conversations List RPC (MEDIUM)
 
-**Status:** Approved
+**Status:** Done (2026-03-14)
 
 ### Problem
 

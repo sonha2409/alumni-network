@@ -23,7 +23,8 @@ export async function searchDirectory(
   );
   const offset = (page - 1) * pageSize;
 
-  // Build the base query — select profiles with joined industry/specialization
+  // Build the base query — select profiles with joined industry/specialization,
+  // career entries, and availability tags inline (P2: eliminates 2 follow-up queries)
   let query = supabase
     .from("profiles")
     .select(
@@ -40,10 +41,13 @@ export async function searchDirectory(
       has_contact_details,
       last_active_at,
       primary_industry:industries!profiles_primary_industry_id_fkey(id, name),
-      primary_specialization:specializations!profiles_primary_specialization_id_fkey(id, name)
+      primary_specialization:specializations!profiles_primary_specialization_id_fkey(id, name),
+      career_entries(job_title, company),
+      user_availability_tags(tag_type:availability_tag_types(id, name, slug))
     `,
       { count: "exact" }
-    );
+    )
+    .eq("career_entries.is_current", true);
 
   // Build a separate count query for the same filters
   let countQuery = supabase
@@ -147,61 +151,7 @@ export async function searchDirectory(
 
   const totalCount = count ?? totalFromCount ?? 0;
 
-  // Fetch current career entries and availability tags for returned profiles
-  const profileIds = (profiles ?? []).map(
-    (p: Record<string, unknown>) => p.id as string
-  );
-
-  let careerMap: Record<string, { job_title: string; company: string }> = {};
-  let tagsMap: Record<
-    string,
-    { id: string; name: string; slug: string }[]
-  > = {};
-
-  if (profileIds.length > 0) {
-    const [careerResult, tagsResult] = await Promise.all([
-      // Fetch current career entry (is_current = true) for each profile
-      supabase
-        .from("career_entries")
-        .select("profile_id, job_title, company")
-        .in("profile_id", profileIds)
-        .eq("is_current", true),
-      // Fetch availability tags with their type info
-      supabase
-        .from("user_availability_tags")
-        .select("profile_id, tag_type:availability_tag_types(id, name, slug)")
-        .in("profile_id", profileIds),
-    ]);
-
-    if (careerResult.data) {
-      for (const entry of careerResult.data) {
-        // Take the first current entry per profile
-        if (!careerMap[entry.profile_id]) {
-          careerMap[entry.profile_id] = {
-            job_title: entry.job_title,
-            company: entry.company,
-          };
-        }
-      }
-    }
-
-    if (tagsResult.data) {
-      for (const row of tagsResult.data) {
-        const tag = (row as Record<string, unknown>).tag_type as {
-          id: string;
-          name: string;
-          slug: string;
-        } | null;
-        if (tag) {
-          if (!tagsMap[row.profile_id]) {
-            tagsMap[row.profile_id] = [];
-          }
-          tagsMap[row.profile_id].push(tag);
-        }
-      }
-    }
-  }
-
+  // Extract career and tags from inline nested selects (no follow-up queries needed)
   // If filtering by availability tags, do it after fetch
   // (Supabase JS client can't easily filter on junction table)
   let filteredProfiles = (profiles ?? []) as Record<string, unknown>[];
@@ -212,17 +162,22 @@ export async function searchDirectory(
   ) {
     const requiredTagIds = new Set(filters.availabilityTagIds);
     filteredProfiles = filteredProfiles.filter((p) => {
-      const profileTags = tagsMap[p.id as string] ?? [];
-      return profileTags.some((t) => requiredTagIds.has(t.id));
+      const tags = (p.user_availability_tags as { tag_type: { id: string } | null }[] | null) ?? [];
+      return tags.some((t) => t.tag_type && requiredTagIds.has(t.tag_type.id));
     });
   }
 
   // Map to DirectoryProfile shape
   const directoryProfiles: DirectoryProfile[] = filteredProfiles.map((p) => {
-    const id = p.id as string;
-    const career = careerMap[id];
+    const careers = (p.career_entries as { job_title: string; company: string }[] | null) ?? [];
+    const career = careers[0] ?? null;
+    const rawTags = (p.user_availability_tags as { tag_type: { id: string; name: string; slug: string } | null }[] | null) ?? [];
+    const tags = rawTags
+      .map((t) => t.tag_type)
+      .filter((t): t is { id: string; name: string; slug: string } => t !== null);
+
     return {
-      id,
+      id: p.id as string,
       user_id: p.user_id as string,
       full_name: p.full_name as string,
       photo_url: p.photo_url as string | null,
@@ -243,7 +198,7 @@ export async function searchDirectory(
       } | null,
       current_job_title: career?.job_title ?? null,
       current_company: career?.company ?? null,
-      availability_tags: tagsMap[id] ?? [],
+      availability_tags: tags,
     };
   });
 

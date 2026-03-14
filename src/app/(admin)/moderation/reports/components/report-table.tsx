@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { ModerationReportRow } from "@/lib/types";
 
@@ -88,9 +89,11 @@ export function ReportTable({
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 {report.reported_user_photo ? (
-                  <img
+                  <Image
                     src={report.reported_user_photo}
                     alt=""
+                    width={32}
+                    height={32}
                     className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
                   />
                 ) : (
@@ -155,9 +158,11 @@ export function ReportTable({
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     {report.reported_user_photo ? (
-                      <img
+                      <Image
                         src={report.reported_user_photo}
                         alt=""
+                        width={32}
+                        height={32}
                         className="h-8 w-8 rounded-full object-cover"
                       />
                     ) : (

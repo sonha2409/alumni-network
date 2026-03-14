@@ -205,6 +205,7 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
         <div className="flex items-center gap-4">
           {photoPreview && (
             <div className="relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={photoPreview}
                 alt="Photo preview"

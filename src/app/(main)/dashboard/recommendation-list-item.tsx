@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   BriefcaseIcon,
   MapPinIcon,
@@ -58,9 +59,11 @@ export function RecommendationListItem({
       {/* Avatar */}
       <div className="relative shrink-0">
         {profile.photo_url ? (
-          <img
+          <Image
             src={profile.photo_url}
             alt=""
+            width={44}
+            height={44}
             className="h-11 w-11 rounded-full object-cover ring-1 ring-border transition-all duration-200 group-hover:ring-primary/30"
           />
         ) : (

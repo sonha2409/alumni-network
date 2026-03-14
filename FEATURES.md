@@ -435,6 +435,13 @@ Interactive geographic visualization of where alumni are located worldwide.
 - **Supabase client singleton** (P8, done 2026-03-14): Browser client cached at module level — WebSocket connections reduced from 3-4 to 1
 - **Missing database indexes** (P9, done 2026-03-14): 4 indexes for notifications, reports, announcements, warnings
 - **Proxy query reduction** (P4, done 2026-03-14): Combined user status + profile existence into single nested select — 2 queries → 1 per request
+- **Cached taxonomy data** (P6, done 2026-03-14): School, industries, specializations, and availability tag types cached via `unstable_cache` + service client — eliminates repeated DB queries for shared data (1h revalidation)
+- **Dashboard parallelization** (P3, done 2026-03-14): Profile, recommendations, and popular alumni fetched in parallel — cold-start detection moved into RPC, eliminating ~200-400ms sequential wait
+- **Query consolidation** (P2, done 2026-03-14): Directory uses PostgREST nested select for career + tags inline; recommendation RPCs include career/tags via LEFT JOIN LATERAL — dashboard 8→4 queries, directory 3→1
+- **Message unread N+1** (P0, done 2026-03-14): Single `get_unread_counts` RPC replaces N per-conversation queries — biggest single improvement
+- **Conversations RPC** (P10, done 2026-03-14): Single `get_user_conversations` RPC replaces 4+ sequential queries for conversation list
+- **Profile page parallelization** (P7, done 2026-03-14): Visibility tier and relationship fetched in parallel — saves ~100-200ms per profile view
+- **Image optimization** (P1, done 2026-03-14): All `<img>` tags replaced with `next/image` `<Image>` — auto lazy-loading, WebP conversion, responsive srcSet. Message attachments kept as raw `<img>` (signed URLs)
 - **Performance plan**: See `docs/PERFORMANCE_PLAN.md` for full optimization roadmap (P0–P10)
 
 ### Accessibility

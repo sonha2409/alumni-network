@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
@@ -257,9 +258,11 @@ export function UserManagementClient({ currentAdminId }: UserManagementClientPro
                     {/* User info */}
                     <div className="flex items-center gap-2">
                       {user.photo_url ? (
-                        <img
+                        <Image
                           src={user.photo_url}
                           alt={user.full_name ?? ""}
+                          width={32}
+                          height={32}
                           className="h-8 w-8 rounded-full object-cover"
                         />
                       ) : (

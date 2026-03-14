@@ -13,9 +13,15 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/login");
 
-  const profile = await getProfileByUserId(user.id);
+  // Fetch profile, recommendations, and popular alumni in parallel
+  // (RPC handles cold-start detection internally — no need to wait for profile first)
+  const [profile, recommendations, popularAlumni] = await Promise.all([
+    getProfileByUserId(user.id),
+    getRecommendedAlumni(user.id, 20),
+    getPopularAlumni(user.id, 10),
+  ]);
 
-  // If no profile, recommendations can't be computed — show empty state
+  // If no profile, recommendations will be empty (RPC returns nothing) — show empty state
   if (!profile) {
     return (
       <DashboardClient
@@ -28,12 +34,6 @@ export default async function DashboardPage() {
       />
     );
   }
-
-  // Fetch recommendations and popular alumni in parallel
-  const [recommendations, popularAlumni] = await Promise.all([
-    getRecommendedAlumni(user.id, 20, profile.profile_completeness),
-    getPopularAlumni(user.id, 10),
-  ]);
 
   // Collect all user IDs to fetch connection statuses
   const allUserIds = [

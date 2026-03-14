@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
+import Image from "next/image";
 import {
   Sheet,
   SheetContent,
@@ -164,9 +165,11 @@ export function ReportDetailSheet({
                 {/* User info */}
                 <div className="flex items-center gap-3">
                   {report.reported_user_photo ? (
-                    <img
+                    <Image
                       src={report.reported_user_photo}
                       alt=""
+                      width={40}
+                      height={40}
                       className="h-10 w-10 rounded-full object-cover ring-2 ring-muted"
                     />
                   ) : (

@@ -111,6 +111,7 @@ export function ProfileEditForm({
         <Label htmlFor="photo">{t("profilePhoto")}</Label>
         <div className="flex items-center gap-4">
           {photoPreview && (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={photoPreview}
               alt="Profile photo"

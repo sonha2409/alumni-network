@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
+import Image from "next/image";
 import {
   Sheet,
   SheetContent,
@@ -114,9 +115,11 @@ export function RequestDetailSheet({
         <div className="mt-6 space-y-4 px-4">
           <div className="flex items-center gap-3">
             {request.user_photo_url ? (
-              <img
+              <Image
                 src={request.user_photo_url}
                 alt={request.user_full_name}
+                width={48}
+                height={48}
                 className="h-12 w-12 rounded-full object-cover"
               />
             ) : (

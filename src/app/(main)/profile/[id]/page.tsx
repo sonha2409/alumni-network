@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
 import {
@@ -68,8 +69,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     if (isOwnProfile) {
       visibilityTier = "tier3_connected";
     } else {
-      visibilityTier = await getVisibilityTier(user.id, profile.user_id);
-      relationship = await getRelationshipInfo(user.id, profile.user_id);
+      // P7: Fetch visibility tier and relationship in parallel
+      const [tier, rel] = await Promise.all([
+        getVisibilityTier(user.id, profile.user_id),
+        getRelationshipInfo(user.id, profile.user_id),
+      ]);
+      visibilityTier = tier;
+      relationship = rel;
     }
   }
 
@@ -100,9 +106,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
             {/* Avatar */}
             {profile.photo_url ? (
-              <img
+              <Image
                 src={profile.photo_url}
                 alt={profile.full_name}
+                width={96}
+                height={96}
                 className="h-24 w-24 flex-shrink-0 rounded-full object-cover"
               />
             ) : (

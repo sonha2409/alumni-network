@@ -3,6 +3,7 @@ import type { ConversationWithDetails, MessageWithSender } from "@/lib/types";
 
 /**
  * Get all conversations for a user, with the other participant's profile and unread count.
+ * Uses a single RPC that returns everything in one query (P10).
  * Sorted by most recent message first.
  */
 export async function getConversations(
@@ -12,110 +13,45 @@ export async function getConversations(
 ): Promise<{ conversations: ConversationWithDetails[]; totalCount: number }> {
   const supabase = await createClient();
 
-  // Get conversation IDs for this user
-  const { data: myParticipations, error: partError } = await supabase
-    .from("conversation_participants")
-    .select("conversation_id, last_read_at, is_muted")
-    .eq("user_id", userId);
+  const { data, error } = await supabase.rpc("get_user_conversations", {
+    p_user_id: userId,
+    p_page: page,
+    p_page_size: pageSize,
+  });
 
-  if (partError || !myParticipations || myParticipations.length === 0) {
-    if (partError) {
-      console.error("[Query:getConversations]", {
-        userId,
-        error: partError.message,
-      });
-    }
+  if (error) {
+    console.error("[Query:getConversations]", {
+      userId,
+      error: error.message,
+    });
     return { conversations: [], totalCount: 0 };
   }
 
-  const conversationIds = myParticipations.map((p) => p.conversation_id);
-  const participationMap = new Map(
-    myParticipations.map((p) => [
-      p.conversation_id,
-      { lastReadAt: p.last_read_at, isMuted: p.is_muted },
-    ])
-  );
-
-  // Fetch conversations with pagination
-  const { data: conversations, error: convError, count } = await supabase
-    .from("conversations")
-    .select("*", { count: "exact" })
-    .in("id", conversationIds)
-    .eq("is_active", true)
-    .order("last_message_at", { ascending: false, nullsFirst: false })
-    .range((page - 1) * pageSize, page * pageSize - 1);
-
-  if (convError || !conversations) {
-    if (convError) {
-      console.error("[Query:getConversations]", {
-        userId,
-        error: convError.message,
-      });
-    }
+  if (!data || data.length === 0) {
     return { conversations: [], totalCount: 0 };
   }
 
-  // Get the other participants for these conversations
-  const activeConvIds = conversations.map((c) => c.id);
-  const { data: otherParticipants } = await supabase
-    .from("conversation_participants")
-    .select("conversation_id, user_id")
-    .in("conversation_id", activeConvIds)
-    .neq("user_id", userId);
-
-  if (!otherParticipants || otherParticipants.length === 0) {
-    return { conversations: [], totalCount: 0 };
-  }
-
-  // Fetch profiles for the other participants
-  const otherUserIds = [...new Set(otherParticipants.map((p) => p.user_id))];
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, user_id, full_name, photo_url")
-    .in("user_id", otherUserIds);
-
-  const profileMap = new Map(
-    (profiles ?? []).map((p) => [p.user_id, p])
-  );
-
-  const otherParticipantMap = new Map(
-    otherParticipants.map((p) => [p.conversation_id, p.user_id])
-  );
-
-  // Calculate unread counts per conversation
-  const unreadCounts = await getUnreadCountsForConversations(
-    userId,
-    activeConvIds,
-    participationMap
-  );
-
-  const result: ConversationWithDetails[] = conversations
-    .map((conv) => {
-      const otherUserId = otherParticipantMap.get(conv.id);
-      if (!otherUserId) return null;
-
-      const profile = profileMap.get(otherUserId);
-      const participation = participationMap.get(conv.id);
-
-      return {
-        id: conv.id,
-        last_message_at: conv.last_message_at,
-        last_message_preview: conv.last_message_preview,
-        is_active: conv.is_active,
-        created_at: conv.created_at,
-        other_participant: {
-          user_id: otherUserId,
-          full_name: profile?.full_name ?? "Deleted User",
-          photo_url: profile?.photo_url ?? null,
-          profile_id: profile?.id ?? "",
-        },
-        unread_count: unreadCounts.get(conv.id) ?? 0,
-        is_muted: participation?.isMuted ?? false,
-      };
+  const conversations: ConversationWithDetails[] = data.map(
+    (row: Record<string, unknown>) => ({
+      id: row.conversation_id as string,
+      last_message_at: row.last_message_at as string,
+      last_message_preview: row.last_message_preview as string | null,
+      is_active: row.is_active as boolean,
+      created_at: row.created_at as string,
+      other_participant: {
+        user_id: row.other_user_id as string,
+        full_name: (row.other_full_name as string) ?? "Deleted User",
+        photo_url: row.other_photo_url as string | null,
+        profile_id: (row.other_profile_id as string) ?? "",
+      },
+      unread_count: Number(row.unread_count) || 0,
+      is_muted: (row.is_muted as boolean) ?? false,
     })
-    .filter(Boolean) as ConversationWithDetails[];
+  );
 
-  return { conversations: result, totalCount: count ?? 0 };
+  const totalCount = Number((data[0] as Record<string, unknown>)?.total_count) || 0;
+
+  return { conversations, totalCount };
 }
 
 /**
@@ -201,35 +137,28 @@ export async function getMessages(
 
 /**
  * Get total unread message count across all conversations for a user.
+ * Uses a single RPC query instead of N+1 per-conversation counts (P0).
  * Used for the navbar badge.
  */
 export async function getTotalUnreadCount(userId: string): Promise<number> {
   const supabase = await createClient();
 
-  // Get all participations
-  const { data: participations, error } = await supabase
-    .from("conversation_participants")
-    .select("conversation_id, last_read_at")
-    .eq("user_id", userId);
+  const { data, error } = await supabase.rpc("get_unread_counts", {
+    p_user_id: userId,
+  });
 
-  if (error || !participations || participations.length === 0) {
+  if (error) {
+    console.error("[Query:getTotalUnreadCount]", {
+      userId,
+      error: error.message,
+    });
     return 0;
   }
 
-  // Count unread messages across all conversations in parallel
-  const counts = await Promise.all(
-    participations.map(async (p) => {
-      const { count } = await supabase
-        .from("messages")
-        .select("id", { count: "exact", head: true })
-        .eq("conversation_id", p.conversation_id)
-        .gt("created_at", p.last_read_at)
-        .neq("sender_id", userId);
-      return count ?? 0;
-    })
+  return (data ?? []).reduce(
+    (sum: number, row: Record<string, unknown>) => sum + (Number(row.unread_count) || 0),
+    0
   );
-
-  return counts.reduce((sum, c) => sum + c, 0);
 }
 
 /**
@@ -262,32 +191,3 @@ export async function findExistingConversation(
   return sharedConv?.conversation_id ?? null;
 }
 
-// =============================================================================
-// Internal helpers
-// =============================================================================
-
-async function getUnreadCountsForConversations(
-  userId: string,
-  conversationIds: string[],
-  participationMap: Map<string, { lastReadAt: string; isMuted: boolean }>
-): Promise<Map<string, number>> {
-  const supabase = await createClient();
-  const unreadMap = new Map<string, number>();
-
-  // Batch: count unread for each conversation
-  for (const convId of conversationIds) {
-    const participation = participationMap.get(convId);
-    if (!participation) continue;
-
-    const { count } = await supabase
-      .from("messages")
-      .select("id", { count: "exact", head: true })
-      .eq("conversation_id", convId)
-      .gt("created_at", participation.lastReadAt)
-      .neq("sender_id", userId);
-
-    unreadMap.set(convId, count ?? 0);
-  }
-
-  return unreadMap;
-}

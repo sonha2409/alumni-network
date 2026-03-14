@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { VerificationRequestWithUser } from "@/lib/types";
@@ -135,9 +136,11 @@ export function VerificationQueue({ requests }: VerificationQueueProps) {
 
                 <div className="flex items-center gap-2">
                   {request.user_photo_url ? (
-                    <img
+                    <Image
                       src={request.user_photo_url}
                       alt={request.user_full_name}
+                      width={32}
+                      height={32}
                       className="h-8 w-8 rounded-full object-cover"
                     />
                   ) : (

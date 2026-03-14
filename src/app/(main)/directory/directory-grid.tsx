@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   BriefcaseIcon,
   MapPinIcon,
@@ -65,9 +66,11 @@ function ProfileCard({
         {/* Avatar */}
         <div className="relative shrink-0">
           {profile.photo_url ? (
-            <img
+            <Image
               src={profile.photo_url}
               alt=""
+              width={48}
+              height={48}
               className="h-12 w-12 rounded-full object-cover ring-1 ring-border"
             />
           ) : (

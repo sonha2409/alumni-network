@@ -1,35 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock Supabase client
-const mockSelect = vi.fn();
-const mockEq = vi.fn();
-const mockOrder = vi.fn();
-const mockFrom = vi.fn();
-
-// Build a chainable mock that records calls
-function createChainableMock(finalData: unknown, finalError: unknown = null) {
-  const chain = {
-    select: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    order: vi.fn().mockImplementation(() => {
-      // Return the chain, but also make it thenable for the final result
-      return Object.assign({...chain}, {
-        then: (resolve: (val: unknown) => void) => resolve({ data: finalData, error: finalError }),
-      });
-    }),
-  };
-  // Make the initial chain also thenable (for cases with no .order())
-  return chain;
-}
-
-vi.mock('@/lib/supabase/server', () => ({
-  createClient: vi.fn(),
+// Mock unstable_cache to pass through the function directly
+vi.mock('next/cache', () => ({
+  unstable_cache: (fn: Function) => fn,
 }));
 
-import { createClient } from '@/lib/supabase/server';
+// Mock Supabase service client
+vi.mock('@/lib/supabase/service', () => ({
+  createServiceClient: vi.fn(),
+}));
+
+import { createServiceClient } from '@/lib/supabase/service';
 import { getIndustries, getSpecializationsByIndustry, getIndustriesWithSpecializations } from './taxonomy';
 
-const mockCreateClient = vi.mocked(createClient);
+const mockCreateServiceClient = vi.mocked(createServiceClient);
 
 describe('getIndustries', () => {
   it('should_return_industries_when_query_succeeds', async () => {
@@ -44,9 +28,9 @@ describe('getIndustries', () => {
       order: vi.fn().mockResolvedValue({ data: mockData, error: null }),
     };
 
-    mockCreateClient.mockResolvedValue({
+    mockCreateServiceClient.mockReturnValue({
       from: vi.fn().mockReturnValue(chain),
-    } as unknown as Awaited<ReturnType<typeof createClient>>);
+    } as unknown as ReturnType<typeof createServiceClient>);
 
     const result = await getIndustries();
     expect(result).toEqual(mockData);
@@ -59,9 +43,9 @@ describe('getIndustries', () => {
       order: vi.fn().mockResolvedValue({ data: null, error: { message: 'DB error' } }),
     };
 
-    mockCreateClient.mockResolvedValue({
+    mockCreateServiceClient.mockReturnValue({
       from: vi.fn().mockReturnValue(chain),
-    } as unknown as Awaited<ReturnType<typeof createClient>>);
+    } as unknown as ReturnType<typeof createServiceClient>);
 
     const result = await getIndustries();
     expect(result).toEqual([]);
@@ -80,9 +64,9 @@ describe('getSpecializationsByIndustry', () => {
       order: vi.fn().mockResolvedValue({ data: mockData, error: null }),
     };
 
-    mockCreateClient.mockResolvedValue({
+    mockCreateServiceClient.mockReturnValue({
       from: vi.fn().mockReturnValue(chain),
-    } as unknown as Awaited<ReturnType<typeof createClient>>);
+    } as unknown as ReturnType<typeof createServiceClient>);
 
     const result = await getSpecializationsByIndustry('1');
     expect(result).toEqual(mockData);
@@ -117,9 +101,9 @@ describe('getIndustriesWithSpecializations', () => {
       return chain;
     });
 
-    mockCreateClient.mockResolvedValue({
+    mockCreateServiceClient.mockReturnValue({
       from: vi.fn().mockReturnValue(chain),
-    } as unknown as Awaited<ReturnType<typeof createClient>>);
+    } as unknown as ReturnType<typeof createServiceClient>);
 
     const result = await getIndustriesWithSpecializations();
     expect(result).toEqual(mockData);

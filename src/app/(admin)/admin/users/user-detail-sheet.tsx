@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
+import Image from "next/image";
 import {
   Sheet,
   SheetContent,
@@ -176,9 +177,11 @@ export function UserDetailSheet({
             {/* Profile summary */}
             <div className="flex items-center gap-3">
               {user.photo_url ? (
-                <img
+                <Image
                   src={user.photo_url}
                   alt={user.full_name ?? ""}
+                  width={56}
+                  height={56}
                   className="h-14 w-14 rounded-full object-cover"
                 />
               ) : (

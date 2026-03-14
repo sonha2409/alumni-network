@@ -74,6 +74,8 @@ export function MessagesProvider({
   const supabaseRef = useRef(createClient());
   const activeMessagesRef = useRef(activeMessages);
   activeMessagesRef.current = activeMessages;
+  const conversationsRef = useRef(conversations);
+  conversationsRef.current = conversations;
 
   // Subscribe to real-time message updates for the active conversation
   useEffect(() => {
@@ -135,7 +137,7 @@ export function MessagesProvider({
           setIsOtherUserTyping(false);
 
           // For other user's messages: add with sender info + fetch attachments
-          const conv = conversations.find(
+          const conv = conversationsRef.current.find(
             (c) => c.id === activeConversationId
           );
 
@@ -216,7 +218,7 @@ export function MessagesProvider({
               if (newMessages.length === 0) return prev;
 
               // Add sender info for new messages
-              const conv = conversations.find(
+              const conv = conversationsRef.current.find(
                 (c) => c.id === activeConversationId
               );
               const withSender = newMessages.map((msg: Record<string, unknown>) => {
@@ -246,7 +248,8 @@ export function MessagesProvider({
       supabaseRef.current.removeChannel(channel);
       channelRef.current = null;
     };
-  }, [activeConversationId, currentUserId, conversations]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeConversationId, currentUserId]);
 
   // Subscribe to new messages across all conversations (for unread badge updates)
   useEffect(() => {
@@ -359,7 +362,7 @@ export function MessagesProvider({
     presenceChannelRef.current = presenceChannel;
 
     // Fetch the other user's current last_read_at for initial state
-    const conv = conversations.find((c) => c.id === activeConversationId);
+    const conv = conversationsRef.current.find((c) => c.id === activeConversationId);
     if (conv) {
       supabaseRef.current
         .from("conversation_participants")
@@ -382,7 +385,8 @@ export function MessagesProvider({
         typingTimeoutRef.current = null;
       }
     };
-  }, [activeConversationId, currentUserId, conversations]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeConversationId, currentUserId]);
 
   const broadcastTyping = useCallback(() => {
     if (presenceChannelRef.current) {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -34,9 +35,11 @@ function UserAvatar({ user }: { user: NavbarUserData }) {
 
   if (user.photoUrl) {
     return (
-      <img
+      <Image
         src={user.photoUrl}
         alt={user.fullName ?? "Profile"}
+        width={32}
+        height={32}
         className="h-8 w-8 rounded-full object-cover"
       />
     );

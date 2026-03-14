@@ -1,28 +1,34 @@
 "use server";
 
+import { unstable_cache } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import type { AvailabilityTagType } from "@/lib/types";
 
 /**
- * Fetch all active (non-archived) availability tag types, sorted by sort_order.
+ * Fetch all active (non-archived) availability tag types, sorted by sort_order — cached for 1 hour.
  */
-export async function getAvailabilityTagTypes(): Promise<AvailabilityTagType[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("availability_tag_types")
-    .select("*")
-    .eq("is_archived", false)
-    .order("sort_order", { ascending: true });
+export const getAvailabilityTagTypes: () => Promise<AvailabilityTagType[]> = unstable_cache(
+  async () => {
+    const supabase = createServiceClient();
+    const { data, error } = await supabase
+      .from("availability_tag_types")
+      .select("*")
+      .eq("is_archived", false)
+      .order("sort_order", { ascending: true });
 
-  if (error) {
-    console.error("[Query:getAvailabilityTagTypes]", {
-      error: error.message,
-    });
-    return [];
-  }
+    if (error) {
+      console.error("[Query:getAvailabilityTagTypes]", {
+        error: error.message,
+      });
+      return [];
+    }
 
-  return data as AvailabilityTagType[];
-}
+    return data as AvailabilityTagType[];
+  },
+  ["availability-tag-types"],
+  { revalidate: 3600 }
+);
 
 /**
  * Fetch the tag type IDs that a profile currently has selected.

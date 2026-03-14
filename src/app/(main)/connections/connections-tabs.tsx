@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Users,
   Inbox,
@@ -275,9 +276,11 @@ function BlockedList({
         >
           <div className="flex items-center gap-3">
             {block.profile?.photo_url ? (
-              <img
+              <Image
                 src={block.profile.photo_url}
                 alt=""
+                width={40}
+                height={40}
                 className="h-10 w-10 rounded-full object-cover ring-1 ring-border"
               />
             ) : (
@@ -344,9 +347,11 @@ function ConnectionCard({
       <div className="flex items-start gap-3.5">
         <Link href={`/profile/${profile.id}`}>
           {profile.photo_url ? (
-            <img
+            <Image
               src={profile.photo_url}
               alt=""
+              width={48}
+              height={48}
               className="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-border transition-transform duration-200 group-hover:scale-105"
             />
           ) : (
