@@ -433,6 +433,8 @@ Interactive geographic visualization of where alumni are located worldwide.
 - **API response**: Server Actions < 500ms p95
 - **Recharts lazy-loading** (P5, done 2026-03-14): Analytics dashboard dynamically imported — ~130KB removed from non-admin bundles
 - **Supabase client singleton** (P8, done 2026-03-14): Browser client cached at module level — WebSocket connections reduced from 3-4 to 1
+- **Missing database indexes** (P9, done 2026-03-14): 4 indexes for notifications, reports, announcements, warnings
+- **Proxy query reduction** (P4, done 2026-03-14): Combined user status + profile existence into single nested select — 2 queries → 1 per request
 - **Performance plan**: See `docs/PERFORMANCE_PLAN.md` for full optimization roadmap (P0–P10)
 
 ### Accessibility
