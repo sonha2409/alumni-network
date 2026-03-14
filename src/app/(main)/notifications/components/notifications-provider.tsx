@@ -82,7 +82,7 @@ export function NotificationsProvider({
           table: "notifications",
           filter: `user_id=eq.${currentUserId}`,
         },
-        (payload) => {
+        (payload: { new: unknown }) => {
           const newNotification = payload.new as Notification;
           setUnreadCount((prev) => prev + 1);
           setRecentNotifications((prev) => [newNotification, ...prev].slice(0, 10));

@@ -1,9 +1,27 @@
+import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/server";
 import { getAnalyticsData } from "./actions";
-import { AnalyticsDashboard } from "./analytics-dashboard";
+
+const AnalyticsDashboard = dynamic(
+  () =>
+    import("./analytics-dashboard").then((m) => m.AnalyticsDashboard),
+  {
+    loading: () => (
+      <div className="space-y-6">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 w-full rounded-xl" />
+          ))}
+        </div>
+        <Skeleton className="h-64 w-full rounded-xl" />
+      </div>
+    ),
+  }
+);
 
 export default async function AnalyticsPage() {
   const supabase = await createClient();

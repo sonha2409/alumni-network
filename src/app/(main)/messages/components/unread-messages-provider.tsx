@@ -66,7 +66,7 @@ export function UnreadMessagesProvider({
           schema: "public",
           table: "messages",
         },
-        (payload) => {
+        (payload: { new: unknown }) => {
           const newMsg = payload.new as { sender_id: string };
           if (newMsg.sender_id !== currentUserId) {
             setUnreadCount((prev) => prev + 1);

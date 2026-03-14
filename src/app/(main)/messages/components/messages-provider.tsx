@@ -100,7 +100,7 @@ export function MessagesProvider({
           table: "messages",
           filter: `conversation_id=eq.${activeConversationId}`,
         },
-        async (payload) => {
+        async (payload: { new: unknown }) => {
           const newMsg = payload.new as MessageWithSender;
 
           // For own messages: the optimistic message is already in state
@@ -186,7 +186,7 @@ export function MessagesProvider({
           table: "messages",
           filter: `conversation_id=eq.${activeConversationId}`,
         },
-        (payload) => {
+        (payload: { new: unknown }) => {
           const updated = payload.new as MessageWithSender;
           setActiveMessages((prev) =>
             prev.map((m) =>
@@ -195,7 +195,7 @@ export function MessagesProvider({
           );
         }
       )
-      .subscribe(async (status) => {
+      .subscribe(async (status: string) => {
         // Fix 6: Gap fill — fetch messages that may have been sent between
         // initial server render and subscription becoming active
         if (status === "SUBSCRIBED") {
@@ -212,14 +212,14 @@ export function MessagesProvider({
           if (missed && missed.length > 0) {
             setActiveMessages((prev) => {
               const existingIds = new Set(prev.map((m) => m.id));
-              const newMessages = missed.filter((m) => !existingIds.has(m.id));
+              const newMessages = missed.filter((m: { id: string }) => !existingIds.has(m.id));
               if (newMessages.length === 0) return prev;
 
               // Add sender info for new messages
               const conv = conversations.find(
                 (c) => c.id === activeConversationId
               );
-              const withSender = newMessages.map((msg) => {
+              const withSender = newMessages.map((msg: Record<string, unknown>) => {
                 const isSelf = msg.sender_id === currentUserId;
                 return {
                   ...msg,
@@ -231,7 +231,7 @@ export function MessagesProvider({
                         photo_url: conv?.other_participant.photo_url ?? null,
                       },
                   attachments: [],
-                } as MessageWithSender;
+                } as unknown as MessageWithSender;
               });
 
               return [...prev, ...withSender];
@@ -262,7 +262,7 @@ export function MessagesProvider({
           schema: "public",
           table: "messages",
         },
-        (payload) => {
+        (payload: { new: unknown }) => {
           const newMsg = payload.new as { id: string; conversation_id: string; sender_id: string; content: string; created_at: string };
 
           // Only process messages in our conversations, not from us
@@ -324,7 +324,7 @@ export function MessagesProvider({
 
     const presenceChannel = supabaseRef.current
       .channel(`chat-presence:${activeConversationId}`)
-      .on("broadcast", { event: "typing" }, (payload) => {
+      .on("broadcast", { event: "typing" }, (payload: { payload?: Record<string, unknown> }) => {
         const senderId = payload.payload?.user_id as string | undefined;
         if (senderId && senderId !== currentUserId) {
           setIsOtherUserTyping(true);
@@ -337,7 +337,7 @@ export function MessagesProvider({
           }, 3000);
         }
       })
-      .on("broadcast", { event: "stop_typing" }, (payload) => {
+      .on("broadcast", { event: "stop_typing" }, (payload: { payload?: Record<string, unknown> }) => {
         const senderId = payload.payload?.user_id as string | undefined;
         if (senderId && senderId !== currentUserId) {
           setIsOtherUserTyping(false);
@@ -347,7 +347,7 @@ export function MessagesProvider({
           }
         }
       })
-      .on("broadcast", { event: "read" }, (payload) => {
+      .on("broadcast", { event: "read" }, (payload: { payload?: Record<string, unknown> }) => {
         const senderId = payload.payload?.user_id as string | undefined;
         const lastReadAt = payload.payload?.last_read_at as string | undefined;
         if (senderId && senderId !== currentUserId && lastReadAt) {
@@ -367,7 +367,7 @@ export function MessagesProvider({
         .eq("conversation_id", activeConversationId)
         .eq("user_id", conv.other_participant.user_id)
         .single()
-        .then(({ data }) => {
+        .then(({ data }: { data: { last_read_at: string | null } | null }) => {
           if (data?.last_read_at) {
             setOtherUserLastReadAt(data.last_read_at);
           }
