@@ -513,6 +513,7 @@ export interface Notification {
   body: string;
   link: string | null;
   is_read: boolean;
+  grouped_count: number;
   created_at: string;
   updated_at: string;
 }

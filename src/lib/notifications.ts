@@ -21,6 +21,70 @@ export interface NotifyEmailContext {
 }
 
 /**
+ * Create a grouped notification for a user (in-app + email).
+ * Uses `upsert_message_notification` to merge repeated notifications
+ * of the same type+link into a single row with an incrementing count.
+ *
+ * Email is only sent when the notification is newly created (not when
+ * an existing unread notification is updated), which naturally debounces
+ * email delivery for rapid-fire events like chat messages.
+ *
+ * Fire-and-forget — errors are logged but don't propagate.
+ */
+export async function notifyUserGrouped(
+  userId: string,
+  type: NotificationType,
+  actorName: string,
+  body: string,
+  link: string,
+  emailContext?: NotifyEmailContext
+): Promise<void> {
+  let isNew = true;
+
+  try {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase.rpc("upsert_message_notification", {
+      p_user_id: userId,
+      p_type: type,
+      p_actor_name: actorName,
+      p_body: body,
+      p_link: link,
+    });
+
+    if (error) {
+      console.error("[notifyUserGrouped]", {
+        userId,
+        type,
+        error: error.message,
+      });
+      return;
+    }
+
+    // RPC returns [{notification_id, is_new}]
+    if (data && Array.isArray(data) && data.length > 0) {
+      isNew = data[0].is_new;
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[notifyUserGrouped]", { userId, type, error: message });
+    return;
+  }
+
+  // Only send email for NEW notifications (not updates to existing groups)
+  if (isNew && emailContext) {
+    sendEmailNotification(userId, type, link, emailContext).catch((err) => {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error("[notifyUserGrouped:email]", {
+        userId,
+        type,
+        error: message,
+      });
+    });
+  }
+}
+
+/**
  * Create a notification for a user (in-app + email).
  * Uses the SECURITY DEFINER `create_notification` function
  * so that notifications can only be created server-side.

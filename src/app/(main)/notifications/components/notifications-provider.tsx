@@ -71,7 +71,7 @@ export function NotificationsProvider({
   useEffect(() => {
     const supabase = createClient();
 
-    // Subscribe to new notifications for this user
+    // Subscribe to new and updated notifications for this user
     const channel = supabase
       .channel(`notifications:${currentUserId}`)
       .on(
@@ -86,6 +86,28 @@ export function NotificationsProvider({
           const newNotification = payload.new as Notification;
           setUnreadCount((prev) => prev + 1);
           setRecentNotifications((prev) => [newNotification, ...prev].slice(0, 10));
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${currentUserId}`,
+        },
+        (payload: { new: unknown }) => {
+          const updated = payload.new as Notification;
+          setRecentNotifications((prev) => {
+            const idx = prev.findIndex((n) => n.id === updated.id);
+            if (idx === -1) return prev;
+            const next = [...prev];
+            next[idx] = updated;
+            // Move updated notification to top
+            next.splice(idx, 1);
+            next.unshift(updated);
+            return next;
+          });
         }
       )
       .subscribe();

@@ -149,7 +149,7 @@ export function NotificationItem({
           {notification.body}
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
-          {getRelativeTime(notification.created_at)}
+          {getRelativeTime(notification.updated_at)}
         </p>
       </div>
       {!compact && (

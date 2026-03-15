@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { checkMessageRateLimit, checkConversationRateLimit } from "@/lib/rate-limit";
-import { notifyUser } from "@/lib/notifications";
+import { notifyUserGrouped } from "@/lib/notifications";
 import type {
   ActionResult,
   AttachmentInput,
@@ -598,10 +598,10 @@ export async function sendMessage(
           : trimmedContent
         : preview;
 
-      notifyUser(
+      notifyUserGrouped(
         otherParticipant.user_id,
         "new_message",
-        `New message from ${senderName}`,
+        senderName,
         notifPreview,
         `/messages?conversation=${conversationId}`,
         { actorName: senderName }
