@@ -10,6 +10,7 @@ import {
 } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { ConversationWithDetails, MessageWithSender } from "@/lib/types";
+import { useUnreadMessages } from "./unread-messages-provider";
 
 interface MessagesContextValue {
   conversations: ConversationWithDetails[];
@@ -53,6 +54,7 @@ export function MessagesProvider({
   initialUnreadCount,
   currentUserId,
 }: MessagesProviderProps) {
+  const { decrementUnread: decrementNavbarUnread } = useUnreadMessages();
   const [conversations, setConversations] =
     useState<ConversationWithDetails[]>(initialConversations);
   const [activeMessages, setActiveMessages] = useState<MessageWithSender[]>([]);
@@ -276,8 +278,12 @@ export function MessagesProvider({
             return;
           }
 
-          // If not viewing this conversation, increment unread
-          if (newMsg.conversation_id !== activeConversationId) {
+          if (newMsg.conversation_id === activeConversationId) {
+            // User is viewing this conversation — the navbar provider
+            // already incremented, so compensate by decrementing
+            decrementNavbarUnread(1);
+          } else {
+            // Not viewing this conversation — increment unread
             setTotalUnreadCount((prev) => prev + 1);
             setConversations((prev) =>
               prev.map((c) =>
@@ -302,7 +308,7 @@ export function MessagesProvider({
     return () => {
       supabaseRef.current.removeChannel(userChannel);
     };
-  }, [conversations, currentUserId, activeConversationId]);
+  }, [conversations, currentUserId, activeConversationId, decrementNavbarUnread]);
 
   // Subscribe to typing indicators + read receipts via Broadcast channel
   useEffect(() => {
@@ -410,7 +416,6 @@ export function MessagesProvider({
 
   const broadcastRead = useCallback(
     (lastReadAt: string) => {
-      setOtherUserLastReadAt(null); // Will be set via broadcast echo or initial fetch
       if (presenceChannelRef.current) {
         presenceChannelRef.current.send({
           type: "broadcast",
@@ -431,13 +436,14 @@ export function MessagesProvider({
           setTotalUnreadCount((prev) =>
             Math.max(0, prev - conv.unread_count)
           );
+          decrementNavbarUnread(conv.unread_count);
           setConversations((prev) =>
             prev.map((c) => (c.id === id ? { ...c, unread_count: 0 } : c))
           );
         }
       }
     },
-    [conversations]
+    [conversations, decrementNavbarUnread]
   );
 
   const addOptimisticMessage = useCallback((message: MessageWithSender) => {
