@@ -144,8 +144,8 @@ export default async function DirectoryPage({
 
       {/* Unverified viewer banner */}
       {viewerTier === "tier1_unverified" && (
-        <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/50 px-4 py-3 text-center text-sm text-muted-foreground">
-          <Link href="/verification" className="text-primary underline underline-offset-4">
+        <div className="rounded-xl border border-primary/15 bg-primary/[0.03] px-4 py-3 text-center text-sm text-muted-foreground">
+          <Link href="/verification" className="font-medium text-primary underline underline-offset-4 hover:text-primary/80">
             {t("verifyBanner")}
           </Link>
         </div>

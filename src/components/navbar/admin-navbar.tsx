@@ -18,11 +18,11 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
   const tNav = useTranslations("nav");
 
   return (
-    <nav className="border-b bg-background" aria-label="Admin navigation">
+    <nav className="border-b border-border/60 bg-background/80 backdrop-blur-xl" aria-label="Admin navigation">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo + desktop links */}
         <div className="flex items-center gap-4 min-w-0">
-          <span className="flex-shrink-0 text-lg font-bold tracking-tight">
+          <span className="flex-shrink-0 text-lg font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             {role === "admin" ? tAdmin("adminTitle") : tAdmin("moderationTitle")}
           </span>
 

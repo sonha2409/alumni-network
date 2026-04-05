@@ -449,14 +449,88 @@ Interactive geographic visualization of where alumni are located worldwide.
 - Keyboard-navigable for all core flows
 - Screen reader compatible
 
-### SEO
-- Meta tags (`title`, `description`, `og:*`) on all public pages
-- `robots.txt` and `sitemap.xml` for public pages
-- Auth pages excluded from indexing (`noindex`)
+### SEO (F43)
+
+Since most app content is behind authentication, SEO focuses on making the **public-facing pages** discoverable and shareable. The goal is to help alumni find the platform via Google when searching for their school's alumni network.
+
+#### 1. `robots.txt` (Next.js convention file: `src/app/robots.ts`)
+- Allow crawling of public pages: `/`, `/login`, `/signup`
+- Disallow crawling of authenticated app routes: `/dashboard`, `/directory`, `/messages`, `/connections`, `/groups`, `/settings`, `/admin`, `/moderation`, `/onboarding`, `/verification`, `/reset-password`, `/account-deleted`, `/banned`
+- Disallow crawling of API/auth routes: `/api/*`, `/auth/*`
+- Reference the sitemap URL: `https://ptnkalum.com/sitemap.xml`
+
+#### 2. `sitemap.xml` (Next.js convention file: `src/app/sitemap.ts`)
+- Static entries only (no dynamic/authenticated content):
+  - `/` — landing page (priority 1.0, changeFrequency: monthly)
+  - `/login` — login page (priority 0.5, changeFrequency: yearly)
+  - `/signup` — signup page (priority 0.8, changeFrequency: yearly)
+- `lastModified` set to build date or hardcoded date
+- Base URL from `NEXT_PUBLIC_SITE_URL` env var (fallback: `https://ptnkalum.com`)
+
+#### 3. Per-Page Metadata (Next.js `metadata` export)
+- **Root layout** (`src/app/layout.tsx`):
+  - `metadataBase`: `new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://ptnkalum.com')`
+  - `title.template`: `"%s | PTNKAlum"` (allows per-page titles)
+  - `title.default`: `"PTNKAlum — Alumni Network"`
+  - `description`: school-specific, keyword-rich (e.g., "Connect with PTNK alumni worldwide. Search by career, location, and graduation year.")
+  - `openGraph`: type `website`, locale `vi_VN`, siteName `PTNKAlum`, default image (OG image)
+  - `twitter`: card `summary_large_image`, default image
+  - `robots.index`: true (default), individual pages override as needed
+- **Login page**: title "Log In", `robots: { index: false }` (no indexing auth pages)
+- **Signup page**: title "Sign Up", `robots: { index: false }`
+- **Landing page** (`/`): title "PTNKAlum — PTNK Alumni Network", full description with keywords
+- **All authenticated pages**: `robots: { index: false, follow: false }` (prevent indexing if crawlers reach them)
+
+#### 4. Open Graph Image
+- Static OG image at `src/app/opengraph-image.png` (or `.jpg`)
+  - Dimensions: 1200×630px
+  - Content: school logo/name + "Alumni Network" + tagline
+  - Used as default when pages are shared on social media
+- Alt text: "PTNKAlum — PTNK Alumni Network"
+
+#### 5. JSON-LD Structured Data (on landing page)
+- `Organization` schema on the landing page (`/`):
+  ```json
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "PTNKAlum",
+    "url": "https://ptnkalum.com",
+    "description": "Alumni network for PTNK graduates",
+    "logo": "https://ptnkalum.com/logo.png"
+  }
+  ```
+- Rendered as `<script type="application/ld+json">` in the page component
+- `WebSite` schema with `potentialAction` for site search (optional, only if public search exists)
+
+#### 6. Technical SEO Checklist
+- Canonical URLs via `metadataBase` (Next.js auto-generates `<link rel="canonical">`)
+- `lang` attribute on `<html>` (already set via `next-intl`)
+- No duplicate content issues (authenticated routes disallowed in robots.txt)
+- Fast page loads (LCP < 2.5s on landing page — already optimized)
+- Mobile-friendly (already responsive)
+
+#### Implementation Notes
+- All SEO files use **Next.js App Router convention files** (`robots.ts`, `sitemap.ts`, `opengraph-image.png`) — no manual route handlers needed
+- No schema changes or migrations required
+- No new dependencies
+- OG image can be a static file or generated with `next/og` (ImageResponse) — static preferred for simplicity
+- Google Search Console verification via DNS TXT record in Cloudflare (manual step, not code)
 
 ### i18n Readiness
 - English only for Phase 1
 - Extract user-facing strings to constants (cheap now, expensive to retrofit later)
+
+### Visual Theme (F44)
+
+App-wide color palette: **indigo + warm amber accent** (see [ADR-024](docs/adrs/024-indigo-warm-accent-theme.md)).
+
+- **Primary color**: indigo (`oklch(0.65 0.16 270)` light, `oklch(0.78 0.12 270)` dark)
+- **Accent color**: warm amber (`oklch(0.94 0.04 75)` light, `oklch(0.32 0.04 75)` dark)
+- **Color space**: oklch throughout for perceptual uniformity
+- **Scope**: All CSS custom properties (light + dark + sidebar + charts), landing page, auth layout, 23 component files
+- **Custom utilities**: `.landing-gradient-text` (indigo → amber gradient), `.glass-card` (glassmorphism)
+- Full implementation notes: [docs/features/visual-refresh-indigo-theme.md](docs/features/visual-refresh-indigo-theme.md)
 
 ### Post-Launch Hardening (Phase 2)
 

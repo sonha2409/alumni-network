@@ -59,7 +59,7 @@ function ProfileCard({
   return (
     <Link
       href={`/profile/${profile.id}`}
-      className="group relative flex flex-col rounded-xl border border-border bg-card p-5 transition-all duration-200 hover:border-foreground/20 hover:shadow-md hover:shadow-black/5 dark:hover:shadow-black/20"
+      className="group relative flex flex-col rounded-xl border border-border bg-card p-5 transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 dark:hover:shadow-primary/5"
     >
       {/* Top section: avatar + name */}
       <div className="flex items-start gap-3.5">
@@ -166,7 +166,7 @@ function ProfileCard({
       )}
 
       {/* Subtle hover indicator */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/0 to-transparent transition-all group-hover:via-primary/30" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-gradient-to-r from-transparent via-primary/0 to-transparent transition-all group-hover:via-primary/40" />
     </Link>
   );
 }

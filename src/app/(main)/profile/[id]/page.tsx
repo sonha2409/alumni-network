@@ -101,8 +101,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     <div className="mx-auto max-w-2xl">
       {/* Track profile view (fire-and-forget, not for own profile) */}
       {!isOwnProfile && user && <ViewTracker profileId={profile.id} />}
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden border-border/60 shadow-sm">
+        {/* Profile header gradient accent */}
+        <div className="h-2 bg-gradient-to-r from-primary/60 via-primary/40 to-chart-4/40" />
+        <CardHeader className="pt-6">
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
             {/* Avatar */}
             {profile.photo_url ? (
@@ -111,10 +113,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 alt={profile.full_name}
                 width={96}
                 height={96}
-                className="h-24 w-24 flex-shrink-0 rounded-full object-cover"
+                className="h-24 w-24 flex-shrink-0 rounded-full object-cover ring-2 ring-primary/10 ring-offset-2 ring-offset-background"
               />
             ) : (
-              <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-muted text-2xl font-semibold text-muted-foreground">
+              <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/5 text-2xl font-semibold text-primary/60 ring-2 ring-primary/10 ring-offset-2 ring-offset-background">
                 {profile.full_name
                   .split(" ")
                   .map((n) => n[0])
@@ -125,11 +127,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             )}
 
             <div className="flex-1 text-center sm:text-left">
-              <h1 className="text-2xl font-bold">{profile.full_name}</h1>
+              <h1 className="text-2xl font-bold tracking-tight">{profile.full_name}</h1>
               <p className="text-muted-foreground">
                 {tc("classOf", { year: profile.graduation_year })}
               </p>
-              <p className="mt-1 text-sm">
+              <p className="mt-1 text-sm font-medium text-primary/80">
                 {profile.primary_industry.name}
                 {profile.primary_specialization &&
                   ` · ${profile.primary_specialization.name}`}
@@ -146,7 +148,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
             {isOwnProfile ? (
               <Link href="/profile/edit">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="border-primary/20 text-primary hover:bg-primary/5">
                   {t("editProfile")}
                 </Button>
               </Link>
@@ -226,7 +228,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 {careerEntries.length > 0 ? (
                   <div className="flex flex-col gap-4">
                     {careerEntries.map((entry) => (
-                      <div key={entry.id} className="relative pl-4 border-l-2 border-muted">
+                      <div key={entry.id} className="relative pl-4 border-l-2 border-primary/15">
                         <div className="flex items-center gap-2">
                           <p className="font-medium text-sm">{entry.job_title}</p>
                           {entry.is_current && (

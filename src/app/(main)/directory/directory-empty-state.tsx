@@ -14,12 +14,12 @@ export function DirectoryEmptyState({ hasFilters }: DirectoryEmptyStateProps) {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 px-6 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-primary/15 bg-gradient-to-b from-primary/[0.02] to-transparent py-16 px-6 text-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5">
         {hasFilters ? (
-          <SearchIcon className="h-5 w-5 text-muted-foreground" />
+          <SearchIcon className="h-5 w-5 text-primary/50" />
         ) : (
-          <UsersIcon className="h-5 w-5 text-muted-foreground" />
+          <UsersIcon className="h-5 w-5 text-primary/50" />
         )}
       </div>
 

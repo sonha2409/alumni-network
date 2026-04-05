@@ -87,11 +87,11 @@ export default async function ConversationPage({ params }: Props) {
       initialUnreadCount={unreadCount}
       currentUserId={user.id}
     >
-      <div className="flex h-[calc(100vh-8rem)] flex-col rounded-lg border bg-background shadow-sm md:flex-row">
+      <div className="flex h-[calc(100vh-8rem)] flex-col rounded-xl border border-border/60 bg-background shadow-sm md:flex-row">
         {/* Conversation list — hidden on mobile when viewing a chat */}
-        <div className="hidden w-80 flex-col border-r md:flex lg:w-96">
-          <div className="border-b px-4 py-3">
-            <h1 className="text-lg font-semibold">Messages</h1>
+        <div className="hidden w-80 flex-col border-r border-border/60 md:flex lg:w-96">
+          <div className="border-b border-border/60 px-4 py-3">
+            <h1 className="text-lg font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Messages</h1>
           </div>
           <ConversationList />
         </div>

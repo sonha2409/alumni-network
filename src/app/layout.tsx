@@ -22,10 +22,31 @@ const beVietnamPro = Be_Vietnam_Pro({
   weight: ["400", "500", "600", "700"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ptnkalum.com";
+
 export const metadata: Metadata = {
-  title: "AlumNet — Alumni Network",
+  metadataBase: new URL(siteUrl),
+  title: {
+    template: "%s | PTNKAlum",
+    default: "PTNKAlum — PTNK Alumni Network",
+  },
   description:
-    "Connect with fellow alumni by career field, education, location, and shared interests.",
+    "Connect with PTNK alumni worldwide. Search by career field, education, location, and graduation year. Build meaningful professional connections with fellow graduates.",
+  openGraph: {
+    type: "website",
+    locale: "vi_VN",
+    siteName: "PTNKAlum",
+    title: "PTNKAlum — PTNK Alumni Network",
+    description:
+      "Connect with PTNK alumni worldwide. Search by career field, education, location, and graduation year.",
+    url: siteUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PTNKAlum — PTNK Alumni Network",
+    description:
+      "Connect with PTNK alumni worldwide. Search by career field, education, location, and graduation year.",
+  },
 };
 
 export default async function RootLayout({

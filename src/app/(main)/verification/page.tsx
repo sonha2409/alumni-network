@@ -30,9 +30,10 @@ export default async function VerificationPage() {
   if (status === "verified") {
     return (
       <div className="mx-auto max-w-lg">
-        <Card>
+        <Card className="overflow-hidden border-emerald-200 dark:border-emerald-800/30">
+          <div className="h-1 bg-gradient-to-r from-emerald-400 to-emerald-500" />
           <CardHeader>
-            <CardTitle>{t("alreadyVerified")}</CardTitle>
+            <CardTitle className="text-emerald-700 dark:text-emerald-400">{t("alreadyVerified")}</CardTitle>
             <CardDescription>
               {t("alreadyVerifiedDesc")}
             </CardDescription>
@@ -46,9 +47,10 @@ export default async function VerificationPage() {
   if (status === "pending" && latestRequest) {
     return (
       <div className="mx-auto max-w-lg">
-        <Card>
+        <Card className="overflow-hidden border-amber-200 dark:border-amber-800/30">
+          <div className="h-1 bg-gradient-to-r from-amber-400 to-amber-500" />
           <CardHeader>
-            <CardTitle>{t("underReview")}</CardTitle>
+            <CardTitle className="text-amber-700 dark:text-amber-400">{t("underReview")}</CardTitle>
             <CardDescription>
               {t("underReviewDesc", { date: new Date(latestRequest.created_at).toISOString().slice(0, 10) })}
             </CardDescription>

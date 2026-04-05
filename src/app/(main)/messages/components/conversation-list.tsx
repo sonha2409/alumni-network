@@ -49,8 +49,8 @@ export function ConversationList() {
           <Link
             key={conv.id}
             href={`/messages/${conv.id}`}
-            className={`flex items-center gap-3 border-b px-4 py-3 transition-colors hover:bg-muted/50 ${
-              isActive ? "bg-muted" : ""
+            className={`flex items-center gap-3 border-b border-border/50 px-4 py-3 transition-all duration-200 hover:bg-primary/[0.03] ${
+              isActive ? "bg-primary/[0.05] border-l-2 border-l-primary" : "border-l-2 border-l-transparent"
             }`}
           >
             {/* Avatar */}
@@ -62,7 +62,7 @@ export function ConversationList() {
               />
               {/* Unread dot */}
               {hasUnread && (
-                <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-blue-500 ring-2 ring-background" />
+                <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-primary ring-2 ring-background" />
               )}
             </div>
 

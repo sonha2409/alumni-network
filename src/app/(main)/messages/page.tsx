@@ -57,33 +57,35 @@ export default async function MessagesPage() {
           </p>
         </div>
       )}
-      <div className="flex h-[calc(100vh-8rem)] flex-col rounded-lg border bg-background shadow-sm md:flex-row">
+      <div className="flex h-[calc(100vh-8rem)] flex-col rounded-xl border border-border/60 bg-background shadow-sm md:flex-row">
         {/* Conversation list — full width on mobile, sidebar on desktop */}
-        <div className="flex w-full flex-col border-r md:w-80 lg:w-96">
-          <div className="flex items-center justify-between border-b px-4 py-3">
-            <h1 className="text-lg font-semibold">{t("title")}</h1>
+        <div className="flex w-full flex-col border-r border-border/60 md:w-80 lg:w-96">
+          <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
+            <h1 className="text-lg font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">{t("title")}</h1>
             <NewMessageButton />
           </div>
           <ConversationList />
         </div>
 
         {/* Empty state on desktop when no conversation is selected */}
-        <div className="hidden flex-1 items-center justify-center md:flex">
+        <div className="hidden flex-1 items-center justify-center bg-gradient-to-br from-primary/[0.02] to-transparent md:flex">
           <div className="text-center">
-            <svg
-              className="mx-auto mb-3 h-12 w-12 text-muted-foreground/40"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z"
-              />
-            </svg>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5">
+              <svg
+                className="h-7 w-7 text-primary/40"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z"
+                />
+              </svg>
+            </div>
             <p className="text-sm text-muted-foreground">
               {t("selectConversation")}
             </p>

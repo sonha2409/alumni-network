@@ -50,7 +50,7 @@ export function DashboardClient({
   return (
     <div className="flex flex-col gap-8">
       {/* Hero greeting */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-primary/[0.02] to-transparent border border-border p-6 sm:p-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/8 via-primary/[0.03] to-chart-4/5 border border-primary/10 p-6 sm:p-8">
         <div className="relative z-10">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl animate-in fade-in slide-in-from-bottom-2 duration-500">
             {t("welcomeBack", { name: userName })}
@@ -61,9 +61,9 @@ export function DashboardClient({
               : t("subtitleNoProfile")}
           </p>
         </div>
-        {/* Decorative gradient orb */}
-        <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/5 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-chart-2/5 blur-2xl" />
+        {/* Decorative gradient orbs */}
+        <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/8 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-chart-4/8 blur-2xl" />
       </div>
 
       {/* Profile completeness nudge */}
@@ -89,9 +89,9 @@ export function DashboardClient({
 
       {/* No profile state */}
       {!hasProfile && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center animate-in fade-in zoom-in-95 duration-500">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 mb-4">
-            <UserPlus className="h-7 w-7 text-primary" />
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-primary/15 bg-gradient-to-b from-primary/[0.03] to-transparent px-6 py-16 text-center animate-in fade-in zoom-in-95 duration-500">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 mb-4">
+            <UserPlus className="h-7 w-7 text-primary/70" />
           </div>
           <h2 className="text-lg font-semibold">{t("createProfile")}</h2>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
@@ -113,7 +113,7 @@ export function DashboardClient({
           {/* Section header with view toggle */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/15 to-primary/10">
                 <Sparkles className="h-4 w-4 text-primary" />
               </div>
               <div>
@@ -196,9 +196,9 @@ export function DashboardClient({
               )}
             </div>
           ) : (
-            <div className="mt-5 flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/30 px-6 py-12 text-center animate-in fade-in zoom-in-95 duration-500">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted mb-3">
-                <Search className="h-5 w-5 text-muted-foreground" />
+            <div className="mt-5 flex flex-col items-center justify-center rounded-2xl border border-dashed border-primary/15 bg-gradient-to-b from-primary/[0.02] to-transparent px-6 py-12 text-center animate-in fade-in zoom-in-95 duration-500">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 mb-3">
+                <Search className="h-5 w-5 text-primary/50" />
               </div>
               <h3 className="text-sm font-semibold">
                 {t("noSuggestions")}

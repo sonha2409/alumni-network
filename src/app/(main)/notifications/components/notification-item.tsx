@@ -130,8 +130,8 @@ export function NotificationItem({
 
   const content = (
     <div
-      className={`flex gap-3 px-4 py-3 transition-colors hover:bg-muted/50 ${
-        !notification.is_read ? "bg-muted/30" : ""
+      className={`flex gap-3 px-4 py-3.5 transition-all duration-200 hover:bg-primary/[0.03] ${
+        !notification.is_read ? "bg-primary/[0.04] border-l-2 border-l-primary" : "border-l-2 border-l-transparent"
       } ${compact ? "px-3 py-2" : ""}`}
     >
       <div className="flex-shrink-0 pt-0.5">

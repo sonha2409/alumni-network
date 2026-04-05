@@ -69,7 +69,7 @@ export function ConnectionsTabs({
   return (
     <div>
       {/* Tab bar */}
-      <div className="flex gap-1 rounded-lg bg-muted p-1" role="tablist">
+      <div className="flex gap-1 rounded-xl bg-muted/70 p-1" role="tablist">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
           const Icon = tab.icon;
@@ -79,13 +79,13 @@ export function ConnectionsTabs({
               role="tab"
               aria-selected={isActive}
               onClick={() => setActiveTab(tab.key)}
-              className={`relative flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 ${
+              className={`relative flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? "bg-background text-foreground shadow-sm"
+                  ? "bg-background text-primary shadow-sm ring-1 ring-primary/10"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Icon className="h-4 w-4 shrink-0 hidden sm:block" />
+              <Icon className={`h-4 w-4 shrink-0 hidden sm:block ${isActive ? "text-primary" : ""}`} />
               <span>{tab.label}</span>
               {counts[tab.key] > 0 && (
                 <span
@@ -93,7 +93,7 @@ export function ConnectionsTabs({
                     tab.key === "received" && counts.received > 0
                       ? "bg-red-500 text-white animate-in zoom-in-50 duration-300"
                       : isActive
-                        ? "bg-foreground/10 text-foreground"
+                        ? "bg-primary/10 text-primary"
                         : "bg-muted-foreground/20 text-muted-foreground"
                   }`}
                 >
@@ -336,7 +336,7 @@ function ConnectionCard({
 
   return (
     <div
-      className="group flex flex-col rounded-xl border border-border bg-card p-5 transition-all duration-200 hover:border-foreground/20 hover:shadow-md hover:shadow-black/5 animate-in fade-in-0 slide-in-from-bottom-2 dark:hover:shadow-black/20"
+      className="group flex flex-col rounded-xl border border-border bg-card p-5 transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 animate-in fade-in-0 slide-in-from-bottom-2 dark:hover:shadow-primary/5"
       style={{
         animationDelay: `${index * 75}ms`,
         animationDuration: "300ms",
@@ -424,9 +424,9 @@ function EmptyState({
   actionHref?: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-        <Icon className="h-6 w-6 text-muted-foreground" />
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-primary/15 bg-gradient-to-b from-primary/[0.02] to-transparent py-16 text-center">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5">
+        <Icon className="h-6 w-6 text-primary/60" />
       </div>
       <h3 className="text-base font-medium">{title}</h3>
       <p className="mt-1 max-w-sm text-sm text-muted-foreground">

@@ -40,9 +40,9 @@ export default async function ConnectionsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold sm:text-3xl">{t("title")}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("title")}</h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">
           {t("subtitle")}
         </p>
       </div>

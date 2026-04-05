@@ -103,14 +103,14 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
   const isModerator = user.role === "moderator";
 
   return (
-    <nav className="border-b bg-background" aria-label="Main navigation">
+    <nav className="border-b border-border/60 bg-background/80 backdrop-blur-xl" aria-label="Main navigation">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link
           href="/dashboard"
           className="text-lg font-bold tracking-tight"
         >
-          AlumNet
+          <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">AlumNet</span>
         </Link>
 
         {/* Desktop links */}

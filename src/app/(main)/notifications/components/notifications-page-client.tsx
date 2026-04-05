@@ -96,39 +96,52 @@ export function NotificationsPageClient({
     <div className="space-y-4">
       {/* Filter tabs + actions */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex gap-2">
-          <Button
-            variant={filter === "all" ? "default" : "outline"}
-            size="sm"
+        <div className="flex gap-1 rounded-lg bg-muted/70 p-1">
+          <button
+            className={`rounded-md px-3.5 py-1.5 text-sm font-medium transition-all duration-200 ${
+              filter === "all"
+                ? "bg-background text-primary shadow-sm ring-1 ring-primary/10"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
             onClick={() => setFilter("all")}
           >
             {tc("all")}
-          </Button>
-          <Button
-            variant={filter === "unread" ? "default" : "outline"}
-            size="sm"
+          </button>
+          <button
+            className={`rounded-md px-3.5 py-1.5 text-sm font-medium transition-all duration-200 ${
+              filter === "unread"
+                ? "bg-background text-primary shadow-sm ring-1 ring-primary/10"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
             onClick={() => setFilter("unread")}
           >
             Unread
-          </Button>
+          </button>
         </div>
         {hasUnread && (
-          <Button variant="outline" size="sm" onClick={handleMarkAllRead}>
+          <Button variant="outline" size="sm" onClick={handleMarkAllRead} className="text-primary hover:bg-primary/5 hover:text-primary">
             Mark all as read
           </Button>
         )}
       </div>
 
       {/* Notification list */}
-      <div className="overflow-hidden rounded-lg border">
+      <div className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">
         {filteredNotifications.length === 0 ? (
-          <div className="px-4 py-12 text-center text-sm text-muted-foreground">
-            {filter === "unread"
-              ? "No unread notifications"
-              : "No notifications yet"}
+          <div className="px-4 py-16 text-center">
+            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5">
+              <svg className="h-5 w-5 text-primary/50" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+              </svg>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {filter === "unread"
+                ? "No unread notifications"
+                : "No notifications yet"}
+            </p>
           </div>
         ) : (
-          <div className="divide-y">
+          <div className="divide-y divide-border/50">
             {filteredNotifications.map((notification) => (
               <NotificationItem
                 key={notification.id}
