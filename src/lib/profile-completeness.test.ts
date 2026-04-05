@@ -39,19 +39,20 @@ describe("calculateProfileCompleteness", () => {
       has_career_entries: true,
       has_education_entries: true,
       has_availability_tags: true,
+      has_contact_details: true,
     });
     expect(result).toBe(100);
   });
 
-  it("should_return_36_when_only_required_fields_filled", () => {
+  it("should_return_30_when_only_required_fields_filled", () => {
     const result = calculateProfileCompleteness({
       ...emptyFields,
       full_name: "Jane Doe",
       graduation_year: 2020,
       primary_industry_id: "uuid-1",
     });
-    // full_name(12) + graduation_year(12) + primary_industry(12) = 36
-    expect(result).toBe(36);
+    // full_name(10) + graduation_year(10) + primary_industry(10) = 30
+    expect(result).toBe(30);
   });
 
   it("should_award_location_points_when_any_location_field_set", () => {
@@ -73,7 +74,7 @@ describe("calculateProfileCompleteness", () => {
       ...emptyFields,
       photo_url: "https://example.com/photo.jpg",
     });
-    expect(withPhoto).toBe(12);
+    expect(withPhoto).toBe(10);
   });
 
   it("should_award_bio_points_independently", () => {
@@ -152,7 +153,7 @@ describe("calculateProfileCompleteness", () => {
       secondary_industry_id: null,
       secondary_specialization_id: null,
     });
-    // full_name(12) + graduation_year(12) + primary_industry(12) = 36
-    expect(result).toBe(36);
+    // full_name(10) + graduation_year(10) + primary_industry(10) = 30
+    expect(result).toBe(30);
   });
 });

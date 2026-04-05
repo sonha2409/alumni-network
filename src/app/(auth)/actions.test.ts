@@ -6,6 +6,8 @@ const mockSignInWithPassword = vi.fn();
 const mockSignOut = vi.fn();
 const mockResetPasswordForEmail = vi.fn();
 const mockUpdateUser = vi.fn();
+const mockGetUser = vi.fn();
+const mockFrom = vi.fn();
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(() =>
@@ -16,9 +18,18 @@ vi.mock("@/lib/supabase/server", () => ({
         signOut: mockSignOut,
         resetPasswordForEmail: mockResetPasswordForEmail,
         updateUser: mockUpdateUser,
+        getUser: mockGetUser,
       },
+      from: mockFrom,
     })
   ),
+}));
+
+// Mock next/headers cookies
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(() => Promise.resolve({
+    set: vi.fn(),
+  })),
 }));
 
 // Mock next/navigation redirect — it throws to halt execution
@@ -83,7 +94,7 @@ describe("signup", () => {
 
   it("should_return_success_when_signup_succeeds", async () => {
     mockSignUp.mockResolvedValue({
-      data: { user: { id: "user-123" } },
+      data: { user: { id: "user-123" }, session: null },
       error: null,
     });
 
@@ -93,17 +104,19 @@ describe("signup", () => {
       confirmPassword: "12345678",
     }));
 
+    // Email confirmation enabled: returns success with empty userId
     expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.userId).toBe("user-123");
-    }
     expect(mockSignUp).toHaveBeenCalledWith({
       email: "test@example.com",
       password: "12345678",
+      options: expect.objectContaining({
+        emailRedirectTo: expect.stringContaining("/auth/callback"),
+      }),
     });
   });
 
-  it("should_return_friendly_error_when_email_already_registered", async () => {
+  it("should_return_success_when_email_already_registered", async () => {
+    // Anti-enumeration: returns success even for existing emails
     mockSignUp.mockResolvedValue({
       data: { user: null },
       error: { message: "User already registered" },
@@ -115,10 +128,7 @@ describe("signup", () => {
       confirmPassword: "12345678",
     }));
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error).toContain("already exists");
-    }
+    expect(result.success).toBe(true);
   });
 
   it("should_return_generic_error_when_supabase_fails", async () => {
@@ -169,6 +179,14 @@ describe("login", () => {
 
   it("should_redirect_to_dashboard_when_login_succeeds", async () => {
     mockSignInWithPassword.mockResolvedValue({ error: null });
+    mockGetUser.mockResolvedValue({ data: { user: { id: "user-123" } } });
+    mockFrom.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: null }),
+        }),
+      }),
+    });
 
     await expect(
       login(null, formData({

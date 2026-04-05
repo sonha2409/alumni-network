@@ -53,6 +53,26 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(() => mockSupabase),
 }));
 
+vi.mock("@/lib/school", () => ({
+  getSchool: vi.fn(() =>
+    Promise.resolve({
+      id: "school-1",
+      name: "PTNK",
+      name_en: "PTNK",
+      abbreviation: "PTNK",
+      slug: "ptnk",
+      school_type: "high_school",
+      program_duration_years: 3,
+      founded_year: 1999,
+      first_graduating_year: 2002,
+      country: "Vietnam",
+      is_active: true,
+      created_at: "2026-01-01",
+      updated_at: "2026-01-01",
+    })
+  ),
+}));
+
 vi.mock("next/navigation", () => ({
   redirect: vi.fn((url: string) => {
     throw new Error(`REDIRECT:${url}`);
