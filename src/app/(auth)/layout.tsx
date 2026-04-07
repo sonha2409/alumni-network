@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+// F46: Auth pages must not be indexed by search engines — they're transactional,
+// not content. Individual page metadata can still override titles.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
+
 export default function AuthLayout({
   children,
 }: {

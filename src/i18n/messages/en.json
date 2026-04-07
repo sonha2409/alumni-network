@@ -43,7 +43,7 @@
     "all": "All"
   },
   "landing": {
-    "brand": "AlumNet",
+    "brand": "PTNKAlum",
     "logIn": "Log In",
     "getStarted": "Get Started",
     "heroBadge": "Your alumni network, reimagined",
@@ -86,12 +86,12 @@
     "ctaTitle": "Your network is waiting",
     "ctaSubtitle": "Join hundreds of alumni who are already connecting, collaborating, and building their futures together.",
     "ctaButton": "Create Your Account",
-    "footerText": "© 2026 AlumNet. Built for alumni, by alumni."
+    "footerText": "© 2026 PTNKAlum. Built for alumni, by alumni."
   },
   "auth": {
     "login": {
-      "title": "Sign In — AlumNet",
-      "description": "Sign in to your AlumNet alumni network account.",
+      "title": "Sign In — PTNKAlum",
+      "description": "Sign in to your PTNKAlum alumni network account.",
       "heading": "Sign in",
       "subheading": "Enter your email and password to access your account.",
       "emailConfirmed": "Email confirmed! Please sign in to continue.",
@@ -102,8 +102,8 @@
       "signUp": "Sign up"
     },
     "signup": {
-      "title": "Sign Up — AlumNet",
-      "description": "Create your AlumNet alumni network account.",
+      "title": "Sign Up — PTNKAlum",
+      "description": "Create your PTNKAlum alumni network account.",
       "heading": "Create an account",
       "subheading": "Join your alumni network. Enter your details below.",
       "confirmPassword": "Confirm password",
@@ -115,8 +115,8 @@
       "successWithEmail": "Account created! Please check your email to verify your account, then log in."
     },
     "forgotPassword": {
-      "title": "Reset Password — AlumNet",
-      "description": "Reset your AlumNet account password.",
+      "title": "Reset Password — PTNKAlum",
+      "description": "Reset your PTNKAlum account password.",
       "heading": "Reset password",
       "subheading": "Enter your email and we'll send you a reset link.",
       "sending": "Sending…",
@@ -125,8 +125,8 @@
       "rememberPassword": "Remember your password?"
     },
     "resetPassword": {
-      "title": "Set New Password — AlumNet",
-      "description": "Set a new password for your AlumNet account.",
+      "title": "Set New Password — PTNKAlum",
+      "description": "Set a new password for your PTNKAlum account.",
       "heading": "Set new password",
       "subheading": "Enter your new password below.",
       "newPassword": "New password",
@@ -226,7 +226,7 @@
   "directory": {
     "title": "Alumni Directory",
     "description": "Discover alumni by name, industry, graduation year, and more.",
-    "metaTitle": "Alumni Directory — AlumNet",
+    "metaTitle": "Alumni Directory — PTNKAlum",
     "metaDescription": "Discover and connect with fellow alumni.",
     "verifyBanner": "Verify your account to see full alumni profiles.",
     "searchPlaceholder": "Search by name, bio...",
@@ -311,7 +311,7 @@
   "connections": {
     "title": "Connections",
     "subtitle": "Manage your alumni network",
-    "metaTitle": "Connections — AlumNet",
+    "metaTitle": "Connections — PTNKAlum",
     "metaDescription": "Manage your alumni connections",
     "tabConnected": "Connected",
     "tabReceived": "Received",
@@ -339,7 +339,7 @@
   },
   "profile": {
     "editProfile": "Edit profile",
-    "editTitle": "Edit Profile — AlumNet",
+    "editTitle": "Edit Profile — PTNKAlum",
     "editDescription": "Update your alumni profile.",
     "editSubtitle": "Keep your profile up to date so alumni can find and connect with you.",
     "profileCompleteness": "Profile completeness",
@@ -386,12 +386,12 @@
     "blockUser": "Block user",
     "notePlaceholder": "Add a note (optional)...",
     "requestSentToast": "Connection request sent!",
-    "notFoundTitle": "Profile Not Found — AlumNet"
+    "notFoundTitle": "Profile Not Found — PTNKAlum"
   },
   "groups": {
     "title": "Groups",
     "description": "Browse alumni groups by graduation year, career field, location, and more.",
-    "metaTitle": "Groups — AlumNet",
+    "metaTitle": "Groups — PTNKAlum",
     "metaDescription": "Browse and join alumni groups by year, field, or location.",
     "verifyBanner": "Verify your account to join groups and connect with fellow alumni.",
     "noGroupsFound": "No groups found",
@@ -442,9 +442,9 @@
     "fileTooLarge": "{name} is too large. Maximum is 2 MB per file."
   },
   "onboarding": {
-    "metaTitle": "Complete Your Profile — AlumNet",
+    "metaTitle": "Complete Your Profile — PTNKAlum",
     "metaDescription": "Set up your alumni profile to connect with your network.",
-    "title": "Welcome to AlumNet",
+    "title": "Welcome to PTNKAlum",
     "subtitle": "Let's set up your profile. You can always add more details later.",
     "fullName": "Full name *",
     "fullNamePlaceholder": "Your full name",
@@ -518,7 +518,7 @@
     "dismissAnnouncement": "Dismiss announcement"
   },
   "map": {
-    "metaTitle": "Alumni Map — AlumNet",
+    "metaTitle": "Alumni Map — PTNKAlum",
     "metaDescription": "Explore where fellow alumni are located around the world.",
     "title": "Alumni Map",
     "adminTitle": "Alumni Map",
@@ -814,8 +814,8 @@
       "stalenessUpdated": "Staleness threshold updated."
     },
     "navbar": {
-      "adminTitle": "AlumNet Admin",
-      "moderationTitle": "AlumNet Moderation",
+      "adminTitle": "PTNKAlum Admin",
+      "moderationTitle": "PTNKAlum Moderation",
       "reports": "Reports",
       "users": "Users",
       "taxonomy": "Taxonomy",
@@ -906,6 +906,90 @@
       "charCount": "{count}/1000",
       "escalating": "Escalating...",
       "escalateBtn": "Escalate"
+    }
+  },
+  "seo": {
+    "brand": "PTNKAlum",
+    "rootTitle": "PTNKAlum — Alumni network for Trường Phổ thông Năng khiếu (PTNK)",
+    "rootDescription": "PTNKAlum is the global alumni network for graduates of Trường Phổ thông Năng khiếu, VNU-HCM (High School for the Gifted, PTNK). Connect with PTNK alumni worldwide — search by career, location, and graduation year.",
+    "ogTitle": "PTNKAlum — PTNK Alumni Network",
+    "ogDescription": "The global network for graduates of Trường Phổ thông Năng khiếu (PTNK), VNU-HCM. Reconnect with classmates, discover mentors, and build lifelong professional connections."
+  },
+  "publicFooter": {
+    "tagline": "The global network for PTNK alumni.",
+    "about": "About",
+    "faq": "FAQ",
+    "logIn": "Log In",
+    "signUp": "Sign Up",
+    "copyright": "© 2026 PTNKAlum. Built for alumni, by alumni.",
+    "backToHome": "Back to home"
+  },
+  "about": {
+    "metaTitle": "About",
+    "metaDescription": "Learn about PTNKAlum — the global alumni network for Trường Phổ thông Năng khiếu (PTNK), VNU-HCM. Our mission, our school, and how we connect PTNK graduates worldwide.",
+    "heroEyebrow": "About us",
+    "heroTitle": "Where PTNK alumni come home.",
+    "heroSubtitle": "PTNKAlum is the global network for graduates of Trường Phổ thông Năng khiếu, VNU-HCM — built by alumni, for alumni.",
+    "missionTitle": "Our mission",
+    "missionBody": "We exist to connect PTNK alumni worldwide so the community that started in one school can build something far bigger — together. Every introduction, mentorship, and collaboration on PTNKAlum is a step toward the collective impact our alumni are already known for.",
+    "schoolTitle": "About the school",
+    "schoolBody": "Trường Phổ thông Năng khiếu — the High School for the Gifted, Vietnam National University, Ho Chi Minh City (VNU-HCM) — was founded in 1996. For nearly three decades, PTNK has cultivated exceptional students in mathematics, the sciences, and the humanities. Its alumni work across industries and continents — from research labs and classrooms to startups, hospitals, and policy — and this network exists to keep them connected to each other and to the school that shaped them.",
+    "networkTitle": "About the network",
+    "networkBody": "PTNKAlum launched in 2026. Membership is verified — every alumnus is confirmed before gaining full access — so the community stays trustworthy by design. Privacy is the default: contact details stay hidden until two alumni choose to connect. We don't sell data, we don't run ads, and the platform is free for every PTNK alumnus, always.",
+    "contactTitle": "Get in touch",
+    "contactBody": "Questions, feedback, or interested in helping run the network? Reach out:",
+    "contactEmail": "contact@ptnkalum.com",
+    "ctaTitle": "Ready to reconnect?",
+    "ctaSubtitle": "Join the PTNKAlum community and find your classmates, mentors, and collaborators.",
+    "ctaButton": "Join the Network"
+  },
+  "faq": {
+    "metaTitle": "Frequently Asked Questions",
+    "metaDescription": "Answers to common questions about PTNKAlum — the PTNK alumni network. How to join, how verification works, data privacy, and more.",
+    "heroEyebrow": "Help center",
+    "heroTitle": "Frequently asked questions",
+    "heroSubtitle": "Everything you need to know about joining and using PTNKAlum.",
+    "questions": {
+      "q1": {
+        "question": "What is PTNKAlum?",
+        "answer": "PTNKAlum is the global alumni network for graduates of Trường Phổ thông Năng khiếu (PTNK), VNU-HCM. It's a verified community where alumni can find each other by career field, location, and graduation year, send connection requests, message each other in real time, and join groups organized by industry or class year."
+      },
+      "q2": {
+        "question": "Who can join?",
+        "answer": "Any graduate of Trường Phổ thông Năng khiếu (PTNK), VNU-HCM is welcome. Current senior students in their final year can also sign up and submit verification. Once verified as a real PTNK alumnus, you get full access to the network."
+      },
+      "q3": {
+        "question": "Is it free to use?",
+        "answer": "Yes. PTNKAlum is free for every PTNK alumnus, and it will stay that way. We don't charge subscription fees, we don't run ads, and we don't sell member data."
+      },
+      "q4": {
+        "question": "How does verification work?",
+        "answer": "After you sign up, you'll be asked to submit a brief verification request with your graduation year, program, and any supporting documents (such as a scan of your diploma, transcript, or student ID). An admin reviews each request and typically responds within a few days. Until you're verified, you can browse basic alumni profiles but cannot send connection requests or messages."
+      },
+      "q5": {
+        "question": "What information is visible to other alumni vs. the public?",
+        "answer": "PTNKAlum uses a three-tier privacy model. Public (to anyone on the internet): nothing — the directory is not crawlable or indexable. Verified alumni (once you're approved): names, profile photos, graduation years, primary career field, and current job titles. Connected alumni only (after you both accept a connection request): email, phone, full career history, education details, precise location, and bio. You can always review and adjust what's shared on your profile."
+      },
+      "q6": {
+        "question": "How do I connect with other alumni?",
+        "answer": "Browse the directory, search by career field or location, or use the Alumni World Map to find people near you. When you find someone you'd like to connect with, send them a connection request with an optional short message. Once they accept, you'll unlock each other's detailed profiles and can message each other in real time."
+      },
+      "q7": {
+        "question": "How is my data protected?",
+        "answer": "Every table in our database uses row-level security, which means the platform enforces access rules at the data layer — not just in the UI. Only verified alumni can see the directory, only connected alumni can see contact details, and admins have audited access for verification and moderation. We use Supabase infrastructure, and we never sell or share member data with third parties."
+      },
+      "q8": {
+        "question": "How do I delete my account?",
+        "answer": "Go to Settings → Account → Delete Account. We'll generate a full data export for you, then soft-delete your account: you'll disappear from the directory, your connections will be removed, and your messages will be anonymized. You have a 30-day grace period to change your mind and reactivate. After 30 days, all your personal data is permanently deleted from our database."
+      },
+      "q9": {
+        "question": "Can I join if I haven't graduated yet?",
+        "answer": "Yes, current senior PTNK students can sign up. During verification, submit a valid student ID or enrollment document. You'll be marked as a current student until your graduation year, at which point your status updates automatically."
+      },
+      "q10": {
+        "question": "How do I report a problem or get help?",
+        "answer": "For general questions, email contact@ptnkalum.com. Once logged in, you can also report inappropriate messages directly from any conversation (the report goes to the moderator queue anonymously). For account issues, the Settings page has options for profile updates, notification preferences, language, and account deletion."
+      }
     }
   }
 }

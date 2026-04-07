@@ -85,7 +85,11 @@ export default async function proxy(request: NextRequest) {
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup") ||
     pathname.startsWith("/forgot-password");
-  const isPublicRoute = pathname === "/" || isAuthRoute;
+  const isPublicRoute =
+    pathname === "/" ||
+    pathname === "/about" ||
+    pathname === "/faq" ||
+    isAuthRoute;
   const isOnboarding = pathname.startsWith("/onboarding");
   const isResetPassword = pathname.startsWith("/reset-password");
   const isAuthCallback = pathname.startsWith("/auth/callback");

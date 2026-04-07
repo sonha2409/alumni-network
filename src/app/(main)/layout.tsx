@@ -1,10 +1,18 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 
 import { MainNavbar } from "@/components/navbar/main-navbar";
 import { VerificationBanner } from "./verification-banner";
 import { AnnouncementBanner } from "./announcement-banner";
 import { StalenessBanner } from "./staleness-banner";
 import { NotificationsWrapper } from "./notifications-wrapper";
+
+// F46: Authenticated app pages are behind login and contain personal data.
+// Disallow indexing/following at the layout level as a belt-and-braces measure
+// (robots.txt already disallows these routes, but some crawlers ignore it).
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default function MainLayout({
   children,

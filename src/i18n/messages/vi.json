@@ -43,7 +43,7 @@
     "all": "Tất cả"
   },
   "landing": {
-    "brand": "AlumNet",
+    "brand": "PTNKAlum",
     "logIn": "Đăng nhập",
     "getStarted": "Bắt đầu",
     "heroBadge": "Mạng lưới cựu học sinh, tái định nghĩa",
@@ -86,12 +86,12 @@
     "ctaTitle": "Mạng lưới đang chờ bạn",
     "ctaSubtitle": "Tham gia cùng hàng trăm cựu học sinh đang kết nối, hợp tác và cùng xây dựng tương lai.",
     "ctaButton": "Tạo tài khoản",
-    "footerText": "© 2026 AlumNet. Xây dựng cho cựu học sinh, bởi cựu học sinh."
+    "footerText": "© 2026 PTNKAlum. Xây dựng cho cựu học sinh, bởi cựu học sinh."
   },
   "auth": {
     "login": {
-      "title": "Đăng nhập — AlumNet",
-      "description": "Đăng nhập vào tài khoản AlumNet của bạn.",
+      "title": "Đăng nhập — PTNKAlum",
+      "description": "Đăng nhập vào tài khoản PTNKAlum của bạn.",
       "heading": "Đăng nhập",
       "subheading": "Nhập email và mật khẩu để truy cập tài khoản.",
       "emailConfirmed": "Email đã được xác nhận! Vui lòng đăng nhập để tiếp tục.",
@@ -102,8 +102,8 @@
       "signUp": "Đăng ký"
     },
     "signup": {
-      "title": "Đăng ký — AlumNet",
-      "description": "Tạo tài khoản AlumNet.",
+      "title": "Đăng ký — PTNKAlum",
+      "description": "Tạo tài khoản PTNKAlum.",
       "heading": "Tạo tài khoản",
       "subheading": "Tham gia mạng lưới cựu học sinh. Nhập thông tin bên dưới.",
       "confirmPassword": "Xác nhận mật khẩu",
@@ -115,8 +115,8 @@
       "successWithEmail": "Tạo tài khoản thành công! Vui lòng kiểm tra email để xác minh, sau đó đăng nhập."
     },
     "forgotPassword": {
-      "title": "Đặt lại mật khẩu — AlumNet",
-      "description": "Đặt lại mật khẩu tài khoản AlumNet.",
+      "title": "Đặt lại mật khẩu — PTNKAlum",
+      "description": "Đặt lại mật khẩu tài khoản PTNKAlum.",
       "heading": "Đặt lại mật khẩu",
       "subheading": "Nhập email và chúng tôi sẽ gửi liên kết đặt lại.",
       "sending": "Đang gửi…",
@@ -125,8 +125,8 @@
       "rememberPassword": "Nhớ mật khẩu?"
     },
     "resetPassword": {
-      "title": "Đặt mật khẩu mới — AlumNet",
-      "description": "Đặt mật khẩu mới cho tài khoản AlumNet.",
+      "title": "Đặt mật khẩu mới — PTNKAlum",
+      "description": "Đặt mật khẩu mới cho tài khoản PTNKAlum.",
       "heading": "Đặt mật khẩu mới",
       "subheading": "Nhập mật khẩu mới bên dưới.",
       "newPassword": "Mật khẩu mới",
@@ -226,7 +226,7 @@
   "directory": {
     "title": "Danh bạ cựu học sinh",
     "description": "Tìm kiếm cựu học sinh theo tên, ngành nghề, năm tốt nghiệp và nhiều hơn.",
-    "metaTitle": "Danh bạ cựu học sinh — AlumNet",
+    "metaTitle": "Danh bạ cựu học sinh — PTNKAlum",
     "metaDescription": "Khám phá và kết nối với cựu học sinh.",
     "verifyBanner": "Xác minh tài khoản để xem hồ sơ đầy đủ.",
     "searchPlaceholder": "Tìm theo tên, tiểu sử...",
@@ -311,7 +311,7 @@
   "connections": {
     "title": "Kết nối",
     "subtitle": "Quản lý mạng lưới cựu học sinh",
-    "metaTitle": "Kết nối — AlumNet",
+    "metaTitle": "Kết nối — PTNKAlum",
     "metaDescription": "Quản lý kết nối cựu học sinh",
     "tabConnected": "Đã kết nối",
     "tabReceived": "Đã nhận",
@@ -339,7 +339,7 @@
   },
   "profile": {
     "editProfile": "Chỉnh sửa hồ sơ",
-    "editTitle": "Chỉnh sửa hồ sơ — AlumNet",
+    "editTitle": "Chỉnh sửa hồ sơ — PTNKAlum",
     "editDescription": "Cập nhật hồ sơ cựu học sinh.",
     "editSubtitle": "Cập nhật hồ sơ để cựu học sinh có thể tìm và kết nối với bạn.",
     "profileCompleteness": "Mức độ hoàn thiện hồ sơ",
@@ -386,12 +386,12 @@
     "blockUser": "Chặn người dùng",
     "notePlaceholder": "Thêm ghi chú (tùy chọn)...",
     "requestSentToast": "Đã gửi lời mời kết nối!",
-    "notFoundTitle": "Không tìm thấy hồ sơ — AlumNet"
+    "notFoundTitle": "Không tìm thấy hồ sơ — PTNKAlum"
   },
   "groups": {
     "title": "Nhóm",
     "description": "Tìm nhóm cựu học sinh theo khóa, lĩnh vực, địa điểm và nhiều hơn.",
-    "metaTitle": "Nhóm — AlumNet",
+    "metaTitle": "Nhóm — PTNKAlum",
     "metaDescription": "Tìm và tham gia nhóm cựu học sinh.",
     "verifyBanner": "Xác minh tài khoản để tham gia nhóm.",
     "noGroupsFound": "Không tìm thấy nhóm",
@@ -442,9 +442,9 @@
     "fileTooLarge": "{name} quá lớn. Tối đa 2 MB mỗi tệp."
   },
   "onboarding": {
-    "metaTitle": "Hoàn thiện hồ sơ — AlumNet",
+    "metaTitle": "Hoàn thiện hồ sơ — PTNKAlum",
     "metaDescription": "Thiết lập hồ sơ cựu học sinh để kết nối với mạng lưới.",
-    "title": "Chào mừng đến AlumNet",
+    "title": "Chào mừng đến PTNKAlum",
     "subtitle": "Hãy thiết lập hồ sơ. Bạn có thể bổ sung thêm sau.",
     "fullName": "Họ và tên *",
     "fullNamePlaceholder": "Họ và tên đầy đủ",
@@ -518,7 +518,7 @@
     "dismissAnnouncement": "Bỏ qua thông báo"
   },
   "map": {
-    "metaTitle": "Bản đồ cựu học sinh — AlumNet",
+    "metaTitle": "Bản đồ cựu học sinh — PTNKAlum",
     "metaDescription": "Khám phá cựu học sinh đang ở đâu trên thế giới.",
     "title": "Bản đồ cựu học sinh",
     "adminTitle": "Bản đồ cựu học sinh",
@@ -814,8 +814,8 @@
       "stalenessUpdated": "Đã cập nhật ngưỡng hồ sơ cũ."
     },
     "navbar": {
-      "adminTitle": "AlumNet Quản trị",
-      "moderationTitle": "AlumNet Kiểm duyệt",
+      "adminTitle": "PTNKAlum Quản trị",
+      "moderationTitle": "PTNKAlum Kiểm duyệt",
       "reports": "Báo cáo",
       "users": "Người dùng",
       "taxonomy": "Phân loại",
@@ -906,6 +906,90 @@
       "charCount": "{count}/1000",
       "escalating": "Đang chuyển tiếp...",
       "escalateBtn": "Chuyển tiếp"
+    }
+  },
+  "seo": {
+    "brand": "PTNKAlum",
+    "rootTitle": "PTNKAlum — Mạng lưới cựu học sinh Trường Phổ thông Năng khiếu (PTNK)",
+    "rootDescription": "PTNKAlum là mạng lưới toàn cầu dành cho cựu học sinh Trường Phổ thông Năng khiếu, Đại học Quốc gia Thành phố Hồ Chí Minh (PTNK). Kết nối cựu học sinh PTNK khắp thế giới — tìm kiếm theo ngành nghề, địa điểm và năm tốt nghiệp.",
+    "ogTitle": "PTNKAlum — Mạng lưới cựu học sinh PTNK",
+    "ogDescription": "Mạng lưới toàn cầu của cựu học sinh Trường Phổ thông Năng khiếu (PTNK), VNU-HCM. Kết nối lại với bạn cũ, tìm người hướng dẫn và xây dựng các mối quan hệ chuyên môn lâu dài."
+  },
+  "publicFooter": {
+    "tagline": "Mạng lưới toàn cầu dành cho cựu học sinh PTNK.",
+    "about": "Giới thiệu",
+    "faq": "Câu hỏi thường gặp",
+    "logIn": "Đăng nhập",
+    "signUp": "Đăng ký",
+    "copyright": "© 2026 PTNKAlum. Xây dựng cho cựu học sinh, bởi cựu học sinh.",
+    "backToHome": "Về trang chủ"
+  },
+  "about": {
+    "metaTitle": "Giới thiệu",
+    "metaDescription": "Tìm hiểu về PTNKAlum — mạng lưới toàn cầu dành cho cựu học sinh Trường Phổ thông Năng khiếu (PTNK), VNU-HCM. Sứ mệnh, ngôi trường và cách chúng tôi kết nối cựu học sinh PTNK khắp thế giới.",
+    "heroEyebrow": "Về chúng tôi",
+    "heroTitle": "Nơi cựu học sinh PTNK tìm về nhau.",
+    "heroSubtitle": "PTNKAlum là mạng lưới toàn cầu dành cho cựu học sinh Trường Phổ thông Năng khiếu, VNU-HCM — được xây dựng bởi cựu học sinh, cho cựu học sinh.",
+    "missionTitle": "Sứ mệnh của chúng tôi",
+    "missionBody": "Chúng tôi tồn tại để kết nối cựu học sinh PTNK khắp thế giới, để cộng đồng khởi đầu từ một ngôi trường có thể cùng nhau tạo nên những điều lớn lao hơn. Mỗi lần giới thiệu, mỗi mối quan hệ hướng dẫn và mỗi sự hợp tác trên PTNKAlum là một bước tiến đến tác động tập thể mà cựu học sinh PTNK vốn đã nổi tiếng.",
+    "schoolTitle": "Về ngôi trường",
+    "schoolBody": "Trường Phổ thông Năng khiếu — Đại học Quốc gia Thành phố Hồ Chí Minh (VNU-HCM) — được thành lập năm 1996. Trong gần ba thập kỷ, PTNK đã đào tạo nên những học sinh xuất sắc trong toán học, khoa học tự nhiên và nhân văn. Cựu học sinh PTNK làm việc trong nhiều ngành nghề và trên nhiều châu lục — từ phòng thí nghiệm, giảng đường đến khởi nghiệp, bệnh viện và chính sách — và mạng lưới này tồn tại để giữ họ kết nối với nhau và với ngôi trường đã định hình họ.",
+    "networkTitle": "Về mạng lưới",
+    "networkBody": "PTNKAlum ra mắt năm 2026. Mọi thành viên đều được xác minh — mỗi cựu học sinh phải được kiểm tra trước khi có quyền truy cập đầy đủ — để cộng đồng luôn đáng tin cậy. Quyền riêng tư là mặc định: thông tin liên hệ chỉ hiển thị khi hai cựu học sinh đồng ý kết nối. Chúng tôi không bán dữ liệu, không chạy quảng cáo, và nền tảng miễn phí cho mọi cựu học sinh PTNK, mãi mãi.",
+    "contactTitle": "Liên hệ",
+    "contactBody": "Có câu hỏi, phản hồi hoặc muốn tham gia điều hành mạng lưới? Liên hệ với chúng tôi:",
+    "contactEmail": "contact@ptnkalum.com",
+    "ctaTitle": "Sẵn sàng kết nối lại?",
+    "ctaSubtitle": "Tham gia cộng đồng PTNKAlum và tìm bạn học, người hướng dẫn, và đồng nghiệp của bạn.",
+    "ctaButton": "Tham gia mạng lưới"
+  },
+  "faq": {
+    "metaTitle": "Câu hỏi thường gặp",
+    "metaDescription": "Giải đáp các câu hỏi thường gặp về PTNKAlum — mạng lưới cựu học sinh PTNK. Cách tham gia, quy trình xác minh, bảo mật dữ liệu và nhiều hơn nữa.",
+    "heroEyebrow": "Trung tâm trợ giúp",
+    "heroTitle": "Câu hỏi thường gặp",
+    "heroSubtitle": "Mọi điều bạn cần biết để tham gia và sử dụng PTNKAlum.",
+    "questions": {
+      "q1": {
+        "question": "PTNKAlum là gì?",
+        "answer": "PTNKAlum là mạng lưới toàn cầu dành cho cựu học sinh Trường Phổ thông Năng khiếu (PTNK), VNU-HCM. Đây là cộng đồng đã xác minh, nơi cựu học sinh có thể tìm thấy nhau theo ngành nghề, địa điểm và năm tốt nghiệp, gửi lời mời kết nối, nhắn tin thời gian thực và tham gia các nhóm theo lĩnh vực hoặc khóa học."
+      },
+      "q2": {
+        "question": "Ai có thể tham gia?",
+        "answer": "Mọi cựu học sinh của Trường Phổ thông Năng khiếu (PTNK), VNU-HCM đều được chào đón. Học sinh năm cuối hiện đang học cũng có thể đăng ký và gửi yêu cầu xác minh. Sau khi được xác minh là cựu học sinh PTNK thật sự, bạn sẽ có quyền truy cập đầy đủ vào mạng lưới."
+      },
+      "q3": {
+        "question": "Có miễn phí không?",
+        "answer": "Có. PTNKAlum miễn phí cho mọi cựu học sinh PTNK và sẽ luôn như vậy. Chúng tôi không thu phí đăng ký, không chạy quảng cáo và không bán dữ liệu thành viên."
+      },
+      "q4": {
+        "question": "Quy trình xác minh hoạt động như thế nào?",
+        "answer": "Sau khi đăng ký, bạn sẽ được yêu cầu gửi một biểu mẫu xác minh ngắn với năm tốt nghiệp, chuyên ngành và các tài liệu chứng minh (như ảnh chụp bằng tốt nghiệp, bảng điểm hoặc thẻ học sinh). Quản trị viên sẽ xem xét từng yêu cầu và thường phản hồi trong vài ngày. Trước khi được xác minh, bạn có thể duyệt hồ sơ cựu học sinh cơ bản nhưng không thể gửi lời mời kết nối hoặc tin nhắn."
+      },
+      "q5": {
+        "question": "Những thông tin nào hiển thị với người khác?",
+        "answer": "PTNKAlum sử dụng mô hình quyền riêng tư ba tầng. Công khai (với bất kỳ ai trên Internet): không có gì — danh bạ không thể được lập chỉ mục bởi công cụ tìm kiếm. Cựu học sinh đã xác minh (sau khi được duyệt): họ tên, ảnh hồ sơ, năm tốt nghiệp, lĩnh vực nghề nghiệp chính và chức danh hiện tại. Chỉ cựu học sinh đã kết nối (sau khi cả hai chấp nhận lời mời): email, số điện thoại, lịch sử nghề nghiệp đầy đủ, thông tin học vấn, địa điểm chính xác và tiểu sử. Bạn luôn có thể kiểm soát những gì được chia sẻ trong hồ sơ của mình."
+      },
+      "q6": {
+        "question": "Làm thế nào để kết nối với cựu học sinh khác?",
+        "answer": "Duyệt danh bạ, tìm kiếm theo lĩnh vực nghề nghiệp hoặc địa điểm, hoặc sử dụng Bản đồ cựu học sinh để tìm người ở gần bạn. Khi tìm thấy ai đó bạn muốn kết nối, hãy gửi lời mời kết nối kèm theo một tin nhắn ngắn tùy chọn. Sau khi họ chấp nhận, bạn sẽ mở khóa hồ sơ chi tiết của nhau và có thể nhắn tin thời gian thực."
+      },
+      "q7": {
+        "question": "Dữ liệu của tôi được bảo vệ như thế nào?",
+        "answer": "Mọi bảng dữ liệu trong cơ sở dữ liệu của chúng tôi đều sử dụng row-level security, nghĩa là nền tảng thực thi các quy tắc truy cập ở tầng dữ liệu — không chỉ ở giao diện người dùng. Chỉ cựu học sinh đã xác minh mới có thể xem danh bạ, chỉ cựu học sinh đã kết nối mới có thể xem chi tiết liên hệ, và quản trị viên chỉ có quyền truy cập được kiểm toán cho việc xác minh và kiểm duyệt. Chúng tôi sử dụng hạ tầng Supabase và không bao giờ bán hoặc chia sẻ dữ liệu thành viên với bên thứ ba."
+      },
+      "q8": {
+        "question": "Làm thế nào để xóa tài khoản?",
+        "answer": "Truy cập Cài đặt → Tài khoản → Xóa tài khoản. Chúng tôi sẽ tạo bản xuất dữ liệu đầy đủ cho bạn, sau đó xóa mềm tài khoản: bạn sẽ biến mất khỏi danh bạ, các kết nối sẽ được gỡ bỏ và tin nhắn của bạn sẽ được ẩn danh. Bạn có 30 ngày ân hạn để đổi ý và kích hoạt lại. Sau 30 ngày, tất cả dữ liệu cá nhân sẽ được xóa vĩnh viễn khỏi cơ sở dữ liệu."
+      },
+      "q9": {
+        "question": "Tôi có thể tham gia nếu chưa tốt nghiệp không?",
+        "answer": "Có, học sinh năm cuối PTNK hiện tại có thể đăng ký. Trong quá trình xác minh, hãy gửi thẻ học sinh hợp lệ hoặc tài liệu nhập học. Bạn sẽ được đánh dấu là học sinh hiện tại cho đến năm tốt nghiệp, sau đó trạng thái sẽ tự động cập nhật."
+      },
+      "q10": {
+        "question": "Làm thế nào để báo lỗi hoặc nhận trợ giúp?",
+        "answer": "Đối với các câu hỏi chung, vui lòng gửi email đến contact@ptnkalum.com. Sau khi đăng nhập, bạn cũng có thể báo cáo tin nhắn không phù hợp trực tiếp từ bất kỳ cuộc trò chuyện nào (báo cáo sẽ được gửi ẩn danh đến hàng đợi kiểm duyệt). Đối với các vấn đề về tài khoản, trang Cài đặt có các tùy chọn để cập nhật hồ sơ, tùy chọn thông báo, ngôn ngữ và xóa tài khoản."
+      }
     }
   }
 }

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import {
@@ -14,27 +13,60 @@ import {
   Handshake,
 } from "lucide-react";
 
+import { PublicFooter } from "@/components/public-footer";
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ptnkalum.com";
 
-export const metadata: Metadata = {
-  title: "PTNKAlum — PTNK Alumni Network",
-  description:
-    "Connect with PTNK alumni worldwide. Search by career field, education, location, and graduation year. Build meaningful professional connections with fellow graduates.",
-  openGraph: {
-    title: "PTNKAlum — PTNK Alumni Network",
-    description:
-      "Connect with PTNK alumni worldwide. Search by career field, education, location, and graduation year.",
-    url: siteUrl,
-  },
-};
+// Metadata for the landing page inherits from the root layout's
+// generateMetadata() — no page-level override needed. Keeping this comment as
+// a signal for future readers: if you add page-specific metadata here, make
+// sure it doesn't drop the hreflang/keywords defined at the root level.
 
-const jsonLd = {
+// F46: Enriched Organization schema with parent (the school) and contact info.
+// Google uses this for the "Knowledge Panel" style result.
+const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "PTNKAlum",
+  alternateName: [
+    "PTNK Alumni Network",
+    "Mạng lưới cựu học sinh PTNK",
+    "Mạng lưới cựu học sinh Phổ thông Năng khiếu",
+  ],
   url: siteUrl,
   description:
-    "Alumni network for graduates of Phu Tho National High School for the Gifted (PTNK). Connect by career, location, and graduation year.",
+    "The global alumni network for graduates of Trường Phổ thông Năng khiếu (High School for the Gifted, VNU-HCM).",
+  foundingDate: "2026",
+  parentOrganization: {
+    "@type": "EducationalOrganization",
+    name: "High School for the Gifted, VNU-HCM",
+    alternateName: [
+      "Trường Phổ thông Năng khiếu, Đại học Quốc gia Thành phố Hồ Chí Minh",
+      "PTNK",
+    ],
+    foundingDate: "1996",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Ho Chi Minh City",
+      addressCountry: "VN",
+    },
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "contact@ptnkalum.com",
+    contactType: "customer support",
+    availableLanguage: ["English", "Vietnamese"],
+  },
+};
+
+// F46: WebSite schema declares the site identity + a potential site-search
+// action. Google uses this to show a search box directly in search results.
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "PTNKAlum",
+  url: siteUrl,
+  inLanguage: ["en", "vi"],
 };
 
 export default async function LandingPage() {
@@ -44,7 +76,13 @@ export default async function LandingPage() {
     <div className="min-h-screen bg-background">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationJsonLd),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
       {/* Navigation */}
       <nav className="fixed top-0 right-0 left-0 z-50 border-b border-border/40 bg-background/70 backdrop-blur-xl">
@@ -320,12 +358,7 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/40 py-8">
-        <div className="mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground sm:px-6">
-          <p>{t("footerText")}</p>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }
