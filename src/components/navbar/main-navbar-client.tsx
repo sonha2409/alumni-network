@@ -4,6 +4,24 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import {
+  LayoutDashboard,
+  Users,
+  MapPin,
+  UserCheck,
+  MessageSquare,
+  UsersRound,
+  ShieldCheck,
+  Shield,
+  Menu,
+  X,
+  User,
+  Pencil,
+  Settings,
+  LogOut,
+  Bell,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -61,6 +79,7 @@ function MobileNotificationsLink({ onClick }: { onClick: () => void }) {
       className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
       onClick={onClick}
     >
+      <Bell className="size-4" aria-hidden="true" />
       {t("notifications")}
       {unreadCount > 0 && (
         <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white">
@@ -85,14 +104,14 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = useTranslations("nav");
 
-  const navLinks = [
-    { href: "/dashboard", label: t("dashboard") },
-    { href: "/directory", label: t("directory") },
-    { href: "/map", label: t("map") },
-    { href: "/connections", label: t("connections") },
-    { href: "/messages", label: t("messages") },
-    { href: "/groups", label: t("groups") },
-    { href: "/verification", label: t("verification") },
+  const navLinks: { href: string; label: string; icon: LucideIcon }[] = [
+    { href: "/dashboard", label: t("dashboard"), icon: LayoutDashboard },
+    { href: "/directory", label: t("directory"), icon: Users },
+    { href: "/map", label: t("map"), icon: MapPin },
+    { href: "/connections", label: t("connections"), icon: UserCheck },
+    { href: "/messages", label: t("messages"), icon: MessageSquare },
+    { href: "/groups", label: t("groups"), icon: UsersRound },
+    { href: "/verification", label: t("verification"), icon: ShieldCheck },
   ];
 
   const profileHref = user.profileId
@@ -115,37 +134,43 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
 
         {/* Desktop links */}
         <div className="hidden items-center gap-1 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="relative rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              {link.label}
-              {link.href === "/connections" &&
-                user.pendingConnectionCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white animate-in zoom-in-50 duration-300">
-                    {user.pendingConnectionCount}
-                  </span>
-                )}
-              {link.href === "/messages" && (
-                  <MessageBadge className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-bold text-white animate-in zoom-in-50 duration-300" />
-                )}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="relative flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <Icon className="size-4" aria-hidden="true" />
+                {link.label}
+                {link.href === "/connections" &&
+                  user.pendingConnectionCount > 0 && (
+                    <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white animate-in zoom-in-50 duration-300">
+                      {user.pendingConnectionCount}
+                    </span>
+                  )}
+                {link.href === "/messages" && (
+                    <MessageBadge className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-bold text-white animate-in zoom-in-50 duration-300" />
+                  )}
+              </Link>
+            );
+          })}
           {isAdmin && (
             <Link
               href="/admin/verification"
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
+              <Shield className="size-4" aria-hidden="true" />
               {t("admin")}
             </Link>
           )}
           {isModerator && (
             <Link
               href="/moderation/reports"
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
+              <Shield className="size-4" aria-hidden="true" />
               {t("moderation")}
             </Link>
           )}
@@ -172,16 +197,19 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
               <DropdownMenuItem
                 render={<Link href={profileHref} />}
               >
+                <User className="size-4" aria-hidden="true" />
                 {t("myProfile")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 render={<Link href="/profile/edit" />}
               >
+                <Pencil className="size-4" aria-hidden="true" />
                 {t("editProfile")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 render={<Link href="/settings/notifications" />}
               >
+                <Settings className="size-4" aria-hidden="true" />
                 {t("settings")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -191,6 +219,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
                   form?.requestSubmit();
                 }}
               >
+                <LogOut className="size-4" aria-hidden="true" />
                 {t("signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -209,35 +238,9 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
           aria-label={mobileMenuOpen ? t("closeMenu") : t("openMenu")}
         >
           {mobileMenuOpen ? (
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X className="size-5" aria-hidden="true" />
           ) : (
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-              />
-            </svg>
+            <Menu className="size-5" aria-hidden="true" />
           )}
         </button>
       </div>
@@ -249,55 +252,63 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
           className="border-t md:hidden"
         >
           <div className="space-y-1 px-4 py-3">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.label}
-                {link.href === "/connections" &&
-                  user.pendingConnectionCount > 0 && (
-                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white">
-                      {user.pendingConnectionCount}
-                    </span>
-                  )}
-                {link.href === "/messages" && (
-                    <MessageBadge className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-500 px-1 text-[11px] font-bold text-white" />
-                  )}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Icon className="size-4" aria-hidden="true" />
+                  {link.label}
+                  {link.href === "/connections" &&
+                    user.pendingConnectionCount > 0 && (
+                      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white">
+                        {user.pendingConnectionCount}
+                      </span>
+                    )}
+                  {link.href === "/messages" && (
+                      <MessageBadge className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-500 px-1 text-[11px] font-bold text-white" />
+                    )}
+                </Link>
+              );
+            })}
             <MobileNotificationsLink onClick={() => setMobileMenuOpen(false)} />
             <Link
               href={profileHref}
-              className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
               onClick={() => setMobileMenuOpen(false)}
             >
+              <User className="size-4" aria-hidden="true" />
               {t("myProfile")}
             </Link>
             <Link
               href="/settings/notifications"
-              className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
               onClick={() => setMobileMenuOpen(false)}
             >
+              <Settings className="size-4" aria-hidden="true" />
               {t("settings")}
             </Link>
             {isAdmin && (
               <Link
                 href="/admin/verification"
-                className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >
+                <Shield className="size-4" aria-hidden="true" />
                 {t("admin")}
               </Link>
             )}
             {isModerator && (
               <Link
                 href="/moderation/reports"
-                className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >
+                <Shield className="size-4" aria-hidden="true" />
                 {t("moderation")}
               </Link>
             )}
@@ -319,6 +330,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
                 size="sm"
                 className="w-full"
               >
+                <LogOut className="size-4" aria-hidden="true" />
                 {t("signOut")}
               </Button>
             </form>

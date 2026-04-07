@@ -2,7 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import {
+  Menu,
+  X,
+  Flag,
+  ShieldCheck,
+  Users,
+  Tags,
+  BarChart3,
+  MapPin,
+  Mail,
+  Megaphone,
+  Settings,
+  ArrowLeft,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface AdminNavbarProps {
@@ -10,7 +23,7 @@ interface AdminNavbarProps {
 }
 
 const linkClass =
-  "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground whitespace-nowrap";
+  "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground whitespace-nowrap flex items-center gap-1.5";
 
 export function AdminNavbar({ role }: AdminNavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -29,32 +42,41 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
           {/* Desktop nav links — hidden on mobile */}
           <div className="hidden items-center gap-1 md:flex">
             <Link href="/moderation/reports" className={linkClass}>
+              <Flag className="size-4" aria-hidden="true" />
               {tAdmin("reports")}
             </Link>
             {role === "admin" && (
               <>
                 <Link href="/admin/verification" className={linkClass}>
+                  <ShieldCheck className="size-4" aria-hidden="true" />
                   {tNav("verification")}
                 </Link>
                 <Link href="/admin/users" className={linkClass}>
+                  <Users className="size-4" aria-hidden="true" />
                   {tAdmin("users")}
                 </Link>
                 <Link href="/admin/taxonomy" className={linkClass}>
+                  <Tags className="size-4" aria-hidden="true" />
                   {tAdmin("taxonomy")}
                 </Link>
                 <Link href="/admin/analytics" className={linkClass}>
+                  <BarChart3 className="size-4" aria-hidden="true" />
                   {tAdmin("analytics")}
                 </Link>
                 <Link href="/admin/map" className={linkClass}>
+                  <MapPin className="size-4" aria-hidden="true" />
                   {tNav("map")}
                 </Link>
                 <Link href="/admin/bulk-invite" className={linkClass}>
+                  <Mail className="size-4" aria-hidden="true" />
                   {tAdmin("invite")}
                 </Link>
                 <Link href="/admin/announcements" className={linkClass}>
+                  <Megaphone className="size-4" aria-hidden="true" />
                   {tAdmin("announcements")}
                 </Link>
                 <Link href="/admin/settings" className={linkClass}>
+                  <Settings className="size-4" aria-hidden="true" />
                   {tNav("settings")}
                 </Link>
               </>
@@ -65,6 +87,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
         {/* Right side: back link (desktop) + hamburger (mobile) */}
         <div className="flex items-center gap-2">
           <Link href="/dashboard" className={linkClass + " hidden sm:inline-flex"}>
+            <ArrowLeft className="size-4" aria-hidden="true" />
             {tNav("backToApp")}
           </Link>
           <button
@@ -91,6 +114,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
               className={linkClass}
               onClick={() => setMobileOpen(false)}
             >
+              <Flag className="size-4" aria-hidden="true" />
               {tAdmin("reports")}
             </Link>
             {role === "admin" && (
@@ -100,6 +124,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
+                  <ShieldCheck className="size-4" aria-hidden="true" />
                   {tNav("verification")}
                 </Link>
                 <Link
@@ -107,6 +132,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
+                  <Users className="size-4" aria-hidden="true" />
                   {tAdmin("users")}
                 </Link>
                 <Link
@@ -114,6 +140,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
+                  <Tags className="size-4" aria-hidden="true" />
                   {tAdmin("taxonomy")}
                 </Link>
                 <Link
@@ -121,6 +148,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
+                  <BarChart3 className="size-4" aria-hidden="true" />
                   {tAdmin("analytics")}
                 </Link>
                 <Link
@@ -128,6 +156,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
+                  <MapPin className="size-4" aria-hidden="true" />
                   {tNav("map")}
                 </Link>
                 <Link
@@ -135,6 +164,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
+                  <Mail className="size-4" aria-hidden="true" />
                   {tAdmin("invite")}
                 </Link>
                 <Link
@@ -142,6 +172,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
+                  <Megaphone className="size-4" aria-hidden="true" />
                   {tAdmin("announcements")}
                 </Link>
                 <Link
@@ -149,6 +180,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
                   className={linkClass}
                   onClick={() => setMobileOpen(false)}
                 >
+                  <Settings className="size-4" aria-hidden="true" />
                   {tNav("settings")}
                 </Link>
               </>
@@ -159,6 +191,7 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
               className={linkClass}
               onClick={() => setMobileOpen(false)}
             >
+              <ArrowLeft className="size-4" aria-hidden="true" />
               {tNav("backToApp")}
             </Link>
           </div>
