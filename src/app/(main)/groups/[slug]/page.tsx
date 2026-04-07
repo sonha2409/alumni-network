@@ -42,13 +42,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { title: "Group — AlumNet" };
+  if (!user) return { title: "Group — PTNKAlum" };
 
   const group = await getGroupBySlug(slug, user.id);
-  if (!group) return { title: "Group not found — AlumNet" };
+  if (!group) return { title: "Group not found — PTNKAlum" };
 
   return {
-    title: `${group.name} — AlumNet`,
+    title: `${group.name} — PTNKAlum`,
     description: group.description ?? `Alumni group: ${group.name}`,
   };
 }

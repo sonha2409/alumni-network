@@ -39,7 +39,7 @@ function emailLayout(
           <!-- Header -->
           <tr>
             <td style="padding:24px 32px 16px;border-bottom:1px solid #e4e4e7;">
-              <strong style="font-size:18px;color:#18181b;">AlumNet</strong>
+              <strong style="font-size:18px;color:#18181b;">PTNKAlum</strong>
             </td>
           </tr>
           <!-- Content -->
@@ -52,7 +52,7 @@ function emailLayout(
           <tr>
             <td style="padding:16px 32px 24px;border-top:1px solid #e4e4e7;">
               <p style="margin:0;font-size:12px;color:#a1a1aa;line-height:1.5;">
-                You received this because you have email notifications enabled on AlumNet.
+                You received this because you have email notifications enabled on PTNKAlum.
                 <br />
                 <a href="${unsubLink}" style="color:#71717a;text-decoration:underline;">Unsubscribe from these emails</a>
               </p>
@@ -99,7 +99,7 @@ export function connectionRequestEmail(
     ${ctaButton("View Request", fullLink)}`;
 
   return {
-    subject: `${senderName} wants to connect with you on AlumNet`,
+    subject: `${senderName} wants to connect with you on PTNKAlum`,
     html: emailLayout(content, userId, "connection_request"),
   };
 }
@@ -120,7 +120,7 @@ export function connectionAcceptedEmail(
     ${ctaButton("View Profile", fullLink)}`;
 
   return {
-    subject: `${accepterName} accepted your connection on AlumNet`,
+    subject: `${accepterName} accepted your connection on PTNKAlum`,
     html: emailLayout(content, userId, "connection_accepted"),
   };
 }
@@ -141,7 +141,7 @@ export function newMessageEmail(
     ${ctaButton("Open Conversation", fullLink)}`;
 
   return {
-    subject: `New message from ${senderName} on AlumNet`,
+    subject: `New message from ${senderName} on PTNKAlum`,
     html: emailLayout(content, userId, "new_message"),
   };
 }
@@ -174,8 +174,8 @@ export function verificationUpdateEmail(
 
   return {
     subject: isApproved
-      ? "Your AlumNet verification was approved"
-      : "Update on your AlumNet verification",
+      ? "Your PTNKAlum verification was approved"
+      : "Update on your PTNKAlum verification",
     html: emailLayout(content, userId, "verification_update"),
   };
 }
@@ -197,7 +197,7 @@ export function announcementEmail(
     ${link ? ctaButton("Learn More", link) : ctaButton("Go to Dashboard", dashboardLink)}`;
 
   return {
-    subject: `AlumNet: ${title}`,
+    subject: `PTNKAlum: ${title}`,
     html: emailLayout(content, userId, "announcement"),
   };
 }
@@ -221,7 +221,7 @@ export function userWarningEmail(
     ${ctaButton("View Details", fullLink)}`;
 
   return {
-    subject: "You've received a warning on AlumNet",
+    subject: "You've received a warning on PTNKAlum",
     html: emailLayout(content, userId, "user_warning"),
   };
 }
@@ -246,7 +246,7 @@ export function userMutedEmail(
     ${ctaButton("View Details", fullLink)}`;
 
   return {
-    subject: "Your messaging on AlumNet has been restricted",
+    subject: "Your messaging on PTNKAlum has been restricted",
     html: emailLayout(content, userId, "user_muted"),
   };
 }
@@ -257,10 +257,10 @@ export function bulkInviteEmail(
 ): { subject: string; html: string } {
   const content = `
     <p style="margin:0 0 8px;font-size:15px;color:#18181b;line-height:1.5;">
-      You've been invited to join <strong>AlumNet</strong> by ${escapeHtml(inviterName)}.
+      You've been invited to join <strong>PTNKAlum</strong> by ${escapeHtml(inviterName)}.
     </p>
     <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
-      AlumNet is an alumni network platform where you can connect with fellow graduates, explore career opportunities, and stay in touch with your school community.
+      PTNKAlum is an alumni network platform where you can connect with fellow graduates, explore career opportunities, and stay in touch with your school community.
     </p>
     ${ctaButton("Create Your Account", signupUrl)}
     <p style="margin:16px 0 0;font-size:12px;color:#a1a1aa;line-height:1.5;">
@@ -269,7 +269,7 @@ export function bulkInviteEmail(
 
   // Invite emails use a simplified layout (no unsubscribe — recipient isn't a user yet)
   return {
-    subject: `You're invited to join AlumNet`,
+    subject: `You're invited to join PTNKAlum`,
     html: inviteEmailLayout(content),
   };
 }
@@ -292,7 +292,7 @@ function inviteEmailLayout(content: string): string {
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:#ffffff;border-radius:8px;overflow:hidden;">
           <tr>
             <td style="padding:24px 32px 16px;border-bottom:1px solid #e4e4e7;">
-              <strong style="font-size:18px;color:#18181b;">AlumNet</strong>
+              <strong style="font-size:18px;color:#18181b;">PTNKAlum</strong>
             </td>
           </tr>
           <tr>
@@ -303,7 +303,7 @@ function inviteEmailLayout(content: string): string {
           <tr>
             <td style="padding:16px 32px 24px;border-top:1px solid #e4e4e7;">
               <p style="margin:0;font-size:12px;color:#a1a1aa;line-height:1.5;">
-                This is an invitation from AlumNet. No action is required if you don't wish to join.
+                This is an invitation from PTNKAlum. No action is required if you don't wish to join.
               </p>
             </td>
           </tr>
@@ -326,7 +326,7 @@ export function accountDeletionRequestedEmail(
       Hi <strong>${escapeHtml(userName)}</strong>,
     </p>
     <p style="margin:0 0 8px;font-size:14px;color:#52525b;line-height:1.5;">
-      Your AlumNet account has been scheduled for deletion. Your profile has been hidden from the directory and your connections have been removed.
+      Your PTNKAlum account has been scheduled for deletion. Your profile has been hidden from the directory and your connections have been removed.
     </p>
     <p style="margin:0 0 8px;font-size:14px;color:#52525b;line-height:1.5;">
       You have <strong>${daysRemaining} days</strong> to change your mind. After that, all your data will be permanently deleted and cannot be recovered.
@@ -340,7 +340,7 @@ export function accountDeletionRequestedEmail(
     </p>`;
 
   return {
-    subject: "Your AlumNet account is scheduled for deletion",
+    subject: "Your PTNKAlum account is scheduled for deletion",
     html: accountEmailLayout(content),
   };
 }
@@ -354,7 +354,7 @@ export function accountReactivatedEmail(
       Welcome back, <strong>${escapeHtml(userName)}</strong>!
     </p>
     <p style="margin:0 0 8px;font-size:14px;color:#52525b;line-height:1.5;">
-      Your AlumNet account has been successfully reactivated. Your profile is visible again in the directory.
+      Your PTNKAlum account has been successfully reactivated. Your profile is visible again in the directory.
     </p>
     <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
       Please note that your previous connections were removed during the deletion process and will need to be re-established.
@@ -362,7 +362,7 @@ export function accountReactivatedEmail(
     ${ctaButton("Go to Dashboard", dashboardLink)}`;
 
   return {
-    subject: "Your AlumNet account has been reactivated",
+    subject: "Your PTNKAlum account has been reactivated",
     html: accountEmailLayout(content),
   };
 }
@@ -386,7 +386,7 @@ function accountEmailLayout(content: string): string {
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:#ffffff;border-radius:8px;overflow:hidden;">
           <tr>
             <td style="padding:24px 32px 16px;border-bottom:1px solid #e4e4e7;">
-              <strong style="font-size:18px;color:#18181b;">AlumNet</strong>
+              <strong style="font-size:18px;color:#18181b;">PTNKAlum</strong>
             </td>
           </tr>
           <tr>
@@ -397,7 +397,7 @@ function accountEmailLayout(content: string): string {
           <tr>
             <td style="padding:16px 32px 24px;border-top:1px solid #e4e4e7;">
               <p style="margin:0;font-size:12px;color:#a1a1aa;line-height:1.5;">
-                This is a transactional email from AlumNet regarding your account status.
+                This is a transactional email from PTNKAlum regarding your account status.
               </p>
             </td>
           </tr>
@@ -425,7 +425,7 @@ export function profileStalenessEmail(
       Hi <strong>${escapeHtml(userName)}</strong>,
     </p>
     <p style="margin:0 0 8px;font-size:14px;color:#52525b;line-height:1.5;">
-      Your AlumNet profile was last updated <strong>${timeText} ago</strong>. Keeping your profile current helps fellow alumni find and connect with you.
+      Your PTNKAlum profile was last updated <strong>${timeText} ago</strong>. Keeping your profile current helps fellow alumni find and connect with you.
     </p>
     <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
       Take a minute to confirm your details are still accurate — or update your job, location, and availability.
@@ -436,7 +436,7 @@ export function profileStalenessEmail(
     </p>`;
 
   return {
-    subject: "Is your AlumNet profile still up to date?",
+    subject: "Is your PTNKAlum profile still up to date?",
     html: emailLayout(content, userId, "profile_staleness"),
   };
 }

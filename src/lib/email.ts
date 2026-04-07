@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const fromEmail =
-  process.env.RESEND_FROM_EMAIL ?? "AlumNet <onboarding@resend.dev>";
+  process.env.RESEND_FROM_EMAIL ?? "PTNKAlum <onboarding@resend.dev>";
 
 let resend: Resend | null = null;
 

@@ -112,7 +112,7 @@ function htmlResponse(
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${title} — AlumNet</title>
+  <title>${title} — PTNKAlum</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;">
   <div style="max-width:480px;background:#ffffff;border-radius:8px;padding:32px;text-align:center;margin:16px;">

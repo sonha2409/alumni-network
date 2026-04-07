@@ -43,7 +43,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${profile.full_name} — AlumNet`,
+    title: `${profile.full_name} — PTNKAlum`,
     description: `${profile.full_name}, Class of ${profile.graduation_year} — ${profile.primary_industry.name}`,
   };
 }

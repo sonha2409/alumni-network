@@ -297,7 +297,7 @@ export async function geocodeLocation(
         `https://nominatim.openstreetmap.org/search?${params}`,
         {
           headers: {
-            "User-Agent": "AlumNet/1.0 (alumni-network-platform)",
+            "User-Agent": "PTNKAlum/1.0 (alumni-network-platform)",
           },
         }
       );

@@ -129,7 +129,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
           href="/dashboard"
           className="text-lg font-bold tracking-tight"
         >
-          <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">AlumNet</span>
+          <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">PTNKAlum</span>
         </Link>
 
         {/* Desktop links */}

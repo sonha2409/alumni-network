@@ -10,7 +10,7 @@ describe("profileStalenessEmail", () => {
       "user-123"
     );
 
-    expect(result.subject).toBe("Is your AlumNet profile still up to date?");
+    expect(result.subject).toBe("Is your PTNKAlum profile still up to date?");
     expect(result.html).toContain("John Doe");
     expect(result.html).toContain("6 months ago");
     expect(result.html).toContain("Update My Profile");

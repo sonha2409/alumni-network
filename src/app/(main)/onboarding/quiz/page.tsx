@@ -13,7 +13,7 @@ import { getProfileByUserId } from "@/lib/queries/profiles";
 import { QuizForm } from "./quiz-form";
 
 export const metadata: Metadata = {
-  title: "Quick Setup — AlumNet",
+  title: "Quick Setup — PTNKAlum",
   description: "Answer a few quick questions to get better alumni recommendations.",
   robots: { index: false },
 };
