@@ -216,8 +216,11 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization)
      * - favicon.ico
+     * - robots.txt / sitemap.xml (SEO convention files must be reachable by
+     *   unauthenticated crawlers; without this exclusion, Googlebot gets
+     *   redirected to /login and reports "Sitemap is HTML")
      * - public assets (images, etc.)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
