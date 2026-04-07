@@ -474,6 +474,7 @@
     "tabNotifications": "Notifications",
     "tabLanguage": "Language",
     "tabAccount": "Account",
+    "tabPrivacy": "Privacy",
     "emailNotifications": "Email Notifications",
     "emailNotificationsDesc": "Choose which notifications you'd like to receive by email. In-app notifications are always enabled.",
     "notifConnectionRequest": "Connection requests",
@@ -492,7 +493,15 @@
     "dangerZoneDesc": "Permanently delete your account and all associated data. This action has a 30-day grace period during which you can reactivate your account.",
     "language": "Display Language",
     "languageDesc": "Choose your preferred language for the interface.",
-    "languageUpdated": "Language updated successfully."
+    "languageUpdated": "Language updated successfully.",
+    "privacyTitle": "Privacy",
+    "privacyDesc": "Control what other alumni can see about your activity.",
+    "showLastActiveLabel": "Show when I was last active",
+    "showLastActiveDesc": "When enabled, alumni who are connected with you and with whom you've exchanged messages can see when you were last active. Turn this off to hide your activity from everyone.",
+    "privacyUpdated": "Privacy settings updated."
+  },
+  "presence": {
+    "activeNow": "Active now"
   },
   "banners": {
     "verificationPending": "Your verification is under review. You'll be notified once an admin reviews it.",

@@ -474,6 +474,7 @@
     "tabNotifications": "Thông báo",
     "tabLanguage": "Ngôn ngữ",
     "tabAccount": "Tài khoản",
+    "tabPrivacy": "Quyền riêng tư",
     "emailNotifications": "Thông báo email",
     "emailNotificationsDesc": "Chọn loại thông báo bạn muốn nhận qua email. Thông báo trong ứng dụng luôn bật.",
     "notifConnectionRequest": "Lời mời kết nối",
@@ -492,7 +493,15 @@
     "dangerZoneDesc": "Xóa vĩnh viễn tài khoản và tất cả dữ liệu. Có thời hạn 30 ngày để kích hoạt lại.",
     "language": "Ngôn ngữ hiển thị",
     "languageDesc": "Chọn ngôn ngữ ưa thích cho giao diện.",
-    "languageUpdated": "Đã cập nhật ngôn ngữ thành công."
+    "languageUpdated": "Đã cập nhật ngôn ngữ thành công.",
+    "privacyTitle": "Quyền riêng tư",
+    "privacyDesc": "Kiểm soát những gì cựu học sinh khác có thể thấy về hoạt động của bạn.",
+    "showLastActiveLabel": "Hiển thị thời gian tôi hoạt động gần nhất",
+    "showLastActiveDesc": "Khi bật, những cựu học sinh đã kết nối và đã trao đổi tin nhắn với bạn có thể thấy thời điểm bạn hoạt động gần nhất. Tắt để ẩn hoạt động của bạn với tất cả mọi người.",
+    "privacyUpdated": "Đã cập nhật cài đặt quyền riêng tư."
+  },
+  "presence": {
+    "activeNow": "Đang hoạt động"
   },
   "banners": {
     "verificationPending": "Yêu cầu xác minh đang được xem xét. Bạn sẽ được thông báo khi có kết quả.",

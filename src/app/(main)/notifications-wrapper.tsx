@@ -6,6 +6,7 @@ import {
 import { getTotalUnreadCount } from "@/lib/queries/messages";
 import { NotificationsProvider } from "./notifications/components/notifications-provider";
 import { UnreadMessagesProvider } from "./messages/components/unread-messages-provider";
+import { PresenceAnnouncer } from "./presence-announcer";
 
 export async function NotificationsWrapper({
   children,
@@ -38,6 +39,8 @@ export async function NotificationsWrapper({
         initialUnreadCount={unreadMessageCount}
         currentUserId={user.id}
       >
+        {/* F45: broadcast presence on user-presence:${userId} */}
+        <PresenceAnnouncer userId={user.id} />
         {children}
       </UnreadMessagesProvider>
     </NotificationsProvider>

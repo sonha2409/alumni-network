@@ -130,6 +130,12 @@ export default async function proxy(request: NextRequest) {
     }
 
     if (userData) {
+      // F45: fire-and-forget last-seen touch. The RPC self-throttles with a
+      // 1-minute WHERE clause, so this is effectively free for fresh users.
+      // Not awaited → no added latency. Placed inside the status branch so we
+      // skip the write entirely for the auth-callback / status-page paths.
+      void supabase.rpc("touch_last_seen");
+
       const isInactive = !userData.is_active;
       const isSelfDeleted = isInactive && userData.deleted_at !== null;
       const isBanned = isInactive && userData.deleted_at === null;

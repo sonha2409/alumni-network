@@ -18,12 +18,14 @@ import { getEducationEntriesByProfileId } from "@/lib/queries/education-entries"
 import { getAvailabilityTagsByProfileId } from "@/lib/queries/availability-tags";
 import { getContactDetailsByProfileId } from "@/lib/queries/contact-details";
 import { getRelationshipInfo } from "@/lib/queries/connections";
+import { getLastSeenFor } from "@/lib/queries/presence";
 import { getVisibilityTier } from "@/lib/visibility";
 import type { ProfileVisibilityTier } from "@/lib/types";
 import { ConnectionActions } from "./connection-actions";
 import { RestrictedSection } from "./restricted-section";
 import { ContactDetailsDisplay } from "./contact-details-display";
 import { ViewTracker } from "./view-tracker";
+import { LastSeenIndicator } from "./last-seen-indicator";
 
 interface ProfilePageProps {
   params: Promise<{ id: string }>;
@@ -64,18 +66,24 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   // Determine visibility tier
   let visibilityTier: ProfileVisibilityTier = "tier1_unverified";
   let relationship = null;
+  // F45: last-seen is only fetched for other users; own profile doesn't
+  // need the indicator. The RPC enforces the visibility gate server-side
+  // and returns null when the viewer can't see it.
+  let initialLastSeen: string | null = null;
 
   if (user) {
     if (isOwnProfile) {
       visibilityTier = "tier3_connected";
     } else {
-      // P7: Fetch visibility tier and relationship in parallel
-      const [tier, rel] = await Promise.all([
+      // P7: Fetch visibility tier, relationship, and last-seen in parallel.
+      const [tier, rel, lastSeen] = await Promise.all([
         getVisibilityTier(user.id, profile.user_id),
         getRelationshipInfo(user.id, profile.user_id),
+        getLastSeenFor(profile.user_id),
       ]);
       visibilityTier = tier;
       relationship = rel;
+      initialLastSeen = lastSeen;
     }
   }
 
@@ -144,6 +152,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                       .join(", ")}
                   </p>
                 )}
+              {!isOwnProfile && (
+                <LastSeenIndicator
+                  targetUserId={profile.user_id}
+                  initialLastSeen={initialLastSeen}
+                />
+              )}
             </div>
 
             {isOwnProfile ? (

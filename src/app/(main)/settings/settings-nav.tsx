@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Bell, Globe, UserCog } from "lucide-react";
+import { Bell, Globe, Lock, UserCog } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ export function SettingsNav() {
 
   const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
     { href: "/settings/notifications", label: t("tabNotifications"), icon: Bell },
+    { href: "/settings/privacy", label: t("tabPrivacy"), icon: Lock },
     { href: "/settings/language", label: t("tabLanguage"), icon: Globe },
     { href: "/settings/account", label: t("tabAccount"), icon: UserCog },
   ];

@@ -10,6 +10,7 @@ import { MediaPanel } from "./media-panel";
 import { markConversationRead } from "../actions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserAvatar } from "@/components/user-avatar";
+import { LastSeenIndicator } from "@/app/(main)/profile/[id]/last-seen-indicator";
 import type { ConversationWithDetails } from "@/lib/types";
 
 const FIVE_MINUTES_MS = 5 * 60 * 1000;
@@ -168,6 +169,8 @@ export function ChatView({
               />
               <div>
                 <p className="text-sm font-semibold">{otherUser.full_name}</p>
+                {/* F45: client-fetch mode — RPC enforces the gate. */}
+                <LastSeenIndicator targetUserId={otherUser.user_id} />
               </div>
             </Link>
           )}
