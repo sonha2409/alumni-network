@@ -5,6 +5,7 @@ import Link from "next/link";
 import { UsersIcon, CalendarIcon, BriefcaseIcon, MapPinIcon, TagIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { AnimateOnScroll } from "@/components/animate-on-scroll";
 import type { GroupWithMemberCount, GroupType } from "@/lib/types";
 import { joinGroup, leaveGroup } from "./actions";
 
@@ -22,11 +23,11 @@ const typeConfig: Record<GroupType, { label: string; icon: typeof CalendarIcon; 
 
 export function GroupsGrid({ groups, isVerified }: GroupsGridProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <AnimateOnScroll stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {groups.map((group) => (
         <GroupCard key={group.id} group={group} isVerified={isVerified} />
       ))}
-    </div>
+    </AnimateOnScroll>
   );
 }
 

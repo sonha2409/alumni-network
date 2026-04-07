@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { AnimateOnScroll } from "@/components/animate-on-scroll";
 import type { DirectoryProfile } from "@/lib/types";
 
 interface DirectoryGridProps {
@@ -24,7 +25,7 @@ export function DirectoryGrid({
   connectionStatuses,
 }: DirectoryGridProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <AnimateOnScroll stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {profiles.map((profile) => (
         <ProfileCard
           key={profile.id}
@@ -32,7 +33,7 @@ export function DirectoryGrid({
           connectionStatus={connectionStatuses?.[profile.user_id]}
         />
       ))}
-    </div>
+    </AnimateOnScroll>
   );
 }
 

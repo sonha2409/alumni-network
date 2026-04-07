@@ -169,3 +169,92 @@
   background: oklch(0.21 0.025 270 / 60%);
   border: 1px solid oklch(1 0.01 270 / 10%);
 }
+
+/* ─── Page transition ─── */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  animation: page-enter 0.3s ease-out both;
+}
+
+/* ─── Scroll-triggered entrance animations ─── */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out both;
+}
+
+.animate-fade-scale {
+  animation: fade-scale 0.4s ease-out both;
+}
+
+/* Hidden state before intersection observer triggers */
+.animate-on-scroll {
+  opacity: 0;
+}
+
+.animate-on-scroll.is-visible {
+  animation: fade-up 0.4s ease-out both;
+}
+
+/* Staggered children — apply to parent, children get staggered delays */
+.stagger-children.is-visible > * {
+  animation: fade-up 0.4s ease-out both;
+}
+
+.stagger-children > * {
+  opacity: 0;
+}
+
+.stagger-children.is-visible > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children.is-visible > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children.is-visible > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children.is-visible > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children.is-visible > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children.is-visible > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children.is-visible > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children.is-visible > *:nth-child(8) { animation-delay: 350ms; }
+.stagger-children.is-visible > *:nth-child(9) { animation-delay: 400ms; }
+.stagger-children.is-visible > *:nth-child(n+10) { animation-delay: 400ms; }
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-enter,
+  .animate-fade-up,
+  .animate-fade-scale,
+  .animate-on-scroll.is-visible,
+  .stagger-children.is-visible > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
