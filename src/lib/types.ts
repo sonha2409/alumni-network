@@ -503,7 +503,74 @@ export type NotificationType =
   | "user_muted"
   | "account_deletion"
   | "account_reactivated"
-  | "profile_staleness";
+  | "profile_staleness"
+  | "event_invite"
+  | "event_update"
+  | "event_cancelled"
+  | "event_rsvp_promoted";
+
+// =============================================================================
+// Events (F47a)
+// =============================================================================
+
+export type EventLocationType = "physical" | "virtual" | "hybrid";
+export type EventRsvpStatus = "going" | "maybe" | "cant_go";
+
+export interface EventRow {
+  id: string;
+  creator_id: string;
+  title: string;
+  description: string | null;
+  location_type: EventLocationType;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  virtual_url: string | null;
+  start_time: string;
+  end_time: string;
+  event_timezone: string;
+  is_public: boolean;
+  capacity: number | null;
+  cover_image_url: string | null;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventRsvp {
+  id: string;
+  event_id: string;
+  user_id: string;
+  status: EventRsvpStatus;
+  plus_one_name: string | null;
+  plus_one_email: string | null;
+  needs_reconfirm: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventCoHost {
+  event_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface EventInvite {
+  id: string;
+  event_id: string;
+  invitee_id: string;
+  invited_by: string | null;
+  created_at: string;
+}
+
+export interface EventWaitlistEntry {
+  id: string;
+  event_id: string;
+  user_id: string;
+  plus_one_name: string | null;
+  plus_one_email: string | null;
+  created_at: string;
+}
 
 export interface Notification {
   id: string;

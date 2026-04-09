@@ -3,6 +3,8 @@
 
 # Planning docs (local only)
 PLAN.md
+docs/project-brief.html
+docs/project-brief.pdf
 
 # Dependencies
 node_modules/

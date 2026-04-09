@@ -11,6 +11,7 @@ import {
   UserCheck,
   MessageSquare,
   UsersRound,
+  CalendarDays,
   ShieldCheck,
   Shield,
   Menu,
@@ -111,6 +112,7 @@ export function MainNavbarClient({ user }: MainNavbarClientProps) {
     { href: "/connections", label: t("connections"), icon: UserCheck },
     { href: "/messages", label: t("messages"), icon: MessageSquare },
     { href: "/groups", label: t("groups"), icon: UsersRound },
+    { href: "/events", label: t("events"), icon: CalendarDays },
     { href: "/verification", label: t("verification"), icon: ShieldCheck },
   ];
 

@@ -191,6 +191,62 @@ Build one complete feature at a time: schema + RLS + backend logic + UI together
 
 ---
 
+### Phase H: Events (Feature #47)
+
+Events is the next large user-facing feature. It is split into five session-sized sub-features. **F47a is the core and blocks F47b–F47e.** F47b, F47c, and F47e can ship in any order after F47a. F47d (recurring) is the heaviest non-core slice and should ship last unless there is user demand sooner.
+
+Full requirements live in `FEATURES.md` → `F14. Events (SPEC rows F47a–F47e)`. Schema follows the Groups prior art (`00020_create_groups_tables.sql`). Notification delivery reuses `notifyUser` / `notifyUserGrouped` + Resend with hard-capped budgets. Location reuses the existing Nominatim geocoding helper and the F28 Mapbox setup for the detail-page pin.
+
+#### 18. Events core — F47a (next unstarted)
+- Migration: `events`, `event_cohosts`, `event_invites`, `event_rsvps` (with `needs_reconfirm`), `event_waitlist`, plus RLS policies (public-event read, private-event invitee read, creator/co-host write).
+- Storage bucket `event-covers` (public read, 2 MB/image).
+- Server actions: `createEvent`, `updateEvent`, `cancelEvent`, `addCoHost`, `removeCoHost`, `inviteConnections`, `rsvp`, `cancelRsvp`. Zod schemas + `ActionResult<T>`. Verified-only gate + 3-per-rolling-7-days rate limit.
+- Edit cascade helper that marks `event_rsvps.needs_reconfirm` on major edits and fires notifications.
+- Transactional waitlist promotion on Going → Can't go.
+- Pages: `/events` (Upcoming + Past tabs, search, near-me filter), `/events/new`, `/events/[id]` (detail with Mapbox pin + `.ics` download), `/events/[id]/edit`.
+- `/api/events/[id]/ics` route for iCalendar export.
+- Navbar entry "Events" next to Groups.
+- Tests: happy-path CRUD, RSVP state machine, capacity decrease promotion, edit cascade reconfirm.
+
+#### 19. Events — radius notifications (F47b)
+- `profiles.notify_events_within_km` column + settings UI.
+- Haversine-based SQL function `events_find_nearby_recipients(event_id)`.
+- `daily_email_counters` table for shared Resend budget.
+- Nearby-event email template.
+- Wire broadcast into `createEvent` post-commit fire-and-forget.
+- Tests for cap enforcement + distance filter.
+
+#### 20. Events — flat comment thread (F47c)
+- `event_comments` table + RLS.
+- Comment list + composer on detail page.
+- `notifyUserGrouped` integration for host + prior commenters.
+- Report comment wired into moderation queue (`content_type = 'event_comment'`).
+
+#### 21. Events — recurring (F47d)
+- `event_series` table + `events.series_id` FK.
+- Series materialization on create (weekly/monthly until date).
+- Edit scoping UI: this / this-and-following / all. Series-split implementation.
+- Cancel-one vs cancel-series.
+- Tests for materialization count + series-split contiguity.
+
+#### 22. Events — day-of QR check-in (F47e)
+- `event_checkins` table (unique on event_id + user_id).
+- Host-only page `/events/[id]/host` with rotating signed QR (`qrcode.react`).
+- Scanner route `/events/[id]/checkin?token=...` validates signature, freshness, Going RSVP, and time window.
+- Live checked-in count + search on host page.
+
+#### 23. Events — group linkage + bulk-invite (F47f)
+- Migration: `events.group_id` (nullable FK, `ON DELETE SET NULL`) + index; `group_bulk_invite_log` table.
+- RLS update: group-linked events readable by any active member of the linked group.
+- Create/edit form: "Link to group" picker (only groups the creator is a member of).
+- Server action `bulkInviteGroupMembers`: role gate (owner/moderator), ≤100 member cap, 1-per-7-days rate limit, skips existing invites + blocked users.
+- Email delivery via Resend, sharing the 80/day cap with F47b; overflow → in-app only.
+- Group detail page: "Upcoming events" section.
+- Event detail page: "Organized by [Group]" chip.
+- Tests: role gate, 100-member cap, 7-day rate limit, shared email cap, retroactive-member visibility.
+
+---
+
 ## Key Pitfalls to Avoid
 
 - Don't create all migrations upfront — write them per-feature

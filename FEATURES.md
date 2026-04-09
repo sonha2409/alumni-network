@@ -425,6 +425,302 @@ Interactive geographic visualization of where alumni are located worldwide.
 
 ---
 
+### F14. Events (SPEC rows F47a–F47e)
+
+A first-class Events system so verified alumni can organize meetups, reunions, workshops, and virtual gatherings, invite people from their connections, and surface public events to nearby alumni.
+
+The feature is split into five session-sized sub-features. F47a is the core and blocks everything else. F47b–e can ship in any order after F47a, with F47d the heaviest.
+
+**Design decisions locked during planning (see plan file `prancy-beaming-dongarra.md`):**
+
+| Area | Decision |
+|---|---|
+| Who can create | Verified alumni only. Rate-limited to **3 active future events per rolling 7 days**. |
+| Privacy | Public (listed on Events page + nearby-notify eligible) or Private (invite-only, never listed). |
+| Location type | **Physical / Virtual / Hybrid**. Physical/hybrid require address + geocoded lat/lng. Virtual/hybrid require a meeting URL. |
+| Timezones | Store as `timestamptz` UTC + a separate `event_timezone` (IANA string). Detail page shows event local time and viewer's local time. For virtual-only events, viewer local is primary. |
+| RSVP | Going / Maybe / Can't go. Creator-set optional capacity. "Going" overflow → waitlist, auto-promoted on drops (transactional). |
+| Invitations | Private events: creator invites from their verified connections. Each invitee may add **one +1 guest** (name + optional email, no account required). |
+| Radius notify | User-set preference `notify_events_within_km` (default off). Creator does NOT choose who is notified. In-app + email, **hard-capped 50/event and 80/day**; overflow → in-app only. |
+| Co-hosts | Creator + up to 3 co-hosts (must be verified connections). Co-hosts edit/invite/manage RSVPs; cannot delete the event or add more co-hosts. |
+| Edit cascade | Editing start/end/location/location_type on an event with RSVPs → notify all invitees + attendees and **reset RSVPs** to `needs_reconfirm` (require re-confirmation). Title/description/cover edits notify without resetting. |
+| Cancellation | Soft-delete. Notify all invitees + attendees via in-app + email. |
+| Attendee privacy | Count visible to all viewers of a visible event. Names visible **only to other "Going" attendees**. |
+| Past events | Auto-archive to "Past" tab once `end_time < now()`. RSVPs frozen. Host can post a recap comment (when F47c ships). |
+| Discussion (F47c) | Flat append-only comment thread on each event. Reports integrate with existing moderation queue. |
+| Recurring (F47d) | Weekly or monthly with an explicit end date. Materialized per-occurrence so RSVPs stay per-occurrence. Edit UI offers this-occurrence / this-and-following (series split) / all. |
+| QR check-in (F47e) | Host displays a rotating signed QR token day-of. Attendees scan; server marks `checked_in = true` if they hold a Going RSVP and current time is inside the event window. |
+
+#### F47a. Events: core (CRUD + RSVP + invites)
+
+**User stories:**
+- As a verified alumnus, I create a private reunion and invite 15 classmates from my connections so we can coordinate a dinner.
+- As an invitee, I RSVP "Going" and add my spouse as a +1 with their email so they receive the calendar invite.
+- As a creator, I edit the venue three days out; all RSVPs reset and everyone re-confirms.
+- As a viewer, I see "42 going" on a public event but can only see the names once I RSVP Going myself.
+- As an attendee, I download the `.ics` and add it to my calendar.
+
+**Functional requirements:**
+- Server actions for: `createEvent`, `updateEvent`, `cancelEvent`, `addCoHost`, `removeCoHost`, `inviteConnections`, `rsvp` (going/maybe/cant_go, includes optional +1 name/email), `cancelRsvp`, `promoteFromWaitlist` (internal).
+- All actions return `ActionResult<T>` and validate with Zod. Creator/co-host auth enforced in RLS + action.
+- Create gate: `verification_status = 'verified'` + rate-limit check (max 3 rows in `events` where `creator_id = me` AND `start_time >= now()` AND `deleted_at IS NULL`, within rolling 7 days of `created_at`).
+- Geocoding: reuse the existing Nominatim helper used by `updateProfile` to populate `latitude`/`longitude` from the typed address on create/edit (fire-and-forget).
+- Storage: cover image goes to a new `event-covers` bucket (public read, authenticated write, 2MB/image, JPEG/PNG/WebP).
+- Waitlist promotion: when a Going RSVP changes to Can't go and `going_count < capacity`, promote the oldest waitlisted entry inside the same transaction. Notify the promoted user.
+- Edit cascade helper: a single server function decides whether an edit is "major" (start_time, end_time, location_type, address, virtual_url) and, if so, marks `event_rsvps.needs_reconfirm = true` before sending notifications via `notifyUser()`. Users with `needs_reconfirm = true` count as "not going" until they re-confirm.
+- `.ics` generation: server route `/api/events/[id]/ics` returns a signed iCalendar file built from the event fields + `event_timezone`. Viewers with access (public event OR invitee OR going) can fetch it.
+- Events list page `/events` with Upcoming + Past tabs, search by title, optional `near me` filter that reuses the existing lat/lng on the viewer's profile (client-side filter for v1, RPC later).
+- Detail page `/events/[id]` shows cover, title, times (event local + viewer local), location (Mapbox single-pin reusing F28 setup), description, RSVP buttons, attendee count, attendee names (Going only), `.ics` download, "Message the host" button.
+- Navbar entry "Events" added next to Groups.
+
+**Edge cases:**
+- Capacity decrease: if new capacity is less than current Going count, push the tail of Going onto waitlist (ordered by earliest RSVP time preserved).
+- Edit that moves an event into the past: reject with a validation error.
+- Invitee removes themselves from the creator's connections after being invited: invitation remains valid (we don't retroactively un-invite).
+- +1 email is optional; if provided it counts against the per-day Resend cap and shares the budget with radius notifications (F47b).
+- Cover image deleted from storage: fall back to a gradient placeholder.
+- Past-events tab is populated purely by `end_time < now()`; no pg_cron job needed.
+
+**Acceptance criteria:**
+- [ ] A verified user can create, edit, cancel, and list events.
+- [ ] An unverified user cannot create an event; the rate-limit blocks a 4th future event in 7 days.
+- [ ] Private events never appear on `/events`; only invitees see them on their profile/dashboard.
+- [ ] RSVP state machine (going/maybe/cant_go/waitlist) behaves correctly under capacity constraints.
+- [ ] A +1 guest with an email receives a calendar invite email (one-time, no account).
+- [ ] Editing the start time marks all RSVPs `needs_reconfirm` and sends notifications.
+- [ ] `.ics` file opens correctly in Apple Calendar, Google Calendar, and Outlook.
+- [ ] Mapbox pin displays at the geocoded location on the detail page.
+- [ ] Attendee names hidden from viewers who are not themselves Going.
+- [ ] RLS prevents a random verified user from reading a private event they weren't invited to.
+- [ ] Build is clean; happy-path + capacity + edit-cascade tests pass.
+
+**Out of scope for F47a:** radius notifications, comments, recurring, QR check-in.
+
+**Mermaid ER diagram (F47a tables):**
+
+```mermaid
+erDiagram
+    USERS ||--o{ EVENTS : creates
+    USERS ||--o{ EVENT_COHOSTS : is_cohost
+    EVENTS ||--o{ EVENT_COHOSTS : has
+    EVENTS ||--o{ EVENT_INVITES : has
+    EVENTS ||--o{ EVENT_RSVPS : has
+    EVENTS ||--o{ EVENT_WAITLIST : has
+    USERS ||--o{ EVENT_INVITES : invited_as
+    USERS ||--o{ EVENT_RSVPS : rsvps
+    USERS ||--o{ EVENT_WAITLIST : waits
+
+    EVENTS {
+        uuid id PK
+        uuid creator_id FK
+        text title
+        text description
+        text location_type "physical|virtual|hybrid"
+        text address
+        numeric latitude
+        numeric longitude
+        text virtual_url
+        timestamptz start_time
+        timestamptz end_time
+        text event_timezone
+        boolean is_public
+        int capacity
+        text cover_image_url
+        timestamptz deleted_at
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    EVENT_COHOSTS {
+        uuid event_id FK
+        uuid user_id FK
+        timestamptz created_at
+    }
+    EVENT_INVITES {
+        uuid id PK
+        uuid event_id FK
+        uuid invitee_id FK
+        uuid invited_by FK
+        timestamptz created_at
+    }
+    EVENT_RSVPS {
+        uuid id PK
+        uuid event_id FK
+        uuid user_id FK
+        text status "going|maybe|cant_go"
+        text plus_one_name
+        text plus_one_email
+        boolean needs_reconfirm
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    EVENT_WAITLIST {
+        uuid id PK
+        uuid event_id FK
+        uuid user_id FK
+        timestamptz created_at
+    }
+```
+
+#### F47b. Events: radius notifications
+
+**User stories:**
+- As a verified alumnus living in Saigon, I set "notify me within 25 km" and receive an in-app alert when a reunion is posted 10 km away.
+- As an organizer, I mark my event public and immediately have relevant nearby alumni surfaced in their notification bell — without doxxing them or letting me see who was reached.
+
+**Functional requirements:**
+- Add `notify_events_within_km` (integer, nullable) to `profiles`. Null = opt-out. Settings UI in `/settings/notifications`.
+- On public event create (inside `createEvent`, fire-and-forget), query verified users whose `latitude`/`longitude` is non-null AND the great-circle distance to the event is ≤ their `notify_events_within_km`. Use a plain SQL RPC with Haversine; no PostGIS. Exclude the creator and blocked users.
+- For each match: create an in-app notification (`type = 'event_nearby'`) via `notifyUser()`. If under the per-event (50) and per-day (80) email caps, also send a Resend email with a compact event summary and deep link.
+- The email cap shares the same daily budget as +1 guest invites. Track daily sent count in a tiny `daily_email_counters` table (upsert `(date, counter_key)`).
+- The creator never learns who was notified (no UI surface for it).
+
+**Edge cases:**
+- User has coordinates but `notify_events_within_km = null`: no notification.
+- Cap hit mid-broadcast: remaining users still get in-app notifications, no email.
+- Event edited to become private: future broadcasts stop; in-app notifications already sent remain in recipients' histories.
+
+**Acceptance criteria:**
+- [ ] Opt-in default off.
+- [ ] Haversine filter returns only users within radius.
+- [ ] Email hard-cap enforced; the 51st recipient for a given event gets in-app only.
+- [ ] Creator has no UI to see the notified list.
+- [ ] Tests cover the cap logic and the distance filter.
+
+**Mermaid sequence diagram (radius-notify flow):**
+
+```mermaid
+sequenceDiagram
+    participant Creator
+    participant CreateEvent as createEvent action
+    participant DB as Postgres
+    participant Notify as radius-notify helper
+    participant Bell as notifyUser (in-app)
+    participant Resend
+
+    Creator->>CreateEvent: submit public event
+    CreateEvent->>DB: INSERT events (RLS check, rate-limit)
+    DB-->>CreateEvent: event_id
+    CreateEvent-)Notify: fire-and-forget (event_id)
+    Notify->>DB: SELECT verified users with lat/lng
+    DB-->>Notify: candidates
+    Notify->>Notify: filter by Haversine <= user radius
+    loop for each matched user
+        Notify->>Bell: notifyUser(event_nearby)
+        alt under per-event (50) and per-day (80) cap
+            Notify->>Resend: sendEmail(nearby template)
+            Notify->>DB: increment daily counter
+        else cap hit
+            Note over Notify: in-app only
+        end
+    end
+    CreateEvent-->>Creator: success
+```
+
+#### F47c. Events: flat comment thread
+
+**User stories:**
+- As an attendee, I ask "is parking free?" in the event thread and the host replies.
+- As the host, I post an update about a venue change and it appears as a regular comment; everyone who's RSVPed "Going" is notified.
+
+**Functional requirements:**
+- `event_comments` table: id, event_id, user_id, body, created_at, deleted_at.
+- RLS: read if the user can see the event; insert if the user can see the event AND is not muted.
+- New comment fires `notifyUserGrouped` to the host + all prior commenters in the thread (grouping so a busy thread doesn't spam).
+- Report a comment from the detail page → feeds into existing moderation queue with `content_type = 'event_comment'`.
+- Append-only for v1 (no edit, just soft-delete by author or moderator).
+
+**Acceptance criteria:**
+- [ ] Muted users cannot post comments.
+- [ ] Notifications grouped per thread per user per hour.
+- [ ] Reports integrate with the existing queue.
+
+#### F47d. Events: recurring (weekly/monthly)
+
+**User stories:**
+- As an organizer, I schedule a weekly Saturday coffee meetup for three months; the system creates 13 occurrence rows automatically.
+- I change the time of "this occurrence and all following" — the original series is closed and a new one spawns from my edit point.
+
+**Functional requirements:**
+- `event_series` table: id, creator_id, rrule (simple enum: `weekly` / `monthly`), interval, until_date, created_at.
+- On series create: materialize N `events` rows, each linked via `events.series_id`.
+- Edit UI offers three options: this occurrence / this-and-following / all.
+- "This-and-following" splits the series: close the current series at the occurrence before the edit, create a new series starting at the edited occurrence.
+- Cancel-one marks a single child event as canceled. Cancel-series soft-deletes the series AND every non-past occurrence.
+- RSVPs and waitlists remain per-occurrence — no cross-occurrence RSVP.
+
+**Edge cases:**
+- Capacity change on a series: applies to the chosen scope (one / this-and-following / all).
+- Past occurrences are never modified.
+
+**Acceptance criteria:**
+- [ ] Creating a weekly series for 3 months materializes exactly 13 child rows.
+- [ ] Series-split on edit produces clean contiguous coverage with no overlap or gap.
+- [ ] RSVPs from occurrence N are not leaked to occurrence N+1.
+
+#### F47e. Events: day-of QR check-in
+
+**User stories:**
+- As a host, on the day of my reunion, I open a "Check-in" page that displays a QR code that rotates every 60 seconds.
+- As an attendee, I scan the QR with my phone camera; a page opens and marks me "checked in".
+
+**Functional requirements:**
+- `event_checkins` table: id, event_id, user_id, checked_in_at. Unique on (event_id, user_id).
+- Host page `/events/[id]/host` (visible only to creator and co-hosts) shows a signed rotating token encoded as a QR via a client-side library (e.g., `qrcode.react`). Token payload: `{ event_id, issued_at, nonce }` signed with a server secret; expires after 90 seconds.
+- Scanner route `/events/[id]/checkin?token=…` validates the token signature + freshness, then inserts a checkin row if the current user has a Going RSVP and `now()` is within `[start_time - 2h, end_time + 2h]`.
+- Host page shows live checked-in count + a searchable list.
+
+**Acceptance criteria:**
+- [ ] Replayed or expired tokens are rejected.
+- [ ] Users without a Going RSVP cannot check in.
+- [ ] Check-ins outside the time window are rejected with a clear error.
+- [ ] Only the creator and co-hosts can open the host page.
+
+#### F47f. Events: group linkage + bulk-invite members
+
+The default F47a invite source is the creator's connections. That's the wrong model for a group-organized event — group members are usually *not* all connections of whoever is organizing. F47f adds a first-class link between an event and a group, plus a bulk-invite shortcut for group leaders.
+
+**User stories:**
+- As the owner of the "PTNK Class of 2012" group, I create a reunion event tied to the group and click "Invite all members" — every group member gets a notification and a bell ping, regardless of whether they are connected to me.
+- As a group member scrolling the group detail page, I see an "Upcoming events" section listing group-linked events even if I wasn't explicitly invited.
+- As a regular member of a group, I can create a group-linked event, but I cannot bulk-invite — only the owner or moderator can.
+
+**Functional requirements:**
+- Schema: add `events.group_id` (uuid, nullable, FK to `groups.id`, `ON DELETE SET NULL`). Indexed for group detail page lookups.
+- Create/edit form: a "Link to group" picker showing groups the creator is a member of. Optional.
+- RLS: if `group_id IS NOT NULL`, any active member of that group can read the event in addition to the existing visibility rules. Private events tied to a group become "visible to all group members" automatically — explicit invites are only about bell pings, not access control.
+- New server action `bulkInviteGroupMembers(eventId)`:
+  - Requires caller to have `group_members.role IN ('owner', 'moderator')` on the linked group.
+  - Hard cap: the group must have ≤ 100 active members. Larger groups get a validation error directing them to use the per-member picker from F47a.
+  - Rate limit: max 1 successful bulk invite per `group_id` per rolling 7 days (tracked via a `group_bulk_invite_log` table with `(group_id, invited_at)`).
+  - Creates `event_invites` rows for every eligible member who doesn't already have one, then fires `notifyUser(type='event_invite')` + email via Resend for each. Email send respects the shared 80/day daily cap from F47b; overflow degrades to in-app only.
+  - Group-linked invites do **not** get the `+1 guest` mechanic. `plus_one_name` / `plus_one_email` stay null on these RSVPs.
+- Group detail page (`/groups/[slug]`) gets a new "Upcoming events" section listing `events WHERE group_id = :id AND start_time >= now() AND deleted_at IS NULL` ordered by `start_time`.
+- Event detail page shows a "Organized by [Group name]" chip linking back to the group when `group_id` is set.
+- A bulk-invite summary toast: "Invited 42 members. 3 were already invited or had blocked the creator."
+
+**Edge cases:**
+- Group soft-deleted after event creation: `group_id` remains set (FK is `ON DELETE SET NULL` only on hard delete). Group-scoped visibility stops working once the group's RLS hides it; the event falls back to its base public/private visibility.
+- Member leaves the group after being bulk-invited: the invite remains valid — the member is still on `event_invites` and can still RSVP.
+- Member joins the group after a bulk-invite has already happened: they gain read access automatically (visibility is group-derived) but do not receive a retroactive notification. The rate limit prevents the owner from re-running the bulk invite to catch new members within the 7-day window.
+- Bulk-invite attempted on a group with 101+ members: server action returns a validation error with the member count and instructions to use the per-member picker.
+- Creator is *not* a member of the group they try to link: reject at create time.
+- Blocked users: bulk-invite skips any user who has blocked the event creator.
+
+**Acceptance criteria:**
+- [ ] An event can be optionally linked to a group at create time.
+- [ ] A group-linked event is visible to all active members of that group via RLS, even without explicit invitation.
+- [ ] Only `owner` / `moderator` roles can trigger `bulkInviteGroupMembers`; regular members get a permission error.
+- [ ] Bulk invite on a 101-member group returns a hard error.
+- [ ] A second bulk invite on the same group within 7 days returns a rate-limit error.
+- [ ] Group detail page shows upcoming linked events.
+- [ ] Event detail page shows the "Organized by [Group name]" chip when linked.
+- [ ] Bulk-invited members do NOT have the +1 guest UI available on their RSVP form.
+- [ ] Email cap is shared with F47b; overflow falls back to in-app only.
+
+**Out of scope for F47f:** group calendars (a "calendar view" of all group events), cross-group event sharing, and making group linkage change after creation (v1 is create-time only).
+
+---
+
 ## Non-Functional Requirements
 
 ### Performance
