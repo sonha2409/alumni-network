@@ -507,7 +507,8 @@ export type NotificationType =
   | "event_invite"
   | "event_update"
   | "event_cancelled"
-  | "event_rsvp_promoted";
+  | "event_rsvp_promoted"
+  | "event_nearby";
 
 // =============================================================================
 // Events (F47a)

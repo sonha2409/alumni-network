@@ -441,6 +441,40 @@ export function profileStalenessEmail(
   };
 }
 
+export function eventNearbyEmail(
+  eventTitle: string,
+  eventDate: string,
+  eventLocation: string,
+  distanceKm: number,
+  eventUrl: string,
+  userId: string
+): { subject: string; html: string } {
+  const fullLink = `${siteUrl}${eventUrl}`;
+  const distanceText = distanceKm < 1
+    ? "less than 1 km"
+    : `~${Math.round(distanceKm)} km`;
+
+  const content = `
+    <p style="margin:0 0 8px;font-size:15px;color:#18181b;line-height:1.5;">
+      A new event near you: <strong>${escapeHtml(eventTitle)}</strong>
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      <strong>When:</strong> ${escapeHtml(eventDate)}
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      <strong>Where:</strong> ${escapeHtml(eventLocation)} (${distanceText} away)
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      Check out the details and RSVP if you're interested.
+    </p>
+    ${ctaButton("View Event", fullLink)}`;
+
+  return {
+    subject: `Event near you: ${eventTitle}`,
+    html: emailLayout(content, userId, "event_nearby"),
+  };
+}
+
 // =============================================================================
 // Helpers
 // =============================================================================

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { notifyUser } from "@/lib/notifications";
+import { isEmailEnabled } from "@/lib/queries/notification-preferences";
 import { geocodeLocation } from "@/lib/geocoding";
 import type { ActionResult, EventRow } from "@/lib/types";
 import {
@@ -140,6 +141,110 @@ async function fanOutEventNotification(
   }
 }
 
+/**
+ * Fire-and-forget: notify nearby users about a new public event.
+ * Caps: 50 emails per event, 80 emails per day (shared budget).
+ */
+async function broadcastNearbyEventNotification(
+  eventId: string,
+  eventTitle: string,
+  eventAddress: string | null,
+  startTime: string,
+  timezone: string
+) {
+  const EVENT_EMAIL_CAP = 50;
+  const DAILY_EMAIL_CAP = 80;
+  const DAILY_KEY = "event_nearby";
+  const EVENT_KEY = `event_nearby:${eventId}`;
+
+  try {
+    const supabase = await createClient();
+
+    // Find recipients within their chosen radius
+    const { data: recipients, error } = await supabase.rpc(
+      "events_find_nearby_recipients",
+      { p_event_id: eventId }
+    );
+
+    if (error || !recipients?.length) return;
+
+    // Format date for email
+    const dateObj = new Date(startTime);
+    const dateStr = dateObj.toLocaleString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: timezone,
+      timeZoneName: "short",
+    });
+
+    const locationStr = eventAddress ?? "Online";
+    const eventLink = `/events/${eventId}`;
+
+    // Pre-fetch daily counter to avoid per-recipient RPC when already capped
+    const { data: dailyCount } = await supabase.rpc("get_email_counter", {
+      p_counter_key: DAILY_KEY,
+    });
+    let currentDailyCount = (dailyCount as number) ?? 0;
+    let eventEmailCount = 0;
+
+    // Process recipients sequentially with throttling to respect Resend's
+    // rate limit (free tier: 5 req/s). Batch 3 emails, then pause 1s.
+    const BATCH_SIZE = 3;
+    let batchCount = 0;
+
+    for (const recipient of recipients) {
+      const uid = recipient.user_id as string;
+      const distKm = recipient.distance_km as number;
+      const body = `"${eventTitle}" is happening ${locationStr !== "Online" ? `near you (${Math.round(distKm)} km)` : "online"}`;
+
+      // Determine if we can send email for this recipient
+      let sendEmail = false;
+      if (eventEmailCount < EVENT_EMAIL_CAP && currentDailyCount < DAILY_EMAIL_CAP) {
+        const emailEnabled = await isEmailEnabled(uid, "event_nearby");
+        if (emailEnabled) {
+          sendEmail = true;
+        }
+      }
+
+      if (sendEmail) {
+        // Increment both counters
+        await Promise.all([
+          supabase.rpc("increment_email_counter", { p_counter_key: DAILY_KEY }),
+          supabase.rpc("increment_email_counter", { p_counter_key: EVENT_KEY }),
+        ]);
+        currentDailyCount++;
+        eventEmailCount++;
+
+        // Throttle: pause after every batch to avoid Resend rate limits
+        batchCount++;
+        if (batchCount >= BATCH_SIZE) {
+          await new Promise((r) => setTimeout(r, 1000));
+          batchCount = 0;
+        }
+
+        await notifyUser(uid, "event_nearby", "Event near you", body, eventLink, {
+          eventTitle,
+          eventDate: dateStr,
+          eventLocation: locationStr,
+          eventDistanceKm: distKm,
+        });
+      } else {
+        // In-app only (no email context)
+        await notifyUser(uid, "event_nearby", "Event near you", body, eventLink);
+      }
+    }
+  } catch (err) {
+    console.error("[events:broadcastNearby]", {
+      eventId,
+      error: (err as Error).message,
+    });
+  }
+}
+
 // =============================================================================
 // createEvent
 // =============================================================================
@@ -189,9 +294,23 @@ export async function createEvent(
       return { success: false, error: error?.message ?? "Failed to create event." };
     }
 
-    // Fire-and-forget geocoding for physical/hybrid
+    // Fire-and-forget: geocode then broadcast nearby notifications
     if (parsed.data.location_type !== "virtual" && parsed.data.address) {
-      void geocodeEventAddress(event.id, parsed.data.address);
+      void geocodeEventAddress(event.id, parsed.data.address).then(() => {
+        if (parsed.data.is_public) {
+          void broadcastNearbyEventNotification(
+            event.id,
+            parsed.data.title,
+            parsed.data.address ?? null,
+            parsed.data.start_time,
+            parsed.data.event_timezone
+          );
+        }
+      });
+    } else if (parsed.data.is_public) {
+      // Virtual events: broadcast immediately (no geocoding needed —
+      // RPC will return empty since event has no coordinates, which is correct:
+      // virtual-only events don't trigger radius notifications)
     }
 
     revalidatePath("/events");

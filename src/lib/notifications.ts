@@ -18,6 +18,11 @@ export interface NotifyEmailContext {
   moderationReason?: string;
   /** For user_muted: human-readable duration (e.g., "7 days") */
   muteDuration?: string;
+  /** For event_nearby: event details */
+  eventTitle?: string;
+  eventDate?: string;
+  eventLocation?: string;
+  eventDistanceKm?: number;
 }
 
 /**
@@ -177,6 +182,7 @@ async function buildEmailTemplate(
     userMutedEmail,
     accountDeletionRequestedEmail,
     accountReactivatedEmail,
+    eventNearbyEmail,
   } = await import("@/lib/email-templates");
 
   const notificationLink = link ?? "/dashboard";
@@ -223,6 +229,15 @@ async function buildEmailTemplate(
       );
     case "account_reactivated":
       return accountReactivatedEmail(context.actorName ?? "User");
+    case "event_nearby":
+      return eventNearbyEmail(
+        context.eventTitle ?? "New Event",
+        context.eventDate ?? "",
+        context.eventLocation ?? "",
+        context.eventDistanceKm ?? 0,
+        notificationLink,
+        userId
+      );
     default:
       return null;
   }

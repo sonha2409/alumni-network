@@ -13,12 +13,15 @@ interface PreferenceConfig {
   description: string;
 }
 
+import { NearbyEventsRadiusForm } from "./nearby-events-radius-form";
+
 const NOTIFICATION_TYPE_KEYS: { type: NotificationType; labelKey: string; descKey: string }[] = [
   { type: "connection_request", labelKey: "notifConnectionRequest", descKey: "notifConnectionRequestDesc" },
   { type: "connection_accepted", labelKey: "notifConnectionAccepted", descKey: "notifConnectionAcceptedDesc" },
   { type: "new_message", labelKey: "notifNewMessage", descKey: "notifNewMessageDesc" },
   { type: "verification_update", labelKey: "notifVerification", descKey: "notifVerificationDesc" },
   { type: "profile_staleness", labelKey: "notifStaleness", descKey: "notifStalenessDesc" },
+  { type: "event_nearby", labelKey: "notifEventNearby", descKey: "notifEventNearbyDesc" },
 ];
 
 export default async function NotificationSettingsPage() {
@@ -30,7 +33,17 @@ export default async function NotificationSettingsPage() {
   if (!user) redirect("/login");
 
   const t = await getTranslations("settings");
-  const preferences = await getNotificationPreferences(user.id);
+  const [preferences, profileRes] = await Promise.all([
+    getNotificationPreferences(user.id),
+    supabase
+      .from("profiles")
+      .select("notify_events_within_km")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+  ]);
+
+  const currentRadius: number | null =
+    profileRes.data?.notify_events_within_km ?? null;
 
   const NOTIFICATION_TYPES: PreferenceConfig[] = NOTIFICATION_TYPE_KEYS.map((k) => ({
     type: k.type,
@@ -58,6 +71,14 @@ export default async function NotificationSettingsPage() {
         types={NOTIFICATION_TYPES}
         preferences={preferencesMap}
       />
+
+      <div className="mt-8 border-t pt-6">
+        <h2 className="mb-1 text-lg font-semibold">{t("nearbyEventsTitle")}</h2>
+        <p className="mb-6 text-sm text-muted-foreground">
+          {t("nearbyEventsDesc")}
+        </p>
+        <NearbyEventsRadiusForm currentRadius={currentRadius} />
+      </div>
     </div>
   );
 }

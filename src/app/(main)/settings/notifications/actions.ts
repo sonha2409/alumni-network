@@ -11,6 +11,7 @@ const VALID_TYPES: NotificationType[] = [
   "connection_accepted",
   "new_message",
   "verification_update",
+  "event_nearby",
 ];
 
 const updatePreferenceSchema = z.object({
@@ -19,8 +20,13 @@ const updatePreferenceSchema = z.object({
     "connection_accepted",
     "new_message",
     "verification_update",
+    "event_nearby",
   ] as const),
   emailEnabled: z.boolean(),
+});
+
+const updateRadiusSchema = z.object({
+  radiusKm: z.number().int().min(5).max(500).nullable(),
 });
 
 /**
@@ -74,6 +80,53 @@ export async function updateNotificationPreference(
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("[ServerAction:updateNotificationPreference]", {
+      userId: user.id,
+      error: message,
+    });
+    return { success: false, error: "Something went wrong." };
+  }
+}
+
+/**
+ * Update the user's nearby-event notification radius.
+ * null = opt out, 5–500 = radius in km.
+ */
+export async function updateEventRadius(
+  radiusKm: number | null
+): Promise<ActionResult> {
+  const parsed = updateRadiusSchema.safeParse({ radiusKm });
+  if (!parsed.success) {
+    return { success: false, error: "Invalid radius value." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "You must be logged in." };
+  }
+
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ notify_events_within_km: parsed.data.radiusKm })
+      .eq("user_id", user.id);
+
+    if (error) {
+      console.error("[ServerAction:updateEventRadius]", {
+        userId: user.id,
+        error: error.message,
+      });
+      return { success: false, error: "Failed to update radius." };
+    }
+
+    revalidatePath("/settings/notifications");
+    return { success: true, data: undefined };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[ServerAction:updateEventRadius]", {
       userId: user.id,
       error: message,
     });
