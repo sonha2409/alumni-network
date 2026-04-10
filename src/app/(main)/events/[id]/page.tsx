@@ -103,7 +103,11 @@ export default async function EventDetailPage({ params }: Props) {
   const initialTotalCount = commentsResult.success ? commentsResult.data.totalCount : 0;
   const initialTotalPages = commentsResult.success ? commentsResult.data.totalPages : 0;
 
-  const isPast = new Date(e.end_time) < new Date();
+  const now = new Date();
+  const isPast = new Date(e.end_time) < now;
+  const checkinWindowStart = new Date(new Date(e.start_time).getTime() - 2 * 60 * 60 * 1000);
+  const checkinWindowEnd = new Date(new Date(e.end_time).getTime() + 2 * 60 * 60 * 1000);
+  const showCheckin = now >= checkinWindowStart && now <= checkinWindowEnd;
 
   return (
     <article className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -234,7 +238,9 @@ export default async function EventDetailPage({ params }: Props) {
       />
 
       {/* Host actions */}
-      {isHost && <HostActions eventId={e.id} />}
+      {isHost && (
+        <HostActions eventId={e.id} showCheckin={showCheckin} />
+      )}
     </article>
   );
 }

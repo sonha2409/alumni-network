@@ -11,9 +11,10 @@ import { cancelEvent } from "../actions";
 
 interface Props {
   eventId: string;
+  showCheckin: boolean;
 }
 
-export function HostActions({ eventId }: Props) {
+export function HostActions({ eventId, showCheckin }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [cancelOpen, setCancelOpen] = useState(false);
@@ -33,6 +34,14 @@ export function HostActions({ eventId }: Props) {
 
   return (
     <section className="flex flex-wrap gap-2 rounded-xl border bg-card p-4">
+      {showCheckin && (
+        <Link
+          href={`/events/${eventId}/host`}
+          className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Check-in
+        </Link>
+      )}
       <Link
         href={`/events/${eventId}/edit`}
         className="inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-accent"
