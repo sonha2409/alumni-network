@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import type { EventRow } from "@/lib/types";
 import { RsvpControls } from "./rsvp-controls";
 import { HostActions } from "./host-actions";
+import { EventComments } from "./comments/event-comments";
+import { getEventComments } from "./comments/actions";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -47,10 +49,11 @@ export default async function EventDetailPage({ params }: Props) {
   // Verified check for RSVP gating
   const { data: me } = await supabase
     .from("users")
-    .select("verification_status")
+    .select("verification_status, muted_until")
     .eq("id", user.id)
     .single();
   const isVerified = me?.verification_status === "verified";
+  const isMuted = Boolean(me?.muted_until && new Date(me.muted_until) > new Date());
 
   // Public Going count (via SECURITY DEFINER RPC — bypasses RLS name privacy)
   const { data: goingCount } = await supabase.rpc("get_event_going_count", {
@@ -93,6 +96,12 @@ export default async function EventDetailPage({ params }: Props) {
       .filter((n): n is string => Boolean(n));
   }
   const canSeeNames = attendeeNames.length > 0;
+
+  // Comments
+  const commentsResult = await getEventComments(id);
+  const initialComments = commentsResult.success ? commentsResult.data.comments : [];
+  const initialTotalCount = commentsResult.success ? commentsResult.data.totalCount : 0;
+  const initialTotalPages = commentsResult.success ? commentsResult.data.totalPages : 0;
 
   const isPast = new Date(e.end_time) < new Date();
 
@@ -212,6 +221,17 @@ export default async function EventDetailPage({ params }: Props) {
           Download .ics
         </a>
       </div>
+
+      {/* Comments */}
+      <EventComments
+        eventId={e.id}
+        currentUserId={user.id}
+        isVerified={isVerified}
+        isMuted={isMuted}
+        initialComments={initialComments}
+        initialTotalCount={initialTotalCount}
+        initialTotalPages={initialTotalPages}
+      />
 
       {/* Host actions */}
       {isHost && <HostActions eventId={e.id} />}

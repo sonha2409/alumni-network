@@ -508,7 +508,8 @@ export type NotificationType =
   | "event_update"
   | "event_cancelled"
   | "event_rsvp_promoted"
-  | "event_nearby";
+  | "event_nearby"
+  | "event_comment";
 
 // =============================================================================
 // Events (F47a)
@@ -571,6 +572,50 @@ export interface EventWaitlistEntry {
   plus_one_name: string | null;
   plus_one_email: string | null;
   created_at: string;
+}
+
+// =============================================================================
+// Event Comments (F47c)
+// =============================================================================
+
+export interface EventComment {
+  id: string;
+  event_id: string;
+  user_id: string;
+  body: string;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Enriched comment for display with author profile info. */
+export interface EventCommentWithAuthor extends EventComment {
+  author_name: string | null;
+  author_photo_url: string | null;
+}
+
+/** Enriched comment report for moderation queue display. */
+export interface CommentReportRow {
+  id: string;
+  reason: string;
+  status: "pending" | "reviewed" | "action_taken" | "dismissed" | "escalated";
+  created_at: string;
+  reviewed_at: string | null;
+  reviewer_notes: string | null;
+  comment_id: string;
+  comment_body: string;
+  comment_is_deleted: boolean;
+  comment_created_at: string;
+  event_id: string;
+  event_title: string;
+  reported_user_id: string;
+  reported_user_name: string | null;
+  reported_user_photo: string | null;
+  reported_user_email: string;
+  reported_user_muted_until: string | null;
+  reporter_id: string;
+  report_count: number;
+  warning_count: number;
 }
 
 export interface Notification {

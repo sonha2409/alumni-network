@@ -476,6 +476,33 @@ export function eventNearbyEmail(
 }
 
 // =============================================================================
+// Event comment (F47c)
+// =============================================================================
+
+export function eventCommentEmail(
+  actorName: string,
+  eventTitle: string,
+  eventUrl: string,
+  userId: string
+): { subject: string; html: string } {
+  const fullLink = `${siteUrl}${eventUrl}`;
+
+  const content = `
+    <p style="margin:0 0 8px;font-size:15px;color:#18181b;line-height:1.5;">
+      <strong>${escapeHtml(actorName)}</strong> commented on <strong>${escapeHtml(eventTitle)}</strong>.
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      Check the event discussion to stay in the loop.
+    </p>
+    ${ctaButton("View Discussion", fullLink)}`;
+
+  return {
+    subject: `New comment on "${eventTitle}"`,
+    html: emailLayout(content, userId, "event_comment"),
+  };
+}
+
+// =============================================================================
 // Helpers
 // =============================================================================
 

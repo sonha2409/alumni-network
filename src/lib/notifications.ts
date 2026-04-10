@@ -183,6 +183,7 @@ async function buildEmailTemplate(
     accountDeletionRequestedEmail,
     accountReactivatedEmail,
     eventNearbyEmail,
+    eventCommentEmail,
   } = await import("@/lib/email-templates");
 
   const notificationLink = link ?? "/dashboard";
@@ -235,6 +236,13 @@ async function buildEmailTemplate(
         context.eventDate ?? "",
         context.eventLocation ?? "",
         context.eventDistanceKm ?? 0,
+        notificationLink,
+        userId
+      );
+    case "event_comment":
+      return eventCommentEmail(
+        actorName,
+        context.eventTitle ?? "an event",
         notificationLink,
         userId
       );

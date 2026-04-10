@@ -490,6 +490,8 @@
     "notifStalenessDesc": "Periodic reminders to keep your profile up to date",
     "notifEventNearby": "Nearby event alerts",
     "notifEventNearbyDesc": "When a new event is created near your location",
+    "notifEventComment": "Event discussion",
+    "notifEventCommentDesc": "When someone comments on an event you hosted or discussed",
     "nearbyEventsTitle": "Nearby Event Notifications",
     "nearbyEventsDesc": "Get notified when alumni events are created near your location. You must have a location set on your profile.",
     "radiusLabel": "Notification radius",

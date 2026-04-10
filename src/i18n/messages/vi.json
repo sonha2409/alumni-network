@@ -490,6 +490,8 @@
     "notifStalenessDesc": "Nhắc nhở định kỳ để cập nhật hồ sơ",
     "notifEventNearby": "Thông báo sự kiện gần bạn",
     "notifEventNearbyDesc": "Khi có sự kiện mới được tạo gần vị trí của bạn",
+    "notifEventComment": "Thảo luận sự kiện",
+    "notifEventCommentDesc": "Khi có người bình luận về sự kiện bạn tổ chức hoặc tham gia thảo luận",
     "nearbyEventsTitle": "Thông báo sự kiện lân cận",
     "nearbyEventsDesc": "Nhận thông báo khi có sự kiện cựu học sinh gần vị trí của bạn. Bạn cần cập nhật vị trí trên hồ sơ.",
     "radiusLabel": "Bán kính thông báo",

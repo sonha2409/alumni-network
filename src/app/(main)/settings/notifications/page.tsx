@@ -22,6 +22,7 @@ const NOTIFICATION_TYPE_KEYS: { type: NotificationType; labelKey: string; descKe
   { type: "verification_update", labelKey: "notifVerification", descKey: "notifVerificationDesc" },
   { type: "profile_staleness", labelKey: "notifStaleness", descKey: "notifStalenessDesc" },
   { type: "event_nearby", labelKey: "notifEventNearby", descKey: "notifEventNearbyDesc" },
+  { type: "event_comment", labelKey: "notifEventComment", descKey: "notifEventCommentDesc" },
 ];
 
 export default async function NotificationSettingsPage() {

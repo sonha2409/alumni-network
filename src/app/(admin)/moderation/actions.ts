@@ -11,6 +11,7 @@ import type {
   ModerationReportRow,
   ModerationContextMessage,
   UserWarning,
+  CommentReportRow,
 } from "@/lib/types";
 
 // =============================================================================
@@ -627,6 +628,418 @@ export async function unmuteUser(targetUserId: string): Promise<ActionResult> {
   }
 
   await logModAction(supabase, userId, targetUserId, "unmute", {});
+
+  revalidatePath("/moderation/reports");
+  return { success: true, data: undefined };
+}
+
+// =============================================================================
+// Comment Report Queue (F47c)
+// =============================================================================
+
+export async function getCommentReportQueue(
+  filters: z.input<typeof reportFiltersSchema> = {}
+): Promise<
+  ActionResult<{
+    reports: CommentReportRow[];
+    totalCount: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+  }>
+> {
+  const { supabase, error } = await assertModerator();
+  if (error || !supabase) return { success: false, error: error ?? "Unauthorized" };
+
+  const parsed = reportFiltersSchema.safeParse(filters);
+  if (!parsed.success) return { success: false, error: "Invalid filters" };
+
+  const { status, page, pageSize } = parsed.data;
+  const offset = (page - 1) * pageSize;
+
+  let countQuery = supabase
+    .from("event_comment_reports")
+    .select("id", { count: "exact", head: true });
+
+  if (status !== "all") {
+    countQuery = countQuery.eq("status", status);
+  }
+
+  const { count: totalCount } = await countQuery;
+  const total = totalCount ?? 0;
+
+  let dataQuery = supabase
+    .from("event_comment_reports")
+    .select(`
+      id,
+      reason,
+      status,
+      created_at,
+      reviewed_at,
+      reviewer_notes,
+      comment_id,
+      reporter_id,
+      event_comments!inner (
+        id,
+        body,
+        deleted_at,
+        created_at,
+        user_id,
+        event_id
+      )
+    `)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + pageSize - 1);
+
+  if (status !== "all") {
+    dataQuery = dataQuery.eq("status", status);
+  }
+
+  const { data: reports, error: queryError } = await dataQuery;
+
+  if (queryError) {
+    console.error("[getCommentReportQueue]", queryError.message);
+    return { success: false, error: "Failed to fetch comment reports" };
+  }
+
+  const enrichedReports: CommentReportRow[] = [];
+
+  for (const report of reports ?? []) {
+    const comment = report.event_comments as unknown as {
+      id: string;
+      body: string;
+      deleted_at: string | null;
+      created_at: string;
+      user_id: string;
+      event_id: string;
+    };
+
+    // Get event title
+    const { data: event } = await supabase
+      .from("events")
+      .select("title")
+      .eq("id", comment.event_id)
+      .maybeSingle();
+
+    // Get reported user info
+    const { data: reportedUser } = await supabase
+      .from("users")
+      .select("id, email, muted_until")
+      .eq("id", comment.user_id)
+      .single();
+
+    const { data: reportedProfile } = await supabase
+      .from("profiles")
+      .select("full_name, photo_url")
+      .eq("user_id", comment.user_id)
+      .maybeSingle();
+
+    // Count total reports and warnings
+    const { count: reportCount } = await supabase
+      .from("event_comment_reports")
+      .select("id", { count: "exact", head: true })
+      .eq("event_comments.user_id", comment.user_id);
+
+    const { count: warningCount } = await supabase
+      .from("user_warnings")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", comment.user_id);
+
+    enrichedReports.push({
+      id: report.id,
+      reason: report.reason,
+      status: report.status as CommentReportRow["status"],
+      created_at: report.created_at,
+      reviewed_at: report.reviewed_at,
+      reviewer_notes: report.reviewer_notes,
+      comment_id: comment.id,
+      comment_body: comment.body,
+      comment_is_deleted: comment.deleted_at !== null,
+      comment_created_at: comment.created_at,
+      event_id: comment.event_id,
+      event_title: event?.title ?? "Unknown event",
+      reported_user_id: comment.user_id,
+      reported_user_name: reportedProfile?.full_name ?? null,
+      reported_user_photo: reportedProfile?.photo_url ?? null,
+      reported_user_email: reportedUser?.email ?? "Unknown",
+      reported_user_muted_until: reportedUser?.muted_until ?? null,
+      reporter_id: report.reporter_id,
+      report_count: reportCount ?? 0,
+      warning_count: warningCount ?? 0,
+    });
+  }
+
+  return {
+    success: true,
+    data: {
+      reports: enrichedReports,
+      totalCount: total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    },
+  };
+}
+
+// =============================================================================
+// Comment report moderation actions
+// =============================================================================
+
+export async function dismissCommentReport(
+  reportId: string,
+  notes?: string
+): Promise<ActionResult> {
+  const { supabase, userId, error } = await assertModerator();
+  if (error || !supabase || !userId) return { success: false, error: error ?? "Unauthorized" };
+
+  const parsed = dismissSchema.safeParse({ reportId, notes });
+  if (!parsed.success) return { success: false, error: "Invalid input" };
+
+  const { data: report } = await supabase
+    .from("event_comment_reports")
+    .select("id, status, event_comments!inner(user_id)")
+    .eq("id", reportId)
+    .single();
+
+  if (!report) return { success: false, error: "Report not found" };
+  if (report.status !== "pending" && report.status !== "escalated") {
+    return { success: false, error: "Report has already been resolved" };
+  }
+
+  const { error: updateError } = await supabase
+    .from("event_comment_reports")
+    .update({
+      status: "dismissed",
+      reviewed_by: userId,
+      reviewed_at: new Date().toISOString(),
+      reviewer_notes: parsed.data.notes || null,
+    })
+    .eq("id", reportId);
+
+  if (updateError) {
+    console.error("[dismissCommentReport]", updateError.message);
+    return { success: false, error: "Failed to dismiss report" };
+  }
+
+  const reportedUserId = (report.event_comments as unknown as { user_id: string }).user_id;
+  await logModAction(supabase, userId, reportedUserId, "dismiss_report", {
+    report_id: reportId,
+    content_type: "event_comment",
+    notes: parsed.data.notes,
+  });
+
+  revalidatePath("/moderation/reports");
+  return { success: true, data: undefined };
+}
+
+export async function warnCommentUser(
+  reportId: string,
+  reason: string
+): Promise<ActionResult> {
+  const { supabase, userId, error } = await assertModerator();
+  if (error || !supabase || !userId) return { success: false, error: error ?? "Unauthorized" };
+
+  const parsed = warnSchema.safeParse({ reportId, reason });
+  if (!parsed.success) return { success: false, error: parsed.error.issues[0].message };
+
+  const { data: report } = await supabase
+    .from("event_comment_reports")
+    .select("id, status, event_comments!inner(user_id)")
+    .eq("id", reportId)
+    .single();
+
+  if (!report) return { success: false, error: "Report not found" };
+  if (report.status !== "pending" && report.status !== "escalated") {
+    return { success: false, error: "Report has already been resolved" };
+  }
+
+  const reportedUserId = (report.event_comments as unknown as { user_id: string }).user_id;
+
+  const { error: warningError } = await supabase.rpc("insert_user_warning", {
+    p_user_id: reportedUserId,
+    p_moderator_id: userId,
+    p_report_id: reportId,
+    p_reason: parsed.data.reason,
+  });
+
+  if (warningError) {
+    console.error("[warnCommentUser]", warningError.message);
+    return { success: false, error: "Failed to create warning" };
+  }
+
+  await supabase
+    .from("event_comment_reports")
+    .update({
+      status: "action_taken",
+      reviewed_by: userId,
+      reviewed_at: new Date().toISOString(),
+      reviewer_notes: `Warning issued: ${parsed.data.reason}`,
+    })
+    .eq("id", reportId);
+
+  await notifyUser(
+    reportedUserId,
+    "user_warning",
+    "You've received a warning",
+    `A moderator has warned you: ${parsed.data.reason}`,
+    "/notifications",
+    { moderationReason: parsed.data.reason }
+  );
+
+  await logModAction(supabase, userId, reportedUserId, "warn", {
+    report_id: reportId,
+    content_type: "event_comment",
+    reason: parsed.data.reason,
+  });
+
+  revalidatePath("/moderation/reports");
+  return { success: true, data: undefined };
+}
+
+export async function muteCommentUser(
+  reportId: string,
+  targetUserId: string,
+  duration: "1d" | "7d" | "30d",
+  reason: string
+): Promise<ActionResult> {
+  const { supabase, userId, error } = await assertModerator();
+  if (error || !supabase || !userId) return { success: false, error: error ?? "Unauthorized" };
+
+  const parsed = muteSchema.safeParse({ reportId, userId: targetUserId, duration, reason });
+  if (!parsed.success) return { success: false, error: parsed.error.issues[0].message };
+
+  const { data: targetUser } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", targetUserId)
+    .single();
+
+  if (targetUser && ["admin", "moderator"].includes(targetUser.role)) {
+    return { success: false, error: "Cannot mute a moderator or admin" };
+  }
+
+  const muteDuration = MUTE_DURATIONS[duration];
+  const mutedUntil = new Date(Date.now() + muteDuration.ms).toISOString();
+
+  const { error: muteError } = await supabase.rpc("mute_user", {
+    p_user_id: targetUserId,
+    p_muted_until: mutedUntil,
+    p_muted_reason: parsed.data.reason,
+  });
+
+  if (muteError) {
+    console.error("[muteCommentUser]", muteError.message);
+    return { success: false, error: "Failed to mute user" };
+  }
+
+  await supabase
+    .from("event_comment_reports")
+    .update({
+      status: "action_taken",
+      reviewed_by: userId,
+      reviewed_at: new Date().toISOString(),
+      reviewer_notes: `User muted for ${muteDuration.label}: ${parsed.data.reason}`,
+    })
+    .eq("id", reportId);
+
+  await notifyUser(
+    targetUserId,
+    "user_muted",
+    "Your account has been restricted",
+    `A moderator has restricted your account for ${muteDuration.label}: ${parsed.data.reason}`,
+    "/notifications",
+    { moderationReason: parsed.data.reason, muteDuration: muteDuration.label }
+  );
+
+  await logModAction(supabase, userId, targetUserId, "mute", {
+    report_id: reportId,
+    content_type: "event_comment",
+    reason: parsed.data.reason,
+    duration,
+    muted_until: mutedUntil,
+  });
+
+  revalidatePath("/moderation/reports");
+  return { success: true, data: undefined };
+}
+
+export async function escalateCommentReport(
+  reportId: string,
+  notes: string
+): Promise<ActionResult> {
+  const { supabase, userId, error } = await assertModerator();
+  if (error || !supabase || !userId) return { success: false, error: error ?? "Unauthorized" };
+
+  const parsed = escalateSchema.safeParse({ reportId, notes });
+  if (!parsed.success) return { success: false, error: parsed.error.issues[0].message };
+
+  const { data: report } = await supabase
+    .from("event_comment_reports")
+    .select("id, status, event_comments!inner(user_id)")
+    .eq("id", reportId)
+    .single();
+
+  if (!report) return { success: false, error: "Report not found" };
+  if (report.status !== "pending") {
+    return { success: false, error: "Only pending reports can be escalated" };
+  }
+
+  const { error: updateError } = await supabase
+    .from("event_comment_reports")
+    .update({
+      status: "escalated",
+      reviewed_by: userId,
+      reviewed_at: new Date().toISOString(),
+      reviewer_notes: `Escalated: ${parsed.data.notes}`,
+    })
+    .eq("id", reportId);
+
+  if (updateError) {
+    console.error("[escalateCommentReport]", updateError.message);
+    return { success: false, error: "Failed to escalate report" };
+  }
+
+  const reportedUserId = (report.event_comments as unknown as { user_id: string }).user_id;
+  await logModAction(supabase, userId, reportedUserId, "escalate_report", {
+    report_id: reportId,
+    content_type: "event_comment",
+    notes: parsed.data.notes,
+  });
+
+  revalidatePath("/moderation/reports");
+  return { success: true, data: undefined };
+}
+
+export async function deleteCommentAsModerator(
+  commentId: string,
+  reportId: string
+): Promise<ActionResult> {
+  const { supabase, userId, error } = await assertModerator();
+  if (error || !supabase || !userId) return { success: false, error: error ?? "Unauthorized" };
+
+  const { error: deleteError } = await supabase.rpc("moderate_delete_event_comment", {
+    p_comment_id: commentId,
+  });
+
+  if (deleteError) {
+    console.error("[deleteCommentAsModerator]", deleteError.message);
+    return { success: false, error: "Failed to delete comment" };
+  }
+
+  // Get comment author for audit log
+  const { data: comment } = await supabase
+    .from("event_comments")
+    .select("user_id")
+    .eq("id", commentId)
+    .single();
+
+  if (comment) {
+    await logModAction(supabase, userId, comment.user_id, "dismiss_report", {
+      report_id: reportId,
+      content_type: "event_comment",
+      action: "deleted_comment",
+    });
+  }
 
   revalidatePath("/moderation/reports");
   return { success: true, data: undefined };

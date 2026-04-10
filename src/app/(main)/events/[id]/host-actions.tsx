@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { cancelEvent } from "../actions";
 
 interface Props {
@@ -15,13 +16,14 @@ interface Props {
 export function HostActions({ eventId }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   function handleCancel() {
-    if (!confirm("Cancel this event? Attendees will be notified.")) return;
     startTransition(async () => {
       const result = await cancelEvent(eventId);
       if (!result.success) {
         toast.error(result.error);
+        setCancelOpen(false);
         return;
       }
       toast.success("Event cancelled");
@@ -41,10 +43,20 @@ export function HostActions({ eventId }: Props) {
         variant="destructive"
         size="sm"
         disabled={pending}
-        onClick={handleCancel}
+        onClick={() => setCancelOpen(true)}
       >
         Cancel event
       </Button>
+      <ConfirmDialog
+        open={cancelOpen}
+        onOpenChange={setCancelOpen}
+        title="Cancel event"
+        description="Are you sure you want to cancel this event? All attendees will be notified."
+        confirmLabel="Cancel event"
+        variant="destructive"
+        disabled={pending}
+        onConfirm={handleCancel}
+      />
     </section>
   );
 }
