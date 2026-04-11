@@ -534,6 +534,7 @@ export interface EventRow {
   is_public: boolean;
   capacity: number | null;
   cover_image_url: string | null;
+  group_id: string | null;
   deleted_at: string | null;
   created_at: string;
   updated_at: string;

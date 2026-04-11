@@ -8,9 +8,15 @@ import { toast } from "sonner";
 import type { EventRow, EventLocationType } from "@/lib/types";
 import { createEvent, updateEvent } from "./actions";
 
+export interface GroupOption {
+  id: string;
+  name: string;
+}
+
 interface Props {
   mode: "create" | "edit";
   initial?: EventRow;
+  groups?: GroupOption[];
 }
 
 /**
@@ -19,7 +25,7 @@ interface Props {
  * validation limited to basic required fields; Zod validation lives in the
  * server action.
  */
-export function EventForm({ mode, initial }: Props) {
+export function EventForm({ mode, initial, groups = [] }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [locationType, setLocationType] = useState<EventLocationType>(
@@ -53,6 +59,7 @@ export function EventForm({ mode, initial }: Props) {
         ? Number(fd.get("capacity"))
         : null,
       cover_image_url: (fd.get("cover_image_url") as string) || null,
+      group_id: (fd.get("group_id") as string) || null,
     };
 
     startTransition(async () => {
@@ -183,6 +190,23 @@ export function EventForm({ mode, initial }: Props) {
         />
         Public event (listed on /events)
       </label>
+
+      {groups.length > 0 && (
+        <Field label="Link to group (optional)">
+          <select
+            name="group_id"
+            defaultValue={initial?.group_id ?? ""}
+            className="rounded-md border bg-background px-3 py-2 text-sm"
+          >
+            <option value="">None</option>
+            {groups.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
 
       {mode === "edit" && (
         <p className="rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">

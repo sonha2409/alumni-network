@@ -8,6 +8,7 @@ import {
   MapPinIcon,
   TagIcon,
   ArrowLeftIcon,
+  CalendarDaysIcon,
 } from "lucide-react";
 
 import { getTranslations } from "next-intl/server";
@@ -97,6 +98,17 @@ export default async function GroupDetailPage({
     pageSize: 20,
   });
 
+  // Upcoming events linked to this group
+  const nowIso = new Date().toISOString();
+  const { data: upcomingEvents } = await supabase
+    .from("events")
+    .select("id, title, start_time, end_time, event_timezone, location_type, address")
+    .eq("group_id", group.id)
+    .is("deleted_at", null)
+    .gte("start_time", nowIso)
+    .order("start_time", { ascending: true })
+    .limit(5);
+
   const TypeIcon = typeIcons[group.type];
 
   return (
@@ -155,6 +167,37 @@ export default async function GroupDetailPage({
             {t("verifyToJoin")}
           </Link>
         </div>
+      )}
+
+      {/* Upcoming events */}
+      {(upcomingEvents ?? []).length > 0 && (
+        <section className="rounded-xl border bg-card p-4">
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase text-muted-foreground">
+            <CalendarDaysIcon className="h-4 w-4" />
+            Upcoming events
+          </h2>
+          <ul className="divide-y">
+            {(upcomingEvents ?? []).map((ev) => (
+              <li key={ev.id} className="py-2.5 first:pt-0 last:pb-0">
+                <Link
+                  href={`/events/${ev.id}`}
+                  className="group flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <span className="text-sm font-medium group-hover:text-primary">
+                    {ev.title}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Intl.DateTimeFormat(undefined, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                      timeZone: ev.event_timezone,
+                    }).format(new Date(ev.start_time))}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {/* Members section */}

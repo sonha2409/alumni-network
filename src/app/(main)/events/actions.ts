@@ -86,6 +86,7 @@ function buildEventPayload(input: EventInput) {
     is_public: input.is_public,
     capacity: input.capacity ?? null,
     cover_image_url: input.cover_image_url ?? null,
+    group_id: input.group_id ?? null,
   };
 }
 
@@ -280,6 +281,23 @@ export async function createEvent(
       };
     }
 
+    // Validate group membership if linking to a group
+    if (parsed.data.group_id) {
+      const { data: membership } = await supabase
+        .from("group_members")
+        .select("id")
+        .eq("group_id", parsed.data.group_id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (!membership) {
+        return {
+          success: false,
+          error: "You must be a member of the group to link an event to it.",
+        };
+      }
+    }
+
     const { data: event, error } = await supabase
       .from("events")
       .insert({ ...buildEventPayload(parsed.data), creator_id: user.id })
@@ -314,6 +332,9 @@ export async function createEvent(
     }
 
     revalidatePath("/events");
+    if (parsed.data.group_id) {
+      revalidatePath(`/groups`);
+    }
     return { success: true, data: event as EventRow };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

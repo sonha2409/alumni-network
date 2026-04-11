@@ -22,6 +22,23 @@ export default async function NewEventPage() {
     redirect("/events");
   }
 
+  // Fetch groups user is a member of for the "Link to group" picker
+  const { data: memberships } = await supabase
+    .from("group_members")
+    .select("group_id, groups!inner(id, name, is_active)")
+    .eq("user_id", user.id);
+
+  const groups = (memberships ?? [])
+    .filter((m) => {
+      const g = m.groups as unknown as { id: string; name: string; is_active: boolean };
+      return g.is_active;
+    })
+    .map((m) => {
+      const g = m.groups as unknown as { id: string; name: string };
+      return { id: g.id, name: g.name };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
       <div>
@@ -30,7 +47,7 @@ export default async function NewEventPage() {
           Host a reunion, meetup, or virtual gathering for fellow alumni.
         </p>
       </div>
-      <EventForm mode="create" />
+      <EventForm mode="create" groups={groups} />
     </div>
   );
 }

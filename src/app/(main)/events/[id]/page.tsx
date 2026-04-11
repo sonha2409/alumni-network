@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { EventRow } from "@/lib/types";
 import { RsvpControls } from "./rsvp-controls";
 import { HostActions } from "./host-actions";
+import { BulkInviteButton } from "./bulk-invite-button";
 import { EventComments } from "./comments/event-comments";
 import { getEventComments } from "./comments/actions";
 
@@ -45,6 +46,32 @@ export default async function EventDetailPage({ params }: Props) {
     p_event_id: id,
     p_user_id: user.id,
   });
+
+  // Group info (if linked)
+  let groupInfo: { name: string; slug: string } | null = null;
+  let canBulkInvite = false;
+  if (e.group_id) {
+    const { data: group } = await supabase
+      .from("groups")
+      .select("name, slug")
+      .eq("id", e.group_id)
+      .maybeSingle();
+    if (group) {
+      groupInfo = group;
+    }
+    // Check if current user is owner/moderator of the group (for bulk invite)
+    if (isHost) {
+      const { data: membership } = await supabase
+        .from("group_members")
+        .select("role")
+        .eq("group_id", e.group_id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      canBulkInvite =
+        !!membership &&
+        ["owner", "moderator"].includes(membership.role);
+    }
+  }
 
   // Verified check for RSVP gating
   const { data: me } = await supabase
@@ -125,6 +152,17 @@ export default async function EventDetailPage({ params }: Props) {
 
       <header className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">{e.title}</h1>
+        {groupInfo && (
+          <p className="text-sm">
+            Organized by{" "}
+            <Link
+              href={`/groups/${groupInfo.slug}`}
+              className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground hover:bg-secondary/80"
+            >
+              {groupInfo.name}
+            </Link>
+          </p>
+        )}
         <p className="text-sm text-muted-foreground">
           {formatRange(e.start_time, e.end_time, e.event_timezone)}
         </p>
@@ -240,6 +278,24 @@ export default async function EventDetailPage({ params }: Props) {
       {/* Host actions */}
       {isHost && (
         <HostActions eventId={e.id} showCheckin={showCheckin} />
+      )}
+
+      {/* Bulk invite (group-linked events, owner/moderator only) */}
+      {canBulkInvite && groupInfo && !isPast && (
+        <section className="rounded-xl border bg-card p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Group invite</p>
+              <p className="text-xs text-muted-foreground">
+                Invite all members of {groupInfo.name}
+              </p>
+            </div>
+            <BulkInviteButton
+              eventId={e.id}
+              groupName={groupInfo.name}
+            />
+          </div>
+        </section>
       )}
     </article>
   );

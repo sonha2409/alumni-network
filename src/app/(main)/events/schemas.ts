@@ -19,6 +19,7 @@ export const eventInputSchema = z
     is_public: z.boolean(),
     capacity: z.number().int().positive().nullish(),
     cover_image_url: z.string().url().nullish(),
+    group_id: z.string().uuid().nullish(),
   })
   .superRefine((d, ctx) => {
     if (new Date(d.end_time) <= new Date(d.start_time)) {
