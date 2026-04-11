@@ -147,6 +147,7 @@ export interface CareerEntry {
   start_date: string;
   end_date: string | null;
   description: string | null;
+  company_website: string | null;
   is_current: boolean;
   sort_order: number;
   created_at: string;
@@ -300,6 +301,7 @@ export interface DirectoryProfile {
   has_contact_details: boolean;
   current_job_title: string | null;
   current_company: string | null;
+  current_company_website: string | null;
   availability_tags: { id: string; name: string; slug: string }[];
 }
 

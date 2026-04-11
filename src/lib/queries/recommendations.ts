@@ -64,6 +64,7 @@ export async function getRecommendedAlumni(
         : null,
       current_job_title: (r.current_title as string) ?? null,
       current_company: (r.current_company as string) ?? null,
+      current_company_website: (r.current_company_website as string) ?? null,
       availability_tags: tagIds.map((id, i) => ({
         id,
         name: tagNames[i],
@@ -132,6 +133,7 @@ export async function getPopularAlumni(
         : null,
       current_job_title: (r.current_title as string) ?? null,
       current_company: (r.current_company as string) ?? null,
+      current_company_website: (r.current_company_website as string) ?? null,
       availability_tags: tagIds.map((id, i) => ({
         id,
         name: tagNames[i],
@@ -171,7 +173,7 @@ async function getFallbackAlumni(
       last_active_at,
       primary_industry:industries!profiles_primary_industry_id_fkey(id, name),
       primary_specialization:specializations!profiles_primary_specialization_id_fkey(id, name),
-      career_entries(job_title, company),
+      career_entries(job_title, company, company_website),
       user_availability_tags(tag_type:availability_tag_types(id, name, slug)),
       users!inner(verification_status, is_active)
     `
@@ -192,7 +194,7 @@ async function getFallbackAlumni(
   }
 
   return profiles.map((p: Record<string, unknown>) => {
-    const careers = (p.career_entries as { job_title: string; company: string }[] | null) ?? [];
+    const careers = (p.career_entries as { job_title: string; company: string; company_website: string | null }[] | null) ?? [];
     const career = careers[0] ?? null;
     const rawTags = (p.user_availability_tags as { tag_type: { id: string; name: string; slug: string } | null }[] | null) ?? [];
     const tags = rawTags
@@ -221,6 +223,7 @@ async function getFallbackAlumni(
       } | null,
       current_job_title: career?.job_title ?? null,
       current_company: career?.company ?? null,
+      current_company_website: career?.company_website ?? null,
       availability_tags: tags,
       score: 0,
     };

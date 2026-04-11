@@ -235,13 +235,13 @@ export async function getGroupMembers(
   const { data: currentJobs } = profileIds.length > 0
     ? await supabase
         .from("career_entries")
-        .select("profile_id, job_title, company")
+        .select("profile_id, job_title, company, company_website")
         .in("profile_id", profileIds)
         .eq("is_current", true)
     : { data: [] };
 
   const jobMap = new Map(
-    (currentJobs ?? []).map((j) => [j.profile_id, { title: j.job_title, company: j.company }])
+    (currentJobs ?? []).map((j) => [j.profile_id, { title: j.job_title, company: j.company, company_website: j.company_website }])
   );
 
   const members: DirectoryProfile[] = (profiles ?? []).map((p) => ({
@@ -264,6 +264,7 @@ export async function getGroupMembers(
       : null,
     current_job_title: jobMap.get(p.id)?.title ?? null,
     current_company: jobMap.get(p.id)?.company ?? null,
+    current_company_website: jobMap.get(p.id)?.company_website ?? null,
     availability_tags: [],
   }));
 

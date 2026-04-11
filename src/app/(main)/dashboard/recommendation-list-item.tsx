@@ -13,6 +13,9 @@ import {
 } from "lucide-react";
 
 import { useTranslations } from "next-intl";
+import { CountryFlag } from "@/components/country-flag";
+import { CompanyLogo } from "@/components/company-logo";
+import { countryToFlag } from "@/lib/country-flags";
 import type { RecommendedProfile } from "@/lib/types";
 
 interface RecommendationListItemProps {
@@ -108,7 +111,11 @@ export function RecommendationListItem({
           </span>
           {(profile.current_job_title || profile.current_company) && (
             <span className="hidden sm:inline-flex items-center gap-1">
-              <BriefcaseIcon className="h-3 w-3" />
+              {profile.current_company ? (
+                <CompanyLogo companyName={profile.current_company} companyWebsite={profile.current_company_website} size={14} />
+              ) : (
+                <BriefcaseIcon className="h-3 w-3" />
+              )}
               <span className="max-w-[200px] truncate">
                 {profile.current_job_title && profile.current_company
                   ? `${profile.current_job_title} at ${profile.current_company}`
@@ -118,7 +125,8 @@ export function RecommendationListItem({
           )}
           {location && (
             <span className="hidden md:inline-flex items-center gap-1">
-              <MapPinIcon className="h-3 w-3" />
+              <CountryFlag country={profile.country} />
+              {!countryToFlag(profile.country) && <MapPinIcon className="h-3 w-3" />}
               <span className="max-w-[160px] truncate">{location}</span>
             </span>
           )}

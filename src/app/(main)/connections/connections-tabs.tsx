@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { CountryFlag } from "@/components/country-flag";
 
 import { Button } from "@/components/ui/button";
 import type { ConnectionWithProfile, Block } from "@/lib/types";
@@ -392,7 +393,10 @@ function ConnectionCard({
 
       {/* Location */}
       {location && (
-        <p className="mt-2 truncate text-xs text-muted-foreground">{location}</p>
+        <p className="mt-2 flex items-center gap-1 truncate text-xs text-muted-foreground">
+          <CountryFlag country={profile.country} />
+          {location}
+        </p>
       )}
 
       {/* Intro message (received tab) */}

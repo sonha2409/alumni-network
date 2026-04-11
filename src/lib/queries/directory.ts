@@ -42,7 +42,7 @@ export async function searchDirectory(
       last_active_at,
       primary_industry:industries!profiles_primary_industry_id_fkey(id, name),
       primary_specialization:specializations!profiles_primary_specialization_id_fkey(id, name),
-      career_entries(job_title, company),
+      career_entries(job_title, company, company_website),
       user_availability_tags(tag_type:availability_tag_types(id, name, slug))
     `,
       { count: "exact" }
@@ -169,7 +169,7 @@ export async function searchDirectory(
 
   // Map to DirectoryProfile shape
   const directoryProfiles: DirectoryProfile[] = filteredProfiles.map((p) => {
-    const careers = (p.career_entries as { job_title: string; company: string }[] | null) ?? [];
+    const careers = (p.career_entries as { job_title: string; company: string; company_website: string | null }[] | null) ?? [];
     const career = careers[0] ?? null;
     const rawTags = (p.user_availability_tags as { tag_type: { id: string; name: string; slug: string } | null }[] | null) ?? [];
     const tags = rawTags
@@ -198,6 +198,7 @@ export async function searchDirectory(
       } | null,
       current_job_title: career?.job_title ?? null,
       current_company: career?.company ?? null,
+      current_company_website: career?.company_website ?? null,
       availability_tags: tags,
     };
   });

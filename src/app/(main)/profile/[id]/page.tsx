@@ -26,6 +26,7 @@ import { RestrictedSection } from "./restricted-section";
 import { ContactDetailsDisplay } from "./contact-details-display";
 import { ViewTracker } from "./view-tracker";
 import { LastSeenIndicator } from "./last-seen-indicator";
+import { CountryFlag } from "@/components/country-flag";
 
 interface ProfilePageProps {
   params: Promise<{ id: string }>;
@@ -146,7 +147,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               </p>
               {showFullProfile &&
                 (profile.city || profile.state_province || profile.country) && (
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                    <CountryFlag country={profile.country} />
                     {[profile.city, profile.state_province, profile.country]
                       .filter(Boolean)
                       .join(", ")}

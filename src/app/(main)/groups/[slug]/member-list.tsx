@@ -12,6 +12,8 @@ import {
   ChevronsLeftIcon,
   ChevronsRightIcon,
 } from "lucide-react";
+import { CountryFlag } from "@/components/country-flag";
+import { countryToFlag } from "@/lib/country-flags";
 
 import { Button } from "@/components/ui/button";
 import type { DirectoryProfile } from "@/lib/types";
@@ -106,7 +108,8 @@ function MemberCard({ profile }: { profile: DirectoryProfile }) {
 
       {location && (
         <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-          <MapPinIcon className="h-3 w-3 shrink-0" />
+          <CountryFlag country={profile.country} />
+          {!countryToFlag(profile.country) && <MapPinIcon className="h-3 w-3 shrink-0" />}
           <span className="truncate">{location}</span>
         </div>
       )}

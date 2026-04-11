@@ -305,7 +305,7 @@ async function attachProfiles(
   const profileIds = (profiles ?? []).map((p) => p.id);
   const { data: currentJobs } = await supabase
     .from("career_entries")
-    .select("profile_id, job_title, company")
+    .select("profile_id, job_title, company, company_website")
     .in("profile_id", profileIds)
     .eq("is_current", true);
 
@@ -341,6 +341,7 @@ async function attachProfiles(
       } | null,
       current_job_title: job?.job_title ?? null,
       current_company: job?.company ?? null,
+      current_company_website: job?.company_website ?? null,
       availability_tags: profileTags,
     });
   }

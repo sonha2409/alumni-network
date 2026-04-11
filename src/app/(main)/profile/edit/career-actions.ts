@@ -25,6 +25,12 @@ const careerEntrySchema = z
       .string()
       .max(500, "Description must be under 500 characters")
       .optional(),
+    company_website: z
+      .string()
+      .url("Please enter a valid URL")
+      .max(500, "URL must be under 500 characters")
+      .optional()
+      .or(z.literal("")),
     is_current: z.boolean().optional(),
   })
   .refine(
@@ -68,6 +74,7 @@ export async function addCareerEntry(
     specialization_id: formData.get("specialization_id") || undefined,
     start_date: formData.get("start_date"),
     end_date: formData.get("end_date") || undefined,
+    company_website: (formData.get("company_website") as string) || "",
     description: formData.get("description") || undefined,
     is_current: formData.get("is_current") === "on",
   };
@@ -106,6 +113,7 @@ export async function addCareerEntry(
         profile_id: auth.profileId,
         job_title: parsed.data.job_title,
         company: parsed.data.company,
+        company_website: parsed.data.company_website || null,
         industry_id: parsed.data.industry_id ?? null,
         specialization_id: parsed.data.specialization_id ?? null,
         start_date: parsed.data.start_date,
@@ -155,6 +163,7 @@ export async function updateCareerEntry(
     specialization_id: formData.get("specialization_id") || undefined,
     start_date: formData.get("start_date"),
     end_date: formData.get("end_date") || undefined,
+    company_website: (formData.get("company_website") as string) || "",
     description: formData.get("description") || undefined,
     is_current: formData.get("is_current") === "on",
   };
@@ -193,6 +202,7 @@ export async function updateCareerEntry(
       .update({
         job_title: parsed.data.job_title,
         company: parsed.data.company,
+        company_website: parsed.data.company_website || null,
         industry_id: parsed.data.industry_id ?? null,
         specialization_id: parsed.data.specialization_id ?? null,
         start_date: parsed.data.start_date,

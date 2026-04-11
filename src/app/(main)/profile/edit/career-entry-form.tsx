@@ -38,6 +38,7 @@ export function CareerEntryForm({
 
   const [jobTitle, setJobTitle] = useState(entry?.job_title ?? "");
   const [company, setCompany] = useState(entry?.company ?? "");
+  const [companyWebsite, setCompanyWebsite] = useState(entry?.company_website ?? "");
   const [startDate, setStartDate] = useState(entry?.start_date ?? "");
   const [endDate, setEndDate] = useState(entry?.end_date ?? "");
   const [description, setDescription] = useState(entry?.description ?? "");
@@ -117,6 +118,27 @@ export function CareerEntryForm({
             </p>
           )}
         </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="career_company_website">Company website</Label>
+        <Input
+          id="career_company_website"
+          name="company_website"
+          type="url"
+          value={companyWebsite}
+          onChange={(e) => setCompanyWebsite(e.target.value)}
+          maxLength={500}
+          placeholder="e.g. https://google.com"
+          aria-invalid={fieldError("company_website") ? true : undefined}
+          aria-describedby={fieldError("company_website") ? "career_company_website-error" : undefined}
+        />
+        {fieldError("company_website") && (
+          <p id="career_company_website-error" className="text-sm text-destructive">
+            {fieldError("company_website")}
+          </p>
+        )}
+        <p className="text-xs text-muted-foreground">Used to display the company logo</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

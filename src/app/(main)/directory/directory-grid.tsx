@@ -10,6 +10,9 @@ import {
 import { useTranslations } from "next-intl";
 
 import { AnimateOnScroll } from "@/components/animate-on-scroll";
+import { CountryFlag } from "@/components/country-flag";
+import { CompanyLogo } from "@/components/company-logo";
+import { countryToFlag } from "@/lib/country-flags";
 import type { DirectoryProfile } from "@/lib/types";
 
 interface DirectoryGridProps {
@@ -119,7 +122,11 @@ function ProfileCard({
       {/* Career info */}
       {(profile.current_job_title || profile.current_company) && (
         <div className="mt-3 flex items-start gap-1.5 text-xs text-muted-foreground">
-          <BriefcaseIcon className="mt-0.5 h-3 w-3 shrink-0" />
+          {profile.current_company ? (
+            <CompanyLogo companyName={profile.current_company} companyWebsite={profile.current_company_website} size={16} />
+          ) : (
+            <BriefcaseIcon className="mt-0.5 h-3 w-3 shrink-0" />
+          )}
           <span className="line-clamp-2">
             {profile.current_job_title && profile.current_company
               ? `${profile.current_job_title} at ${profile.current_company}`
@@ -142,7 +149,8 @@ function ProfileCard({
       {/* Location */}
       {location && (
         <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-          <MapPinIcon className="h-3 w-3 shrink-0" />
+          <CountryFlag country={profile.country} />
+          {!countryToFlag(profile.country) && <MapPinIcon className="h-3 w-3 shrink-0" />}
           <span className="truncate">{location}</span>
         </div>
       )}
