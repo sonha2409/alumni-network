@@ -153,9 +153,16 @@ function EventCard({ event }: { event: EventRow }) {
         <div className="h-36 w-full bg-gradient-to-br from-primary/20 to-accent/20" />
       )}
       <div className="flex flex-col gap-2 p-4">
-        <h3 className="line-clamp-2 font-semibold group-hover:text-primary">
-          {event.title}
-        </h3>
+        <div className="flex items-center gap-2">
+          <h3 className="line-clamp-2 font-semibold group-hover:text-primary">
+            {event.title}
+          </h3>
+          {event.series_id && (
+            <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+              Recurring
+            </span>
+          )}
+        </div>
         <p className="text-xs text-muted-foreground">
           {new Date(event.start_time).toLocaleString(undefined, {
             dateStyle: "medium",

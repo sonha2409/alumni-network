@@ -59,6 +59,29 @@ export const eventInputSchema = z
 
 export type EventInput = z.infer<typeof eventInputSchema>;
 
+/**
+ * Series input schema — extends event input with recurrence fields.
+ */
+export const seriesInputSchema = eventInputSchema.and(
+  z
+    .object({
+      rrule: z.enum(["weekly", "monthly"]),
+      interval_val: z.number().int().min(1).max(4).default(1),
+      until_date: z.string().date(), // YYYY-MM-DD
+    })
+    .refine(
+      (d) => new Date(d.until_date) > new Date(),
+      { message: "End date must be in the future", path: ["until_date"] }
+    )
+);
+
+export type SeriesInput = z.infer<typeof seriesInputSchema>;
+
+export type SeriesEditScope = "this" | "this_and_following" | "all";
+export type SeriesCancelScope = "this" | "all_future";
+
+export const MAX_SERIES_OCCURRENCES = 52;
+
 export const rsvpStatusSchema = z.enum(["going", "maybe", "cant_go"]);
 export const uuidSchema = z.string().uuid();
 

@@ -518,6 +518,8 @@ export type NotificationType =
 export type EventLocationType = "physical" | "virtual" | "hybrid";
 export type EventRsvpStatus = "going" | "maybe" | "cant_go";
 
+export type EventRecurrenceRule = "weekly" | "monthly";
+
 export interface EventRow {
   id: string;
   creator_id: string;
@@ -535,6 +537,20 @@ export interface EventRow {
   capacity: number | null;
   cover_image_url: string | null;
   group_id: string | null;
+  series_id: string | null;
+  series_index: number | null;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventSeriesRow {
+  id: string;
+  creator_id: string;
+  rrule: EventRecurrenceRule;
+  interval_val: number;
+  until_date: string;
+  base_title: string;
   deleted_at: string | null;
   created_at: string;
   updated_at: string;

@@ -6,7 +6,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type { EventRow, EventLocationType } from "@/lib/types";
+import type { SeriesEditScope } from "./schemas";
 import { createEvent, updateEvent } from "./actions";
+import { createEventSeries, updateSeriesOccurrence } from "./series-actions";
 
 export interface GroupOption {
   id: string;
@@ -31,6 +33,10 @@ export function EventForm({ mode, initial, groups = [] }: Props) {
   const [locationType, setLocationType] = useState<EventLocationType>(
     initial?.location_type ?? "physical"
   );
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [editScope, setEditScope] = useState<SeriesEditScope | null>(null);
+
+  const isSeries = Boolean(initial?.series_id);
 
   function toLocalDateTime(iso: string | undefined) {
     if (!iso) return "";
@@ -41,6 +47,12 @@ export function EventForm({ mode, initial, groups = [] }: Props) {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    // For series events in edit mode, require scope selection first
+    if (mode === "edit" && isSeries && !editScope) {
+      return;
+    }
+
     const form = e.currentTarget;
     const fd = new FormData(form);
 
@@ -63,10 +75,35 @@ export function EventForm({ mode, initial, groups = [] }: Props) {
     };
 
     startTransition(async () => {
-      const result =
-        mode === "create"
-          ? await createEvent(input)
-          : await updateEvent(initial!.id, input);
+      let result;
+
+      if (mode === "create" && isRecurring) {
+        const seriesInput = {
+          ...input,
+          rrule: fd.get("rrule") as string,
+          interval_val: Number(fd.get("interval_val") || 1),
+          until_date: String(fd.get("until_date") ?? ""),
+        };
+        const seriesResult = await createEventSeries(seriesInput);
+        if (!seriesResult.success) {
+          toast.error(seriesResult.error);
+          return;
+        }
+        toast.success(
+          `Recurring event created (${seriesResult.data.events.length} occurrences)`
+        );
+        router.push(`/events/${seriesResult.data.events[0].id}`);
+        router.refresh();
+        return;
+      }
+
+      if (mode === "edit" && isSeries && editScope) {
+        result = await updateSeriesOccurrence(initial!.id, editScope, input);
+      } else if (mode === "create") {
+        result = await createEvent(input);
+      } else {
+        result = await updateEvent(initial!.id, input);
+      }
 
       if (!result.success) {
         toast.error(result.error);
@@ -208,7 +245,88 @@ export function EventForm({ mode, initial, groups = [] }: Props) {
         </Field>
       )}
 
-      {mode === "edit" && (
+      {/* Recurring event toggle (create mode only) */}
+      {mode === "create" && (
+        <div className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={isRecurring}
+              onChange={(e) => setIsRecurring(e.target.checked)}
+            />
+            <span className="font-medium">Recurring event</span>
+          </label>
+
+          {isRecurring && (
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Field label="Repeats" required>
+                <select
+                  name="rrule"
+                  defaultValue="weekly"
+                  className="rounded-md border bg-background px-3 py-2 text-sm"
+                >
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </Field>
+              <Field label="Every N weeks/months" required>
+                <input
+                  type="number"
+                  name="interval_val"
+                  min={1}
+                  max={4}
+                  defaultValue={1}
+                  className="rounded-md border bg-background px-3 py-2 text-sm"
+                />
+              </Field>
+              <Field label="Until" required>
+                <input
+                  type="date"
+                  name="until_date"
+                  required
+                  className="rounded-md border bg-background px-3 py-2 text-sm"
+                />
+              </Field>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Series edit scope selector (edit mode, series events only) */}
+      {mode === "edit" && isSeries && (
+        <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <p className="text-sm font-medium">
+            This event is part of a recurring series. Apply changes to:
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {(
+              [
+                { value: "this", label: "This occurrence only" },
+                { value: "this_and_following", label: "This and all following occurrences" },
+                { value: "all", label: "All future occurrences" },
+              ] as const
+            ).map((opt) => (
+              <label key={opt.value} className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="edit_scope"
+                  value={opt.value}
+                  checked={editScope === opt.value}
+                  onChange={() => setEditScope(opt.value)}
+                />
+                {opt.label}
+              </label>
+            ))}
+          </div>
+          {!editScope && (
+            <p className="text-xs text-destructive">
+              Please select a scope before saving.
+            </p>
+          )}
+        </div>
+      )}
+
+      {mode === "edit" && !isSeries && (
         <p className="rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
           Editing the time, location, or address will reset RSVPs and require
           attendees to re-confirm.
@@ -216,11 +334,16 @@ export function EventForm({ mode, initial, groups = [] }: Props) {
       )}
 
       <div className="flex justify-end gap-2">
-        <Button type="submit" disabled={pending}>
+        <Button
+          type="submit"
+          disabled={pending || (mode === "edit" && isSeries && !editScope)}
+        >
           {pending
             ? "Saving…"
             : mode === "create"
-              ? "Create event"
+              ? isRecurring
+                ? "Create recurring event"
+                : "Create event"
               : "Save changes"}
         </Button>
       </div>

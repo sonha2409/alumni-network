@@ -8,6 +8,7 @@ import { HostActions } from "./host-actions";
 import { BulkInviteButton } from "./bulk-invite-button";
 import { EventComments } from "./comments/event-comments";
 import { getEventComments } from "./comments/actions";
+import { SeriesNav } from "./series-nav";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -152,6 +153,11 @@ export default async function EventDetailPage({ params }: Props) {
 
       <header className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">{e.title}</h1>
+        {e.series_id && (
+          <span className="inline-flex w-fit items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+            Recurring event
+          </span>
+        )}
         {groupInfo && (
           <p className="text-sm">
             Organized by{" "}
@@ -275,9 +281,14 @@ export default async function EventDetailPage({ params }: Props) {
         initialTotalPages={initialTotalPages}
       />
 
+      {/* Series navigation */}
+      {e.series_id && (
+        <SeriesNav eventId={e.id} seriesId={e.series_id} seriesIndex={e.series_index ?? 0} />
+      )}
+
       {/* Host actions */}
       {isHost && (
-        <HostActions eventId={e.id} showCheckin={showCheckin} />
+        <HostActions eventId={e.id} showCheckin={showCheckin} seriesId={e.series_id} />
       )}
 
       {/* Bulk invite (group-linked events, owner/moderator only) */}
