@@ -113,10 +113,10 @@ export function RecommendationCard({
 
         {/* Name + class */}
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-semibold leading-tight text-foreground transition-colors duration-200 group-hover:text-primary">
+          <h3 className="truncate text-base font-semibold leading-tight text-foreground transition-colors duration-200 group-hover:text-primary">
             {profile.full_name}
           </h3>
-          <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+          <div className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
             <GraduationCapIcon className="h-3 w-3 shrink-0" />
             <span>{tc("classOf", { year: profile.graduation_year })}</span>
           </div>
@@ -125,7 +125,7 @@ export function RecommendationCard({
 
       {/* Career info */}
       {(profile.current_job_title || profile.current_company) && (
-        <div className="mt-3 flex items-start gap-1.5 text-xs text-muted-foreground">
+        <div className="mt-3 flex items-start gap-1.5 text-sm text-muted-foreground">
           {profile.current_company ? (
             <CompanyLogo companyName={profile.current_company} companyWebsite={profile.current_company_website} size={16} />
           ) : (
@@ -142,7 +142,7 @@ export function RecommendationCard({
       {/* Industry */}
       {profile.primary_industry && (
         <div className="mt-2">
-          <span className="inline-block rounded-md bg-secondary px-2 py-0.5 text-[11px] font-medium text-secondary-foreground transition-colors duration-200 group-hover:bg-primary/10 group-hover:text-primary">
+          <span className="inline-block rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground transition-colors duration-200 group-hover:bg-primary/10 group-hover:text-primary">
             {profile.primary_industry.name}
             {profile.primary_specialization &&
               ` · ${profile.primary_specialization.name}`}
@@ -152,7 +152,7 @@ export function RecommendationCard({
 
       {/* Location */}
       {location && (
-        <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
           <CountryFlag country={profile.country} />
           {!countryToFlag(profile.country) && <MapPinIcon className="h-3 w-3 shrink-0" />}
           <span className="truncate">{location}</span>
@@ -165,13 +165,13 @@ export function RecommendationCard({
           {profile.availability_tags.slice(0, 3).map((tag) => (
             <span
               key={tag.id}
-              className="rounded-full bg-primary/8 px-2 py-0.5 text-[10px] font-medium text-primary dark:bg-primary/15"
+              className="rounded-full bg-primary/8 px-2 py-0.5 text-xs font-medium text-primary dark:bg-primary/15"
             >
               {tag.name}
             </span>
           ))}
           {profile.availability_tags.length > 3 && (
-            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
               +{profile.availability_tags.length - 3}
             </span>
           )}
