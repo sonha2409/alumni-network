@@ -27,6 +27,7 @@ import { ContactDetailsDisplay } from "./contact-details-display";
 import { ViewTracker } from "./view-tracker";
 import { LastSeenIndicator } from "./last-seen-indicator";
 import { CountryFlag } from "@/components/country-flag";
+import { CompanyLogo } from "@/components/company-logo";
 
 interface ProfilePageProps {
   params: Promise<{ id: string }>;
@@ -253,7 +254,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground">{entry.company}</p>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                          <CompanyLogo companyName={entry.company} companyWebsite={entry.company_website} size={16} />
+                          {entry.company}
+                        </p>
                         {entry.industry && (
                           <p className="text-xs text-muted-foreground">
                             {entry.industry.name}
