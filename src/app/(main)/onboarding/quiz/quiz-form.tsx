@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { MapPin, Briefcase, Heart, ChevronRight, ChevronLeft, SkipForward } from "lucide-react";
+import { buildUrlWithToast } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,8 +78,7 @@ export function QuizForm({ availabilityTags }: QuizFormProps) {
     startTransition(async () => {
       const result = await completeOnboardingQuiz(null, formData);
       if (result?.success) {
-        toast.success("Profile updated! Let's find you some connections.");
-        router.push("/dashboard");
+        router.push(buildUrlWithToast("/dashboard", "Profile updated! Let's find you some connections."));
       } else if (result) {
         setError(result.error);
         setFieldErrors(result.fieldErrors);

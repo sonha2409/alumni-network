@@ -6,6 +6,7 @@ import { VerificationBanner } from "./verification-banner";
 import { AnnouncementBanner } from "./announcement-banner";
 import { StalenessBanner } from "./staleness-banner";
 import { NotificationsWrapper } from "./notifications-wrapper";
+import { ToastFromUrl } from "./toast-from-url";
 
 // F46: Authenticated app pages are behind login and contain personal data.
 // Disallow indexing/following at the layout level as a belt-and-braces measure
@@ -21,6 +22,7 @@ export default function MainLayout({
 }) {
   return (
     <div className="min-h-screen">
+      <ToastFromUrl />
       <Suspense>
         <NotificationsWrapper>
           <Suspense>

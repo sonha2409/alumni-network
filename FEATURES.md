@@ -721,6 +721,201 @@ The default F47a invite source is the creator's connections. That's the wrong mo
 
 ---
 
+### F15. Visual: Country Flags + Company Logos on Alumni Cards (SPEC row F48)
+
+Improve visual scanning and professional feel of alumni cards by adding emoji country flags next to locations and company logos next to company names. Applies across all card types and location-displaying surfaces.
+
+**Design decisions:**
+
+| Area | Decision |
+|---|---|
+| Flags | Emoji flags — zero dependencies, map country name → ISO 3166-1 alpha-2 → regional indicator emoji |
+| Logos | Logo.dev API (free tier 10K req/mo, API key required) |
+| Domain mapping | `company_website` field on `career_entries` (preferred) + static map of ~100 major companies + guess (`companyname.com`) as fallback chain |
+| Logo loading | Server-side proxy `/api/logo/[domain]` — keeps API key secret, enables HTTP caching |
+| Caching | `Cache-Control: public, max-age=604800` (7 days) on proxy + `next/image` optimization at edge |
+| Logo fallback | Styled company initial — first letter in a small indigo circle (consistent with existing avatar pattern) |
+| Scope — flags | Everywhere location appears: directory, dashboard, profile page, connection list, group members |
+| Scope — logos | All card types: directory `ProfileCard`, `RecommendationCard`, `PopularCard`, `RecommendationListItem` |
+| Placement | Flag replaces the MapPin icon (flag itself implies location). Logo sits left of company name (~16-20px). |
+
+**User stories:**
+- As an alumnus browsing the directory, I can instantly see which country each person is based in by glancing at their flag emoji, without reading the full location text.
+- As a user viewing recommendations, I recognize familiar company logos (Google, Meta, NVIDIA) at a glance, making the cards feel more professional and informative.
+- When I add a career entry with a company website, the logo resolves reliably. When I don't provide one, the system guesses the domain or shows a clean initial fallback.
+- As an unverified user, I don't see flags or logos (because I can't see location or company data per visibility tier rules).
+
+**Functional requirements:**
+
+#### 1. Country → flag utility (`src/lib/country-flags.ts`)
+- Static map of ~250 country names → ISO 3166-1 alpha-2 codes.
+- Function `countryToFlag(countryName: string): string | null`.
+- Handle common variations: "United States" / "USA" / "US", "Vietnam" / "Viet Nam", "South Korea" / "Korea, Republic of", etc.
+- Case-insensitive matching.
+- Return `null` for unmapped or empty inputs.
+- No external dependencies.
+
+#### 2. Company → domain resolver (`src/lib/company-domain.ts`)
+- Resolution chain (first match wins):
+  1. `company_website` from the career entry (extract domain from URL if full URL provided).
+  2. Static map for ~100 major companies (Google → google.com, Meta → meta.com, NVIDIA → nvidia.com, OpenAI → openai.com, VinAI → vinai.io, Cinnamon AI → cinnamon.is, Shopee → shopee.com, etc.).
+  3. Guess: sanitize company name (lowercase, remove spaces/punctuation) → append `.com`.
+- Function `companyToDomain(companyName: string, companyWebsite?: string | null): string | null`.
+
+#### 3. Server-side logo proxy (`src/app/api/logo/[domain]/route.ts`)
+- GET handler fetches from `https://img.logo.dev/{domain}?token={LOGO_DEV_API_KEY}&size=64`.
+- Response headers: `Cache-Control: public, max-age=604800, stale-while-revalidate=86400`.
+- On Logo.dev error/404: return HTTP 404 (let the client component handle fallback).
+- Validate domain param: alphanumeric + dots + hyphens only (prevent SSRF).
+- Env var: `LOGO_DEV_API_KEY` (server-only).
+
+#### 4. `<CountryFlag>` component (`src/components/country-flag.tsx`)
+- Server component (pure, no state).
+- Props: `country: string | null`, `className?: string`.
+- Renders `<span aria-label="{country} flag">{emoji}</span>` or `null` if no mapping.
+- Emoji rendered at text size (inherits from parent).
+
+#### 5. `<CompanyLogo>` component (`src/components/company-logo.tsx`)
+- Client component (`"use client"` — needs `onError` for fallback).
+- Props: `companyName: string`, `companyWebsite?: string | null`, `size?: number` (default 20).
+- Renders `next/image` pointing to `/api/logo/${domain}` with `width={size}` and `height={size}`.
+- On image error: falls back to styled initial circle — first letter of company name, indigo background, white text, rounded-full, matching `size`.
+- If `companyToDomain()` returns null: render the initial directly (skip image attempt).
+
+#### 6. Card updates
+- **Directory `ProfileCard`** (`src/app/(main)/directory/directory-grid.tsx`): Replace `<MapPin>` icon with `<CountryFlag>`. Keep `<MapPin>` as fallback when country is null/unmapped. Add `<CompanyLogo>` before company name.
+- **`RecommendationCard`** (`src/app/(main)/dashboard/recommendation-card.tsx`): Same changes.
+- **`PopularCard`** (`src/app/(main)/dashboard/popular-card.tsx`): Same changes.
+- **`RecommendationListItem`** (`src/app/(main)/dashboard/recommendation-list-item.tsx`): Same changes (smaller logo size for compact layout).
+
+#### 7. Other surfaces (flags only)
+- Profile view page: flag next to location.
+- Connection list cards: flag next to location.
+- Group member cards: flag next to location.
+- (Logos are only on the main card types listed above — profile/connections/groups show company differently.)
+
+#### 8. Schema change
+- Migration: `ALTER TABLE career_entries ADD COLUMN company_website text;`
+- No RLS changes (existing policies cover it).
+- Update career entry form: add optional "Company website" text input.
+- Update Zod schema + server action to accept `company_website`.
+
+#### 9. Type updates
+- Add `current_company_website: string | null` to `DirectoryProfile` in `src/lib/types.ts`.
+- `RecommendedProfile` and `PopularProfile` inherit via `extends`.
+- Update directory + recommendation queries to select `company_website` from the current career entry join.
+
+**Edge cases:**
+- Country is null or empty → no flag, show MapPin icon (current behavior).
+- Country is a value not in the mapping (e.g., typo, rare territory) → no flag, show MapPin.
+- Company is null → no logo, show briefcase icon (current behavior).
+- Logo.dev returns 404 for unknown company → `<CompanyLogo>` renders styled initial.
+- Logo.dev API is down or rate-limited → proxy returns 404 → fallback to initial.
+- `LOGO_DEV_API_KEY` not set → proxy returns 500 → fallback to initial (graceful degradation in dev).
+- `company_website` is a full URL (e.g., "https://google.com/careers") → extract just the domain.
+- Very long company names → initial uses first character only.
+- Visibility tier 1 (unverified) → company and location are stripped → no flag or logo rendered.
+- Dark mode → initial circle should use `dark:` variants for contrast.
+
+**Acceptance criteria:**
+- [ ] Emoji flags render next to location for all mapped countries on directory, dashboard, profile, connections, and group member cards.
+- [ ] Unmapped/null countries fall back to MapPin icon.
+- [ ] Company logos render for known companies (Google, Meta, NVIDIA, OpenAI) on all card types.
+- [ ] Unknown companies show a styled initial (first letter in indigo circle).
+- [ ] Logo.dev proxy keeps the API key server-side (not in client bundle).
+- [ ] Proxy responses are cached (7-day Cache-Control header).
+- [ ] `company_website` field is saveable and loadable in career entry form.
+- [ ] When `company_website` is provided, it takes priority for domain resolution.
+- [ ] Visibility tiers respected: unverified viewers see neither flag nor logo.
+- [ ] Flags have `aria-label` for screen reader accessibility.
+- [ ] No layout shift when logos load or fall back (fixed dimensions).
+- [ ] Build is clean; no new TypeScript errors.
+- [ ] Works correctly in dark mode.
+
+**Environment setup:**
+- Sign up at logo.dev for a free API key (10K requests/month free tier).
+- Add `LOGO_DEV_API_KEY=pk_...` to `.env.local` and Vercel environment variables.
+
+---
+
+### F16. UX: Toast-Before-Navigation Fix (SPEC row F49)
+
+Fix the race condition where `toast.success()` fires immediately before `router.push()`, causing the page to navigate before the toast renders. Users never see confirmation feedback for their actions.
+
+**Root cause:** `toast.success("Done")` queues a render in Sonner, but `router.push("/next")` starts navigation synchronously in the same call stack. The destination page loads (and the current component tree unmounts) before Sonner's render cycle completes.
+
+**Design decisions:**
+
+| Area | Decision |
+|---|---|
+| Pattern | URL search params — pass toast message as `?toast=...&toastType=success` to the destination page |
+| Hook | `useToastFromUrl()` — reads params, fires toast, cleans URL via `window.history.replaceState` |
+| Placement | Hook in `src/hooks/use-toast-from-url.ts`, called in shared layout or each destination page |
+| URL cleanup | `window.history.replaceState` (not `router.replace`) to avoid a re-render cycle |
+| Encoding | `encodeURIComponent` for message text; supports `toastType` param (`success` | `error`, default `success`) |
+| nuqs | Not needed — this is a fire-once side effect, not persistent URL state |
+
+**User stories:**
+- As an alumnus completing the onboarding quiz, I want to see "Profile updated!" confirmation after being redirected to the dashboard.
+- As a user creating an event, I want to see "Event created" after being redirected to the event detail page.
+- As a new user signing up, I want to see the success message after being redirected to the onboarding page.
+
+**Functional requirements:**
+
+#### 1. `useToastFromUrl` hook (`src/hooks/use-toast-from-url.ts`)
+
+- Client-only hook (`"use client"` file).
+- On mount, reads `toast` and `toastType` from `window.location.search` (or `URLSearchParams`).
+- If `toast` param exists, calls `toast.success(message)` or `toast.error(message)` based on `toastType`.
+- Immediately cleans both params from the URL using `window.history.replaceState` (no navigation, no re-render).
+- Runs only once (empty dependency array or `useRef` guard).
+
+#### 2. Hook placement
+
+- Call `useToastFromUrl()` in each destination page that receives toast-bearing navigations, or in a shared client wrapper in the `(main)` layout group.
+- Preferred: shared wrapper in `(main)` layout so all authenticated pages support it without per-page changes.
+
+#### 3. Refactor affected forms
+
+Replace `toast.success(...); router.push(url)` with `router.push(url + "?toast=...&toastType=success")` in these files:
+
+| # | File | Lines | Current pattern | Destination |
+|---|---|---|---|---|
+| 1 | `src/app/(main)/onboarding/onboarding-form.tsx` | 40-41 | `useEffect` → `toast.success` → `router.push` | `/onboarding/quiz` |
+| 2 | `src/app/(main)/onboarding/quiz/quiz-form.tsx` | 80-81 | `startTransition` → `toast.success` → `router.push` | `/dashboard` |
+| 3 | `src/app/(auth)/signup/signup-form.tsx` | 29-30, 34-35 | `useEffect` → `toast.success` → `router.push` | `/onboarding`, `/login` |
+| 4 | `src/app/(main)/settings/quick-update/quick-update-form.tsx` | 44-45 | `useEffect` → `toast.success` → `router.push` | `/dashboard` |
+| 5 | `src/app/(main)/events/event-form.tsx` | 92-95, 112-114 | `startTransition` → `toast.success` → `router.push` | `/events/{id}` |
+| 6 | `src/app/(main)/events/[id]/host-actions.tsx` | 45-50 | `startTransition` → `toast.success` → `router.push` | `/events` |
+
+For each file:
+- Remove the `toast.success(...)` / `toast.error(...)` call before `router.push`.
+- Append `?toast=${encodeURIComponent(message)}&toastType=success` to the `router.push` URL.
+- Keep error toasts that do NOT navigate (those are fine as-is).
+
+#### 4. Helper utility (optional)
+
+A small `buildUrlWithToast(url: string, message: string, type?: "success" | "error"): string` utility to avoid repeating the URL construction logic in every form. Place in `src/lib/utils.ts` or co-locate with the hook.
+
+#### 5. Auth layout coverage
+
+The signup form redirects to `/onboarding` (in the `(main)` group) and `/login` (in the `(auth)` group). If the hook is only in the `(main)` layout, the `/login` redirect toast won't fire. Either:
+- Also call the hook in the `(auth)` layout, or
+- Accept that the `/login` redirect doesn't show a toast (it currently says "Check your email" which is important — so prefer adding it).
+
+**Acceptance criteria:**
+- [ ] `useToastFromUrl` hook exists and fires toasts from URL params on page load.
+- [ ] URL params are cleaned after toast fires (no `?toast=...` visible in address bar).
+- [ ] All 6 affected forms use URL-param pattern instead of pre-navigation toast.
+- [ ] Toast appears reliably on the destination page after form submission.
+- [ ] Error toasts that do NOT navigate are unchanged (still fire inline).
+- [ ] No duplicate toasts on page refresh (params cleaned before re-read).
+- [ ] Hook handles missing/empty params gracefully (no-op).
+- [ ] Build is clean; no new TypeScript errors.
+- [ ] Works in both light and dark mode.
+
+---
+
 ## Non-Functional Requirements
 
 ### Performance

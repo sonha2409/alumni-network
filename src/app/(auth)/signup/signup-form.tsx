@@ -3,8 +3,9 @@
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { buildUrlWithToast } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,21 +24,30 @@ export function SignupForm() {
     FormData
   >(signup, null);
 
+  const navigating = state?.success === true;
+
   useEffect(() => {
     if (state?.success) {
       if (state.data?.userId) {
-        toast.success(t("successWithProfile"));
-        router.push("/onboarding");
+        router.push(buildUrlWithToast("/onboarding", t("successWithProfile")));
       } else {
         // Email confirmation required, or duplicate email (Fix 8: prevent enumeration).
         // Both cases show the same message to avoid leaking account existence.
-        toast.success(t("successWithEmail"));
-        router.push("/login");
+        router.push(buildUrlWithToast("/login", t("successWithEmail")));
       }
     }
   }, [state, router, t]);
 
   const to = useTranslations("auth.oauth");
+
+  if (navigating) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">{t("creatingAccount")}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">

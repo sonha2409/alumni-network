@@ -2,9 +2,10 @@
 
 import { useActionState, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 import { useTranslations } from "next-intl";
+import { buildUrlWithToast } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,12 +36,22 @@ export function OnboardingForm({ industries, minGraduationYear, maxGraduationYea
   const selectedIndustry = industries.find((i) => i.id === selectedIndustryId);
   const specializations = selectedIndustry?.specializations ?? [];
 
+  const navigating = state?.success === true;
+
   useEffect(() => {
     if (state?.success) {
-      toast.success(t("profileCreated"));
-      router.push("/onboarding/quiz");
+      router.push(buildUrlWithToast("/onboarding/quiz", t("profileCreated")));
     }
-  }, [state, router]);
+  }, [state, router, t]);
+
+  if (navigating) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">{t("creatingProfile")}</p>
+      </div>
+    );
+  }
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

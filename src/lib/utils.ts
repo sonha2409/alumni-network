@@ -28,6 +28,20 @@ export function formatRelativeTime(dateString: string): string {
 /**
  * Format a date string as a chat timestamp (e.g., "2:30 PM" or "Jan 5, 2:30 PM").
  */
+/**
+ * Append toast search params to a URL for display on the destination page.
+ * Used with `useToastFromUrl()` to avoid the toast-before-navigation race.
+ */
+export function buildUrlWithToast(
+  url: string,
+  message: string,
+  type: "success" | "error" = "success"
+): string {
+  const separator = url.includes("?") ? "&" : "?";
+  const params = `toast=${encodeURIComponent(message)}${type !== "success" ? `&toastType=${type}` : ""}`;
+  return `${url}${separator}${params}`;
+}
+
 export function formatMessageTime(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();

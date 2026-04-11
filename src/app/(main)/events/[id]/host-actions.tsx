@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { buildUrlWithToast } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { cancelEvent } from "../actions";
@@ -42,12 +43,12 @@ export function HostActions({ eventId, showCheckin, seriesId }: Props) {
         return;
       }
 
-      toast.success(
+      router.push(buildUrlWithToast(
+        "/events",
         isSeries && seriesCancelScope === "all_future"
           ? "All future occurrences cancelled"
           : "Event cancelled"
-      );
-      router.push("/events");
+      ));
     });
   }
 

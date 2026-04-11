@@ -2,8 +2,9 @@
 
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
+import { buildUrlWithToast } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,12 +40,22 @@ export function QuickUpdateForm({
     FormData
   >(quickUpdateProfile, null);
 
+  const navigating = state?.success === true;
+
   useEffect(() => {
     if (state?.success) {
-      toast.success("Profile updated successfully.");
-      router.push("/dashboard");
+      router.push(buildUrlWithToast("/dashboard", "Profile updated successfully."));
     }
   }, [state, router]);
+
+  if (navigating) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">Redirecting...</p>
+      </div>
+    );
+  }
 
   function handleNoChanges() {
     // Submit with a hidden flag

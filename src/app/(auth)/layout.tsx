@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ToastFromUrl } from "./toast-from-url";
 
 // F46: Auth pages must not be indexed by search engines — they're transactional,
 // not content. Individual page metadata can still override titles.
@@ -13,6 +14,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-primary/5 via-background to-chart-4/5">
+      <ToastFromUrl />
       {/* Decorative orbs */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-24 -left-24 h-[400px] w-[400px] rounded-full bg-primary/8 blur-3xl" />

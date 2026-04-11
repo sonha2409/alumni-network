@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { buildUrlWithToast } from "@/lib/utils";
 import type { EventRow, EventLocationType } from "@/lib/types";
 import type { SeriesEditScope } from "./schemas";
 import { createEvent, updateEvent } from "./actions";
@@ -89,10 +90,10 @@ export function EventForm({ mode, initial, groups = [] }: Props) {
           toast.error(seriesResult.error);
           return;
         }
-        toast.success(
+        router.push(buildUrlWithToast(
+          `/events/${seriesResult.data.events[0].id}`,
           `Recurring event created (${seriesResult.data.events.length} occurrences)`
-        );
-        router.push(`/events/${seriesResult.data.events[0].id}`);
+        ));
         router.refresh();
         return;
       }
@@ -109,8 +110,10 @@ export function EventForm({ mode, initial, groups = [] }: Props) {
         toast.error(result.error);
         return;
       }
-      toast.success(mode === "create" ? "Event created" : "Event updated");
-      router.push(`/events/${result.data.id}`);
+      router.push(buildUrlWithToast(
+        `/events/${result.data.id}`,
+        mode === "create" ? "Event created" : "Event updated"
+      ));
       router.refresh();
     });
   }
