@@ -54,6 +54,7 @@ export function AdminMapClient({
   const [regionData, setRegionData] = useState<RegionMapData[]>([]);
   const [cityData, setCityData] = useState<CityMapData[]>([]);
   const [selectedRegion, setSelectedRegion] = useState<{
+    type: "country" | "state" | "city";
     name: string;
     country: string;
     stateProvince?: string;
@@ -112,6 +113,7 @@ export function AdminMapClient({
       setCurrentCountry(country.country);
       setCurrentState(null);
       setSelectedRegion({
+        type: "country",
         name: country.country,
         country: country.country,
         alumniCount: country.alumniCount,
@@ -139,6 +141,7 @@ export function AdminMapClient({
       if (!currentCountry) return;
       setCurrentState(region.stateProvince);
       setSelectedRegion({
+        type: "state",
         name: region.stateProvince,
         country: currentCountry,
         stateProvince: region.stateProvince,
@@ -163,6 +166,7 @@ export function AdminMapClient({
   const handleCityClick = useCallback(
     (city: CityMapData) => {
       setSelectedRegion({
+        type: "city",
         name: city.city,
         country: currentCountry ?? "",
         stateProvince: currentState ?? undefined,

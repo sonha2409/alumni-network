@@ -21,6 +21,7 @@ import type { ViewLevel } from "./map-client";
 import { MapFilters } from "./map-filters";
 
 interface SelectedRegion {
+  type: "country" | "state" | "city";
   name: string;
   country: string;
   stateProvince?: string;
@@ -41,13 +42,15 @@ interface MapSidebarProps {
   isPending: boolean;
 }
 
-function buildDirectoryLink(region: SelectedRegion, viewLevel: ViewLevel): string {
+function buildDirectoryLink(region: SelectedRegion): string {
   const params = new URLSearchParams();
   params.set("country", region.country);
-  if (viewLevel === "city" && region.stateProvince) {
-    params.set("state", region.stateProvince);
-  }
-  if (viewLevel === "city") {
+  if (region.type === "state") {
+    params.set("state", region.name);
+  } else if (region.type === "city") {
+    if (region.stateProvince) {
+      params.set("state", region.stateProvince);
+    }
     params.set("city", region.name);
   }
   return `/directory?${params.toString()}`;
@@ -173,7 +176,7 @@ export function MapSidebar({
                   </div>
 
                   <Link
-                    href={buildDirectoryLink(selectedRegion, viewLevel)}
+                    href={buildDirectoryLink(selectedRegion)}
                     className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                   >
                     {t("viewInDirectory")}
@@ -343,7 +346,7 @@ export function MapSidebar({
                 </div>
 
                 <Link
-                  href={buildDirectoryLink(selectedRegion, viewLevel)}
+                  href={buildDirectoryLink(selectedRegion)}
                   className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                   onClick={() => setMobileOpen(false)}
                 >

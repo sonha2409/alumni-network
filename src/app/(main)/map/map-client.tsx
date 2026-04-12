@@ -28,6 +28,7 @@ const MapView = dynamic(() => import("./map-view").then((m) => m.MapView), {
 export type ViewLevel = "country" | "region" | "city";
 
 interface SelectedRegion {
+  type: "country" | "state" | "city";
   name: string;
   country: string;
   stateProvince?: string;
@@ -113,6 +114,7 @@ export function MapClient({ initialCountryData, industries }: MapClientProps) {
       setCurrentCountry(country.country);
       setCurrentState(null);
       setSelectedRegion({
+        type: "country",
         name: country.country,
         country: country.country,
         alumniCount: country.alumniCount,
@@ -142,6 +144,7 @@ export function MapClient({ initialCountryData, industries }: MapClientProps) {
       const filters = buildFilters();
       setCurrentState(region.stateProvince);
       setSelectedRegion({
+        type: "state",
         name: region.stateProvince,
         country: currentCountry,
         stateProvince: region.stateProvince,
@@ -166,6 +169,7 @@ export function MapClient({ initialCountryData, industries }: MapClientProps) {
   const handleCityClick = useCallback(
     (city: CityMapData) => {
       setSelectedRegion({
+        type: "city",
         name: city.city,
         country: currentCountry ?? "",
         stateProvince: currentState ?? undefined,
