@@ -9,7 +9,7 @@ ALTER TYPE notification_type ADD VALUE IF NOT EXISTS 'event_cancelled_by_admin';
 
 -- 3. Create event_moderation_actions table
 CREATE TABLE event_moderation_actions (
-  id          uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   event_id    uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE,
   admin_id    uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   action      text NOT NULL CHECK (action IN ('cancel', 'flag', 'warn', 'reinstate')),
