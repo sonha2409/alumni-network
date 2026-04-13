@@ -11,8 +11,14 @@ import {
   UserPlus,
   CheckCircle,
   Handshake,
+  CalendarDays,
+  MapPin,
+  Video,
+  Monitor,
 } from "lucide-react";
 
+import { createClient } from "@/lib/supabase/server";
+import type { EventRow } from "@/lib/types";
 import { PublicFooter } from "@/components/public-footer";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ptnkalum.com";
@@ -71,6 +77,23 @@ const websiteJsonLd = {
 
 export default async function LandingPage() {
   const t = await getTranslations("landing");
+
+  // Fetch upcoming public events for the preview section
+  const supabase = await createClient();
+  const nowIso = new Date().toISOString();
+  const { data: upcomingEvents } = await supabase
+    .from("events")
+    .select("id, title, start_time, location_type, address")
+    .is("deleted_at", null)
+    .eq("is_public", true)
+    .gte("start_time", nowIso)
+    .order("start_time", { ascending: true })
+    .limit(3);
+
+  const events = (upcomingEvents ?? []) as Pick<
+    EventRow,
+    "id" | "title" | "start_time" | "location_type" | "address"
+  >[];
 
   return (
     <div className="min-h-screen bg-background">
@@ -239,6 +262,88 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Upcoming Events Section — only rendered when public events exist */}
+      {events.length > 0 && (
+        <section className="border-t border-border/40 py-24 sm:py-32">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="mb-3 text-sm font-semibold tracking-wider text-primary uppercase">
+                {t("eventsTitle")}
+              </p>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                {t("eventsSubtitle")}
+              </h2>
+            </div>
+
+            <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {events.map((event) => {
+                const date = new Date(event.start_time);
+                const month = date.toLocaleString("en-US", { month: "short" });
+                const day = date.getDate();
+                const time = date.toLocaleString(undefined, {
+                  hour: "numeric",
+                  minute: "2-digit",
+                });
+
+                const locationLabel =
+                  event.location_type === "physical"
+                    ? t("eventsPhysical")
+                    : event.location_type === "virtual"
+                      ? t("eventsVirtual")
+                      : t("eventsHybrid");
+                const LocationIcon =
+                  event.location_type === "physical"
+                    ? MapPin
+                    : event.location_type === "virtual"
+                      ? Video
+                      : Monitor;
+
+                return (
+                  <div
+                    key={event.id}
+                    className="group flex gap-4 rounded-2xl border border-border/50 bg-card p-5 transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5"
+                  >
+                    {/* Date badge */}
+                    <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <span className="text-[10px] font-semibold uppercase leading-none">
+                        {month}
+                      </span>
+                      <span className="text-xl font-bold leading-tight">
+                        {day}
+                      </span>
+                    </div>
+
+                    {/* Details */}
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <h3 className="line-clamp-2 text-sm font-semibold leading-snug">
+                        {event.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">{time}</p>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <LocationIcon className="h-3 w-3 shrink-0" />
+                        <span className="truncate">
+                          {event.address || locationLabel}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-10 text-center">
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+              >
+                {t("eventsSignUpCta")}
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Stats Section */}
       <section className="border-t border-border/40 bg-gradient-to-b from-primary/[0.03] to-transparent py-16 sm:py-20">
