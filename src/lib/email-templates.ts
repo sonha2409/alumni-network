@@ -503,6 +503,36 @@ export function eventCommentEmail(
 }
 
 // =============================================================================
+// Event cancelled by admin (admin event moderation)
+// =============================================================================
+
+export function eventCancelledByAdminEmail(
+  eventTitle: string,
+  reason: string,
+  eventUrl: string,
+  userId: string
+): { subject: string; html: string } {
+  const fullLink = `${siteUrl}${eventUrl}`;
+
+  const content = `
+    <p style="margin:0 0 8px;font-size:15px;color:#18181b;line-height:1.5;">
+      Your event <strong>${escapeHtml(eventTitle)}</strong> has been cancelled by an administrator.
+    </p>
+    <p style="margin:0 0 8px;font-size:14px;color:#52525b;line-height:1.5;">
+      <strong>Reason:</strong> ${escapeHtml(reason)}
+    </p>
+    <p style="margin:0 0 4px;font-size:14px;color:#52525b;line-height:1.5;">
+      If you have questions about this decision, please contact the platform administrators.
+    </p>
+    ${ctaButton("View Events", fullLink)}`;
+
+  return {
+    subject: `Your event "${eventTitle}" was cancelled by an administrator`,
+    html: emailLayout(content, userId, "event_cancelled_by_admin"),
+  };
+}
+
+// =============================================================================
 // Helpers
 // =============================================================================
 

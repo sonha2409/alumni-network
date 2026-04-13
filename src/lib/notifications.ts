@@ -23,6 +23,8 @@ export interface NotifyEmailContext {
   eventDate?: string;
   eventLocation?: string;
   eventDistanceKm?: number;
+  /** For event_cancelled_by_admin: admin cancellation reason */
+  adminCancelReason?: string;
 }
 
 /**
@@ -184,6 +186,7 @@ async function buildEmailTemplate(
     accountReactivatedEmail,
     eventNearbyEmail,
     eventCommentEmail,
+    eventCancelledByAdminEmail,
   } = await import("@/lib/email-templates");
 
   const notificationLink = link ?? "/dashboard";
@@ -243,6 +246,13 @@ async function buildEmailTemplate(
       return eventCommentEmail(
         actorName,
         context.eventTitle ?? "an event",
+        notificationLink,
+        userId
+      );
+    case "event_cancelled_by_admin":
+      return eventCancelledByAdminEmail(
+        context.eventTitle ?? "Your event",
+        context.adminCancelReason ?? "Policy violation",
         notificationLink,
         userId
       );

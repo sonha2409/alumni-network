@@ -15,6 +15,7 @@ import {
   Megaphone,
   Settings,
   ArrowLeft,
+  Calendar,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -54,6 +55,10 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
                 <Link href="/admin/users" className={linkClass}>
                   <Users className="size-4" aria-hidden="true" />
                   {tAdmin("users")}
+                </Link>
+                <Link href="/admin/events" className={linkClass}>
+                  <Calendar className="size-4" aria-hidden="true" />
+                  {tAdmin("events")}
                 </Link>
                 <Link href="/admin/taxonomy" className={linkClass}>
                   <Tags className="size-4" aria-hidden="true" />
@@ -134,6 +139,14 @@ export function AdminNavbar({ role }: AdminNavbarProps) {
                 >
                   <Users className="size-4" aria-hidden="true" />
                   {tAdmin("users")}
+                </Link>
+                <Link
+                  href="/admin/events"
+                  className={linkClass}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <Calendar className="size-4" aria-hidden="true" />
+                  {tAdmin("events")}
                 </Link>
                 <Link
                   href="/admin/taxonomy"

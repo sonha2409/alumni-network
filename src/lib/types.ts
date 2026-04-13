@@ -511,7 +511,8 @@ export type NotificationType =
   | "event_cancelled"
   | "event_rsvp_promoted"
   | "event_nearby"
-  | "event_comment";
+  | "event_comment"
+  | "event_cancelled_by_admin";
 
 // =============================================================================
 // Events (F47a)
@@ -797,7 +798,8 @@ export type AdminAction =
   | "escalate_report"
   | "account_self_delete"
   | "account_reactivate"
-  | "update_app_setting";
+  | "update_app_setting"
+  | "cancel_event";
 
 // =============================================================================
 // Admin Taxonomy Management Types
@@ -861,6 +863,75 @@ export interface AdminUsersResult {
   page: number;
   pageSize: number;
   totalPages: number;
+}
+
+// =============================================================================
+// Admin Event Management Types
+// =============================================================================
+
+export type AdminEventStatus = "active" | "cancelled" | "past";
+
+export interface AdminEventRow {
+  id: string;
+  title: string;
+  start_time: string;
+  end_time: string;
+  location_type: EventLocationType;
+  address: string | null;
+  is_public: boolean;
+  capacity: number | null;
+  deleted_at: string | null;
+  created_at: string;
+  series_id: string | null;
+  group_id: string | null;
+  creator_id: string;
+  creator_name: string | null;
+  creator_email: string;
+  going_count: number;
+  /** If cancelled by admin, the moderation action info */
+  moderation_action: {
+    admin_name: string | null;
+    reason: string;
+    created_at: string;
+  } | null;
+}
+
+export interface AdminEventFilters {
+  search?: string;
+  status?: AdminEventStatus;
+  isPublic?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminEventsResult {
+  events: AdminEventRow[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export interface AdminEventDetail extends AdminEventRow {
+  description: string | null;
+  virtual_url: string | null;
+  event_timezone: string;
+  maybe_count: number;
+  waitlist_count: number;
+  cohost_count: number;
+  comments_count: number;
+  moderation_history: EventModerationActionRow[];
+}
+
+export interface EventModerationActionRow {
+  id: string;
+  event_id: string;
+  admin_id: string;
+  action: string;
+  reason: string;
+  details: Record<string, unknown>;
+  created_at: string;
+  admin_name: string | null;
 }
 
 // =============================================================================
