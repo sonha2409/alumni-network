@@ -6,7 +6,8 @@ import type { EventRow } from "@/lib/types";
 
 export const metadata = {
   title: "Events",
-  description: "Upcoming and past alumni events",
+  description: "Discover and RSVP to upcoming alumni events, reunions, and meetups organized by the PTNK alumni community.",
+  alternates: { canonical: "/events" },
 };
 
 interface Props {

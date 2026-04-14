@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Be_Vietnam_Pro } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
@@ -23,6 +23,13 @@ const beVietnamPro = Be_Vietnam_Pro({
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ptnkalum.com";
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("seo");

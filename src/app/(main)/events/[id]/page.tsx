@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -10,8 +11,44 @@ import { EventComments } from "./comments/event-comments";
 import { getEventComments } from "./comments/actions";
 import { SeriesNav } from "./series-nav";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ptnkalum.com";
+
 interface Props {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: event } = await supabase
+    .from("events")
+    .select("title, description, start_time, end_time, address, location_type, is_public")
+    .eq("id", id)
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (!event) return { title: "Event not found" };
+
+  const dateStr = new Date(event.start_time).toLocaleDateString("en-US", {
+    dateStyle: "medium",
+  });
+  const title = event.title;
+  const description =
+    event.description?.slice(0, 155) ||
+    `${event.title} — ${dateStr}${event.address ? ` at ${event.address}` : ""}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/events/${id}` },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}/events/${id}`,
+      type: "website",
+    },
+    twitter: { title, description },
+  };
 }
 
 function formatRange(start: string, end: string, tz: string) {
@@ -21,6 +58,44 @@ function formatRange(start: string, end: string, tz: string) {
     timeZone: tz,
   });
   return `${fmt.format(new Date(start))} — ${fmt.format(new Date(end))}`;
+}
+
+function buildEventJsonLd(e: EventRow) {
+  const location =
+    e.location_type === "virtual"
+      ? { "@type": "VirtualLocation" as const, url: e.virtual_url ?? siteUrl }
+      : e.location_type === "physical"
+        ? { "@type": "Place" as const, name: e.address ?? "TBA", address: e.address ?? "TBA" }
+        : [
+            { "@type": "Place" as const, name: e.address ?? "TBA", address: e.address ?? "TBA" },
+            { "@type": "VirtualLocation" as const, url: e.virtual_url ?? siteUrl },
+          ];
+
+  const attendanceMode =
+    e.location_type === "virtual"
+      ? "https://schema.org/OnlineEventAttendanceMode"
+      : e.location_type === "physical"
+        ? "https://schema.org/OfflineEventAttendanceMode"
+        : "https://schema.org/MixedEventAttendanceMode";
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: e.title,
+    description: e.description ?? undefined,
+    startDate: e.start_time,
+    endDate: e.end_time,
+    eventAttendanceMode: attendanceMode,
+    eventStatus: "https://schema.org/EventScheduled",
+    location,
+    organizer: {
+      "@type": "Organization",
+      name: "PTNKAlum",
+      url: siteUrl,
+    },
+    ...(e.cover_image_url ? { image: e.cover_image_url } : {}),
+    ...(e.capacity ? { maximumAttendeeCapacity: e.capacity } : {}),
+  };
 }
 
 export default async function EventDetailPage({ params }: Props) {
@@ -139,6 +214,14 @@ export default async function EventDetailPage({ params }: Props) {
 
   return (
     <article className="mx-auto flex max-w-3xl flex-col gap-6">
+      {e.is_public && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(buildEventJsonLd(e)),
+          }}
+        />
+      )}
       {/* Cover */}
       {e.cover_image_url ? (
         // eslint-disable-next-line @next/next/no-img-element
